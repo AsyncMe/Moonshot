@@ -1,0 +1,55 @@
+{% extends 'boot/frame.twig.html' %}
+
+{% block frame_head_script %}
+<style type="text/css">
+    #container .info_header {display: block; overflow: hidden;overflow: hidden;padding: 10px;}
+    #container .info_base {display: block;overflow: hidden;}
+    #container .info_base .info{ margin: 0 20px;overflow: hidden; border-right: 1px dashed #ccc; padding: 0 20px;}
+    #container .block_header {font-weight: bold;}
+    #container .line {clear:both;margin:10px 0; }
+    #container .info_desc {padding: 10px;}
+    #container .indent_content {text-indent: 25px;}
+    #container .info_preview{width: 100%;background: #eee;border: 1px solid #ccc;overflow: hidden;height: 300px;}
+    #container li {list-style-type:none;float: none;width: auto; height:auto;padding: 10px;margin: 10px 0px;border: 0px;}
+
+    .table_contents {width: 100%;height: auto;  overflow: hidden;}
+    .table_item{height: auto;padding: 5px;overflow: hidden;display: block;}
+</style>
+{% endblock %}
+
+{% block frame_content %}
+<form class="well form-search" method="post" action="#">
+    <a class="btn btn-danger" id="goback_url"  href="{{ back_url|default('#') }}">返回</a>
+    <span>
+        {{ plugin_lists.base.title }} [ 版本：{{ plugin_lists.base.version }} ] 审计
+    </span>
+</form>
+<div class="info_header" style="background: #fcfcfc;">
+    <ul class="table_contents">
+    {% if plugin_lists.install.table %}
+
+        {% for key,val in plugin_lists.install.table %}
+        <li class="table_item">
+            <pre>{{- val -}}</pre>
+        </li>
+        {% endfor %}
+
+    {% else %}
+        <li class="table_item"><pre>暂无数据表。</pre></li>
+    {% endif %}
+    </ul>
+</div>
+{% if plugin_lists.install.table %}
+<form class="well form-search" method="post" action="#">
+    <a class="btn btn-danger" id="comfirm_url"  href="{{ back_url|default('#') }}">确认</a>
+</form>
+{% endif %}
+{% endblock %}
+{% block frame_footer %}
+<script type="application/javascript">
+    $(function(){
+
+    });
+</script>
+
+{% endblock %}

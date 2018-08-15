@@ -81,4 +81,46 @@ class AdminModel
         return $this->db->getConnection()->getTablePrefix();
     }
 
+    /**
+     * 返回数据表的数据
+     * @param $table
+     * @param $where
+     * @param array $order
+     * @param int $page
+     * @return mixed
+     */
+    protected function tableLists($table,$where=[],$order=[],$page=1)
+    {
+        $obj = $this->db->table($table)->where($where);
+        if ($order) {
+            if(is_array($order[0])) {
+                foreach($order as $val) {
+                    $obj = $obj->orderBy($val[0],$val[1]);
+                }
+            } else {
+                $obj = $obj->orderBy($order[0],$order[1]);
+            }
+        }
+        if ($page) {
+            $obj = $obj->forPage($page,20);
+        }
+        $res = $obj->get();
+        if ($res) {
+            reset($res);
+            $res = json_decode(json_encode($res),true);
+        }
+        return $res;
+    }
+
+    /**
+     * 返回条数
+     * @param $table
+     * @param array $where
+     * @return mixed
+     */
+    protected function tableCount($table,$where=[])
+    {
+        return $this->db->table($table)->where($where)->count();
+    }
+
 }

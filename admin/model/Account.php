@@ -11,6 +11,8 @@ namespace admin\model;
 
 class Account extends AdminModel
 {
+    protected $admin_account_table = 'sys_admin_account';
+    protected $admin_account_faillog_table = 'sys_admin_account_faillog';
     /*
      * 通过用户名获取用户
      */
@@ -20,7 +22,7 @@ class Account extends AdminModel
             'company_id'=> $company_id,
             'account' => $accout
         ];
-        $res = $this->db->table('sys_admin_account')->where($map)->first();
+        $res = $this->db->table($this->admin_account_table)->where($map)->first();
         $res = (array)$res;
 
         return $res;
@@ -49,7 +51,7 @@ class Account extends AdminModel
         $map = [
             'company_id'=> $admin_uid,
         ];
-        $res = $this->db->table('sys_admin_account_faillog')->select('try_count')->where($map)->first();
+        $res = $this->db->table($this->admin_account_faillog_table)->select('try_count')->where($map)->first();
         $res = (array)$res;
         $try_count = 0;
         if ($res) {
@@ -68,12 +70,29 @@ class Account extends AdminModel
         $map = [
             'company_id'=> $admin_uid,
         ];
-        $obj = $this->db->table('sys_admin_account_faillog');
+        $obj = $this->db->table($this->admin_account_faillog_table);
         if($type=='destory') {
             $obj->where($map)->delete();
         } else if($type == 'inc') {
             $obj->where($map)->increment('try_count');
         }
+    }
+
+    /**
+     * 返回列表
+     * @param $where
+     * @param array $order
+     * @param int $page
+     * @return mixed
+     */
+    public function adminLists($where=[],$order=[],$page=1)
+    {
+        return $this->tableLists($this->admin_account_table,$where,$order,$page);
+    }
+
+    public function adminCount($where=[])
+    {
+        return $this->tableCount($this->admin_account_table,$where);
     }
 
 }

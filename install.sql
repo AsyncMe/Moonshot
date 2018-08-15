@@ -184,6 +184,10 @@ insert into  `ng_sys_menu` (`id`, `parentid`, `app`, `model`, `action`, `data`,`
 (10,1,'admin','index','info','','综合','',1,1,'',1,'信息','th','',30,1532693502,1532693502),
 (11,1,'admin','index','dashboard','','综合','',1,1,'',1,'仪表盘','th','',30,1532693502,1532693502);
 
+insert into  `ng_sys_menu` ( `parentid`, `app`, `model`, `action`, `data`,`category`, `placehold`, `use_priv`,`type`,`link`, `status`, `name`, `icon`, `remark`, `listorder` ,`ctime`,`mtime`) VALUES
+(4,'admin','user','admin','','用户','',1,1,'',1,'管理者','th','',30,1532693502,1532693502),
+(4,'admin','user','company','','用户','',1,1,'',1,'运营者','th','',30,1532693502,1532693502);
+
 CREATE TABLE `ng_sys_config` (
   `id` smallint(6) unsigned NOT NULL,
   `name` varchar(50) NOT NULL COMMENT '名称',
