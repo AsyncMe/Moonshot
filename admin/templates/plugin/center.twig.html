@@ -39,7 +39,7 @@
         {% for key,val in plugin_lists %}
         <li>
             {% if val.base.icon %}
-            <a href="{{val.info_url}}"><img class="icon" src="/assets/plugin/{{val.file}}/{{val.base.icon}}" /></a>
+            <a href="{{val.info_url}}"><img class="lazy icon" data-original="/assets/plugin/{{val.file}}/{{val.base.icon}}" /></a>
             {% else %}
             <img class="icon" src="#"/>
             {% endif %}
@@ -90,9 +90,15 @@
                 $('#default_search_btn').css('display','none');
                 //$('#default_search_btn').attr('type','text');
             }
-        })
-    });
+        });
 
+        Wind.use('lazyload', function() {
+            $("img.lazy").lazyload({
+                effect: "fadeIn", // 载入使用何种效果
+                threshold: 200 // 提前开始加载
+            });
+        });
+    });
 
 </script>
 {% endblock %}

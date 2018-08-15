@@ -50,8 +50,17 @@ class User extends PermissionBase
         //ng_func_privilege_check($req->company_id,$this->sessions['admin_uid'],'index');
 
         if ($lists) {
+            $path = [
+                'mark' => 'sys',
+                'bid'  => $req->company_id,
+                'pl_name'=>'admin',
+            ];
+            $query = [
+                'mod'=>'user',
+            ];
             foreach ($lists as $key=>$val) {
-
+                $install_url = array_merge($query,['act'=>'admin']);
+                $plugin_lists[$key]['install_url'] = urlGen($req,$path,$install_url,true);
             }
         }
 
