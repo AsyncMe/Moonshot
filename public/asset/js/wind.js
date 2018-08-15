@@ -703,7 +703,7 @@ Wind.ready(function() {
             noty			  : 'noty/noty',
             jcrop             : 'jcrop/js/jcrop',
             ajaxfileupload    : 'ajaxfileupload',
-
+            lazyload          : 'lazyload',
             layer             : 'layer/layer',
 			plupload          : 'plupload/plupload.full.min',
 			
