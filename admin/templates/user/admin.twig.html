@@ -49,7 +49,12 @@
             <td>{{ val.nickname }}</td>
             <td>{{ val.status }}</td>
             <td>{{ val.ctime|date('Y-m-d H:i:s') }}</td>
-            <td></td>
+            <td>
+                <a href="{{val.edit_url}}">编辑</a> |
+                {% if val.id > 1 %}
+                <a href="{{val.delete_url}}" class="js-ajax-dialog-btn" data-msg="确定删除吗？">删除</a>
+                {% endif %}
+            </td>
 
         </tr>
         {% endfor %}

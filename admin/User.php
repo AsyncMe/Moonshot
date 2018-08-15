@@ -59,8 +59,12 @@ class User extends PermissionBase
                 'mod'=>'user',
             ];
             foreach ($lists as $key=>$val) {
-                $install_url = array_merge($query,['act'=>'admin']);
-                $plugin_lists[$key]['install_url'] = urlGen($req,$path,$install_url,true);
+                $operater_url = array_merge($query,['act'=>'admin_edit','uid'=>$val['id']]);
+                $lists[$key]['edit_url'] = urlGen($req,$path,$operater_url,true);
+
+                $operater_url = array_merge($query,['act'=>'admin_delete','uid'=>$val['id']]);
+                $lists[$key]['delete_url'] = urlGen($req,$path,$operater_url,true);
+
             }
         }
 
@@ -71,6 +75,39 @@ class User extends PermissionBase
         $data = array_merge($nav_data,$data);
 
         return $this->render($status,$mess,$data,'template','user/admin');
+    }
+
+    public function admin_deleteAction(RequestHelper $req,array $preData)
+    {
+        $data = [
+
+        ];
+        $request_uid = $req->query_datas['uid'];
+        if ($request_uid > 1) {
+            $status = true;
+            $mess = '成功';
+
+        } else {
+            $status = false;
+            $mess = '失败，该账号不允许删除';
+        }
+
+        return $this->render($status,$mess,$data);
+    }
+
+    public function admin_editAction(RequestHelper $req,array $preData)
+    {
+        $request_uid = $req->query_datas['uid'];
+        if ($request_uid) {
+
+        }
+        $status = true;
+        $mess = '成功';
+        $data = [
+            'title'=>'hello admin!',
+            'content'=>'',
+        ];
+        return $this->render($status,$mess,$data);
     }
 
     public function companyAction(RequestHelper $req,array $preData)
