@@ -1,0 +1,16 @@
+<style type="text/css">
+    .notify {display: block;background: #fff;padding: 12px 18px;max-width: 400px;margin: 0 auto;margin-bottom: 0px;cursor: pointer;-webkit-border-radius: 3px;-moz-border-radius: 3px;border-radius: 3px;margin-bottom: 20px;box-shadow: rgba(0, 0, 0, 0.3) 0px 1px 2px 0px;}
+    .notify h1 {font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;font-size: 1.8em;line-height: 1.5em;letter-spacing: -0.05em;margin-bottom: 20px;padding: .1em 0;color: #444;position: relative;overflow: hidden;white-space: nowrap;text-align: center;}
+    .notify h1::before, h1::after {content: "";position: relative;display: inline-block;width: 50%;height: 1px;vertical-align: middle;background: #f0f0f0;}
+    .notify h1::before {left: -.5em;margin: 0 0 0 -12%;}
+    .notify h1 {margin-bottom: 6px;}
+    .successbox h1 {color: #678361;}
+    .errorbox h1 {color: #6f423b;}
+    .notify .alerticon {display: block;text-align: center;margin-bottom: 10px;}
+    .notify p {display: block;line-height: 1.5em;margin-bottom: 22px;text-align: center;}
+</style>
+<div class="notify errorbox">
+    <h1>Warning!</h1>
+    <span class="alerticon"><img src="/wxapp/asset/simpleboot/images/error.png" alt="error"></span>
+    <p>{{ error|default('错误发送') }}</p>
+</div>
