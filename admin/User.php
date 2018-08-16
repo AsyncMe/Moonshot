@@ -99,42 +99,61 @@ class User extends PermissionBase
     public function admin_editAction(RequestHelper $req,array $preData)
     {
         $request_uid = $req->query_datas['uid'];
-        if ($request_uid) {
-            //图片返回地址
-            $path = [
-                'mark' => 'sys',
-                'bid'  => $req->company_id,
-                'pl_name'=>'admin',
-            ];
-            $query = [
-                'mod'=>'user',
-                'act'=>'admin'
-            ];
-            $cate_index_url=  urlGen($req,$path,$query,true);
+        try {
+            if ($request_uid) {
+                //图片返回地址
+                $path = [
+                    'mark' => 'sys',
+                    'bid'  => $req->company_id,
+                    'pl_name'=>'admin',
+                ];
+                $query = [
+                    'mod'=>'user',
+                    'act'=>'admin'
+                ];
+                $cate_index_url=  urlGen($req,$path,$query,true);
 
-            //图片上传地址
-            $path = [
-                'mark' => 'sys',
-                'bid'  => $req->company_id,
-                'pl_name'=>'admin',
-            ];
-            $query = [
-                'mod'=>'asset',
-                'act'=>'upload',
-                'admin_uid'=>$request_uid,
-            ];
-            $asset_upload_url = urlGen($req,$path,$query,true);
+                //图片上传地址
+                $path = [
+                    'mark' => 'sys',
+                    'bid'  => $req->company_id,
+                    'pl_name'=>'admin',
+                ];
+                $query = [
+                    'mod'=>'asset',
+                    'act'=>'upload',
+                    'admin_uid'=>$request_uid,
+                ];
+                $asset_upload_url = urlGen($req,$path,$query,true);
 
+                $account_model = new model\Account($this->service);
+                $admin_account = $account_model->getAdminAccount(['id'=>$request_uid]);
+                if (!$admin_account) {
+                    throw new \Exception('用户不存在');
+                }
+
+                if (!$admin_account['expire_time']) {
+                    $admin_account['expire_time'] = '';
+                }
+                $data = [
+                    'uid'=>$request_uid,
+                    'admin_uid'=>$request_uid,
+                    'cate_index_url'=>$cate_index_url,
+                    'asset_upload_url'=>$asset_upload_url,
+                    'cate_name'=>'管理员',
+                    'admin_account'=>$admin_account,
+                ];
+            }
+        } catch (\Exception $e) {
+            $error = $e->getMessage();
+            $data = [
+                'error'=>$error,
+            ];
         }
+
         $status = true;
         $mess = '成功';
-        $data = [
-            'uid'=>$request_uid,
-            'admin_uid'=>$request_uid,
-            'cate_index_url'=>$cate_index_url,
-            'asset_upload_url'=>$asset_upload_url,
-            'cate_name'=>'管理员',
-        ];
+
         return $this->render($status,$mess,$data,'template','user/admin_edit');
     }
 

@@ -5,21 +5,15 @@
 <style type="text/css">
     #container .conteiner_wrap {padding:10px;}
 
-    .pic-list li {
-        margin-bottom: 5px;
-    }
-    .color-box {
-        float:left;
-        width:30px;
-        height:30px;
-        margin:5px;
-        border: 1px solid #c2ccd1;
-    }
+    .pic-list li {  margin-bottom: 5px;  }
+    .color-box { float:left;width:30px; height:30px;margin:5px;border: 1px solid #c2ccd1;}
     .item_attr{float: left;margin-right: 5px;margin-top: 10px;width: 36px;height: 18px;line-height: 18px;}
     .item_attr_input{width: 36px;float: left;margin: 5px 5px 5px 0px;height: 30px;padding: 4px 5px !important;}
     .item_prefix_input{width: 96px;float: left;margin: 5px 5px 5px 0px;height: 30px;padding: 4px 5px !important;}
     #smeta_prefix_select{width: 96px !important;margin-top:5px;}
     .table-bordered th{font-weight: 200;}
+
+    .form-required {margin-left: 5px;}
 </style>
 {% endblock %}
 
@@ -42,6 +36,11 @@
             {%if op=='add' %} 新增 {% else %} 编辑 {% endif %}
         </a></li>
     </ul>
+
+    {% if error %}
+    {% include 'error_box.twig.html' %}
+    {% else %}
+
     <form action="" method="post" class="form-horizontal js-ajax-forms" enctype="multipart/form-data">
         <div class="row-fluid">
             <div class="span9">
@@ -50,7 +49,7 @@
                     <tr>
                         <th width="80">账号</th>
                         <td>
-                            <input type="text" style="width: 400px;" name="post[account]" required value="{{ account }}" placeholder="请输入账号"/>
+                            <input type="text" style="width: 400px;" name="post[account]" required value="{{ admin_account.account }}" placeholder="请输入账号"/>
                             <span class="form-required">*</span>
                         </td>
                     </tr>
@@ -58,7 +57,7 @@
                     <tr>
                         <th width="80">所属域</th>
                         <td>
-                            <input type="text" style="width: 400px;" name="post[company_id]" required value="{{ company_id }}" placeholder="请输入所属域"/>
+                            <input type="text" style="width: 400px;" name="post[company_id]" required value="{{ admin_account.company_id }}" placeholder="请输入所属域"/>
                             <span class="form-required">*</span>
                             <span class="form-required">所属域也称为企业id</span>
                         </td>
@@ -67,7 +66,7 @@
                     <tr>
                         <th width="80">昵称</th>
                         <td>
-                            <input type="text" style="width: 400px;" name="post[nickname]" required value="{{ nickname }}" placeholder="请输入昵称"/>
+                            <input type="text" style="width: 400px;" name="post[nickname]" required value="{{ admin_account.nickname }}" placeholder="请输入昵称"/>
                             <span class="form-required">*</span>
                         </td>
                     </tr>
@@ -79,7 +78,7 @@
                         <th width="80">原始密码</th>
                         <td>
                             <input type="password" style="width: 400px;" name="post[password]"  value="" placeholder="请输入新密码"/>
-                            <span class="form-required">*</span>
+                            <span class="form-required"></span>
                         </td>
                     </tr>
                     {% endif %}
@@ -87,14 +86,14 @@
                         <th width="80">新密码</th>
                         <td>
                             <input type="password" style="width: 400px;" name="post[newpassword]"  value="" placeholder="请输入新密码"/>
-                            <span class="form-required">*</span>
+                            <span class="form-required"></span>
                         </td>
                     </tr>
                     <tr>
                         <th width="80">确认密码</th>
                         <td>
                             <input type="password" style="width: 400px;" name="post[comfirm_password]"  value="" placeholder="请输入确认密码"/>
-                            <span class="form-required">*</span>
+                            <span class="form-required"></span>
                         </td>
                     </tr>
 
@@ -104,9 +103,16 @@
                     <tr>
                         <th width="80">状态</th>
                         <td>
-                            <input type="radio"  name="post[status]"  value="1" {% if status == 1 %} checked="checked"{% endif %} /> 正常
+                            <input type="radio"  name="post[status]"  value="1" {% if admin_account.status == 1 %} checked="checked"{% endif %} /> 正常
                             &nbsp;&nbsp;
-                            <input type="radio"  name="post[status]"  value="0" {% if status == 0 %} checked="checked"{% endif %}/> 禁用
+                            <input type="radio"  name="post[status]"  value="0" {% if admin_account.status == 0 %} checked="checked"{% endif %}/> 禁用
+                        </td>
+                    </tr>
+                    <tr>
+                        <th width="80">过期时间：</th>
+                        <td>
+                            <input type="text" name="start_time" class="js-date" value="{{ admin_account.expire_time|default('') }}" style="width: 120px;" autocomplete="off">
+                            <span class="form-required">空为永不过期</span>
                         </td>
                     </tr>
                 </table>
@@ -119,26 +125,26 @@
                     <tr>
                         <td>
                             <div style="text-align: center;">
-                                <input type="hidden" name="smeta[thumb]" id="thumb" value="{$smeta.thumb|default=''}">
+                                <input type="hidden" name="smeta[avatar]" id="thumb" value="{{admin_account.avatar|default('')}}">
                                 <a href="javascript:upload_one_image('图片上传','#thumb',_extram_data,app_extra_params);">
-                                    {% if not smeta.thumb %}
+                                    {% if not admin_account.avatar %}
                                     <img src="/wxapp/asset/simpleboot/images/default-thumbnail.png" id="thumb-preview" width="135" style="cursor: hand"/>
                                     {% else %}
-                                    <img src="{:sp_get_image_preview_url($smeta['thumb'])}" id="thumb-preview" width="135" style="cursor: hand"/>
+                                    <img src="{{admin_account.avatar|default('')}}" id="thumb-preview" width="135" style="cursor: hand" onerror="this.onerror='';src='/wxapp/asset/simpleboot/images/default-thumbnail.png'"/>
                                     {% endif %}
 
                                 </a>
-                                <input type="button" class="btn btn-small" onclick="$('#thumb-preview').attr('src','__TMPL__Public/assets/images/default-thumbnail.png');$('#thumb').val('');return false;" value="取消图片">
+                                <input type="button" class="btn btn-small" onclick="$('#thumb-preview').attr('src','/wxapp/asset/simpleboot/images/default-thumbnail.png');$('#thumb').val('');return false;" value="取消图片" style="margin-top: 5px;">
                             </div>
                         </td>
                     </tr>
 
                     <tr>
-                        <td>创建时间 ： {{ ctime|date("Y-m-d H:i:s")}}</td>
+                        <td>创建时间 ： {{ admin_account.ctime|date("Y-m-d H:i:s")}}</td>
                     </tr>
 
                     <tr>
-                        <td>修改时间 ： {{ mtime|date("Y-m-d H:i:s")}}</td>
+                        <td>修改时间 ： {{ admin_account.mtime|date("Y-m-d H:i:s")}}</td>
                     </tr>
 
 
@@ -151,7 +157,7 @@
             <a class="btn" href="{{ cate_index_url |default('#') }}">返回</a>
         </div>
     </form>
-
+    {% endif %}
 </div>
 
 {% endblock %}

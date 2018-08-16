@@ -95,4 +95,13 @@ class Account extends AdminModel
         return $this->tableCount($this->admin_account_table,$where);
     }
 
+    public function getAdminAccount($where=[])
+    {
+        $res = $this->db->table($this->admin_account_table)->where($where)->first();
+        if ($res) {
+            $res = (array) $res;
+        }
+        return $res;
+    }
+
 }

@@ -17,7 +17,11 @@ use \Slim\Http\UploadedFile;
 
 class Asset extends PermissionBase
 {
-
+    /**
+     * @param RequestHelper $req
+     * @param array $preData
+     * @return ResponeHelper
+     */
     public function uploadAction(RequestHelper $req,array $preData)
     {
         $upload_setting = $this->upload_setting();
@@ -92,6 +96,11 @@ class Asset extends PermissionBase
 
     }
 
+    /**
+     * @param RequestHelper $req
+     * @param array $preData
+     * @return ResponeHelper
+     */
     public function fileuploadAction(RequestHelper $req,array $preData)
     {
         $success_upload_data = [];
