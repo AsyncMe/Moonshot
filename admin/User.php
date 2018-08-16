@@ -95,19 +95,47 @@ class User extends PermissionBase
         return $this->render($status,$mess,$data);
     }
 
+
     public function admin_editAction(RequestHelper $req,array $preData)
     {
         $request_uid = $req->query_datas['uid'];
         if ($request_uid) {
+            //图片返回地址
+            $path = [
+                'mark' => 'sys',
+                'bid'  => $req->company_id,
+                'pl_name'=>'admin',
+            ];
+            $query = [
+                'mod'=>'user',
+                'act'=>'admin'
+            ];
+            $cate_index_url=  urlGen($req,$path,$query,true);
+
+            //图片上传地址
+            $path = [
+                'mark' => 'sys',
+                'bid'  => $req->company_id,
+                'pl_name'=>'admin',
+            ];
+            $query = [
+                'mod'=>'asset',
+                'act'=>'upload',
+                'admin_uid'=>$request_uid,
+            ];
+            $asset_upload_url = urlGen($req,$path,$query,true);
 
         }
         $status = true;
         $mess = '成功';
         $data = [
-            'title'=>'hello admin!',
-            'content'=>'',
+            'uid'=>$request_uid,
+            'admin_uid'=>$request_uid,
+            'cate_index_url'=>$cate_index_url,
+            'asset_upload_url'=>$asset_upload_url,
+            'cate_name'=>'管理员',
         ];
-        return $this->render($status,$mess,$data);
+        return $this->render($status,$mess,$data,'template','user/admin_edit');
     }
 
     public function companyAction(RequestHelper $req,array $preData)

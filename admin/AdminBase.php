@@ -154,4 +154,44 @@ class AdminBase extends Plugins
         return $data;
 
     }
+
+    /**
+     * 上传设置
+     * @return array
+     */
+    protected function upload_setting()
+    {
+        $upload_setting = array(
+            'image' => array(
+                'upload_max_filesize' => '10240',//单位KB
+                'extensions' => 'jpg,jpeg,png,gif,bmp4'
+            ),
+            'video' => array(
+                'upload_max_filesize' => '10240',
+                'extensions' => 'mp4,avi,wmv,rm,rmvb,mkv'
+            ),
+            'audio' => array(
+                'upload_max_filesize' => '10240',
+                'extensions' => 'mp3,wma,wav'
+            ),
+            'file' => array(
+                'upload_max_filesize' => '10240',
+                'extensions' => 'txt,pdf,doc,docx,xls,xlsx,ppt,pptx,zip,rar'
+            )
+        );
+        foreach ($upload_setting as $setting){
+            $extensions=explode(',', trim($setting['extensions']));
+            if(!empty($extensions)){
+                $upload_max_filesize=intval($setting['upload_max_filesize'])*1024;//转化成KB
+                foreach ($extensions as $ext){
+                    if(!isset($upload_max_filesize_setting[$ext]) || $upload_max_filesize>$upload_max_filesize_setting[$ext]*1024){
+                        $upload_max_filesize_setting[$ext]=$upload_max_filesize;
+                    }
+                }
+            }
+        }
+
+        $upload_setting['upload_max_filesize']=$upload_max_filesize_setting;
+        return $upload_setting;
+    }
 }

@@ -610,6 +610,11 @@ if ($('.js-ajax-changeStatus').length) {
 
 })();
 
+//转义html
+function escape2Html(str) {
+    var arrEntities={'lt':'<','gt':'>','nbsp':' ','amp':'&','quot':'"'};
+    return str.replace(/&(lt|gt|nbsp|amp|quot);/ig,function(all,t){return arrEntities[t];});
+}
 //重新刷新页面，使用location.reload()有可能导致重新提交
 function reloadPage(win) {
     var location = win.location;
@@ -774,7 +779,8 @@ function open_upload_dialog(dialog_title,callback,extra_params,multi,filetype,ap
 	app = app?app:GV.APP;
     var params = '&multi='+multi+'&filetype='+filetype+'&app='+app ;
     Wind.use("artDialog","iframeTools",function(){
-        art.dialog.open(GV.ROOT+'index.php?g=asset&m=asset&a=plupload'  + params, {
+        var upload_handle = escape2Html(GV.UPLOAD_HANDLE)+params;
+        art.dialog.open( upload_handle, {
 	        title: dialog_title,
 	        id: new Date().getTime(),
 	        width: '650px',
