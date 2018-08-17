@@ -46,6 +46,13 @@ class NgTwigExtension extends Twig_Extension
         ];
     }
 
+    public function getFilters()
+    {
+        return [
+            new \Twig_SimpleFilter('prefixWith', array($this, 'prefixWith_fitter')),
+        ];
+    }
+
     public function pathFor($name, $data = [], $queryParams = [], $appName = 'default')
     {
         return $this->router->pathFor($name, $data, $queryParams);
@@ -75,5 +82,15 @@ class NgTwigExtension extends Twig_Extension
     public function asyncMe($who)
     {
         return $this->getName().' '.$who;
+    }
+
+    //fitter
+    public function prefixWith_fitter($value,$prefix='',$except='')
+    {
+        if ($value==$except) {
+            return $value;
+        } else {
+            return $prefix.$value;
+        }
     }
 }
