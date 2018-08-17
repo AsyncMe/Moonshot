@@ -12,6 +12,7 @@ use admin\model;
 use libs\asyncme\RequestHelper;
 use PHPSQLParser\PHPSQLParser;
 use PHPSQLParser\utils\PHPSQLParserConstants;
+use libs\asyncme\Page as Page;
 
 class User extends PermissionBase
 {
@@ -41,11 +42,19 @@ class User extends PermissionBase
 
         $nav_data = $this->nav_default($req,$preData);
 
+
         $where =[];
-        $page = 1;
         $account_model = new model\Account($this->service);
         $total = $account_model->adminCount($where);
-        $lists = $account_model->adminLists($where,['ctime','desc'],$page);
+
+        $path = [
+            'mark' => 'sys',
+            'bid'  => $req->company_id,
+            'pl_name'=>'admin',
+        ];
+        $pageLink = urlGen($req,$path,[],true);
+        $page = $this->page($pageLink,$total,20);
+        $lists = $account_model->adminLists($where,['ctime','desc'],$page->Current_page);
 
         //ng_func_privilege_check($req->company_id,$this->sessions['admin_uid'],'index');
 
@@ -79,12 +88,15 @@ class User extends PermissionBase
             $operaters_delete_action =  urlGen($req,$path,$operater_url,true);
         }
 
+        $pagination = $page->show('Admin');
 
         $data = [
             'total'=>$total,
             'lists' => $lists,
             'add_action_url'=>$operaters_add_action,
             'delete_action_url'=>$operaters_delete_action,
+            'pagination' => $pagination,
+
         ];
         $data = array_merge($nav_data,$data);
 

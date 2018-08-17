@@ -12,6 +12,7 @@ use libs\asyncme\Plugins as Plugins;
 use libs\asyncme\RequestHelper as RequestHelper;
 use libs\asyncme\ResponeHelper as ResponeHelper;
 use \Slim\Http\UploadedFile;
+use libs\asyncme\Page as Page;
 
 include_once NG_ROOT.'/admin/utils/common_func.php';
 
@@ -203,5 +204,19 @@ class AdminBase extends Plugins
     {
         $cdn_prefix = $host."/wxapp/data";
         return $cdn_prefix;
+    }
+
+    protected function page($pageLink = '',$total_size = 1, $page_size = 0, $current_page = 1, $listRows = 6, $pageParam = '',  $static = false) {
+        if ($page_size == 0) {
+            $page_size = 20;
+        }
+
+        if (empty($pageParam)) {
+            $pageParam = 'p';
+        }
+
+        $page = new Page($total_size, $page_size, $current_page, $listRows, $pageParam, $pageLink, $static);
+        $page->SetPager('Admin', '{first}{prev}&nbsp;{liststart}{list}&nbsp;{next}{last}<span>共{recordcount}条数据</span>', array("listlong" => "4", "first" => "首页", "last" => "尾页", "prev" => "上一页", "next" => "下一页", "list" => "*", "disabledclass" => ""));
+        return $page;
     }
 }

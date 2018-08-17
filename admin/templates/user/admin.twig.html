@@ -87,6 +87,11 @@
         </tbody>
     </table>
     </form>
+    <div class="pagination">
+        {% autoescape false %}
+        {{ pagination }}
+        {% endautoescape %}
+    </div>
 </div>
 
 {% endblock %}
