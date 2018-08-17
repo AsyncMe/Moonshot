@@ -62,9 +62,7 @@
     var ajaxForm_list = $('form.js-ajax-form');
     if (ajaxForm_list.length) {
         Wind.use('ajaxForm', 'artDialog','validate', function () {
-            
             var $btn;
-
             $('button.js-ajax-submit').on('click', function (e) {
                 var btn = $(this),form = btn.parents('form.js-ajax-form');
                 $btn=btn;
@@ -186,13 +184,15 @@
                             },
                             success: function (data, statusText, xhr, $form) {
                                 var text = $btn.text();
-
                                 //按钮文案、状态修改
                                 $btn.removeClass('disabled').prop('disabled', false).text(text.replace('中...', '')).parent().find('span').remove();
-                                if (data.state === 'success') {
-                                    $('<span class="tips_success">' + data.info + '</span>').appendTo($btn.parent()).fadeIn('slow').delay(1000).fadeOut(function () {
+
+                                var dataset = data.data;
+
+                                if (data.status === true) {
+                                    $('<span class="tips_success">' + dataset.info + '</span>').appendTo($btn.parent()).fadeIn('slow').delay(1000).fadeOut(function () {
                                     });
-                                } else if (data.state === 'fail') {
+                                } else if (data.status === false ) {
                                 	var $verify_img=$form.find(".verify_img");
                                 	if($verify_img.length){
                                 		$verify_img.attr("src",$verify_img.attr("src")+"&refresh="+Math.random()); 
@@ -201,15 +201,15 @@
                                 	var $verify_input=$form.find("[name='verify']");
                                 	$verify_input.val("");
                                 	
-                                    $('<span class="tips_error">' + data.info + '</span>').appendTo($btn.parent()).fadeIn('fast');
+                                    $('<span class="tips_error">' + dataset.info + '</span>').appendTo($btn.parent()).fadeIn('fast');
                                     $btn.removeProp('disabled').removeClass('disabled');
                                 }
                                 
-                                if (data.referer) {
+                                if (dataset.referer) {
                                     //返回带跳转地址
-                                	window.location.href = data.referer;
+                                	window.location.href = dataset.referer;
                                 } else {
-                                	if (data.state === 'success') {
+                                	if (data.state === true ) {
                                 		//刷新当前页
                                         reloadPage(window);
                                 	}
