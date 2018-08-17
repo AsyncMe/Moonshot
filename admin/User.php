@@ -72,11 +72,19 @@ class User extends PermissionBase
                 }
 
             }
+
+            $operater_url = array_merge($query,['act'=>'admin_add']);
+            $operaters_add_action =  urlGen($req,$path,$operater_url,true);
+            $operater_url = array_merge($query,['act'=>'admin_delete']);
+            $operaters_delete_action =  urlGen($req,$path,$operater_url,true);
         }
+
 
         $data = [
             'total'=>$total,
             'lists' => $lists,
+            'add_action_url'=>$operaters_add_action,
+            'delete_action_url'=>$operaters_delete_action,
         ];
         $data = array_merge($nav_data,$data);
 
@@ -102,13 +110,137 @@ class User extends PermissionBase
     }
 
 
+    public function admin_addAction(RequestHelper $req,array $preData)
+    {
+        try {
+            //返回地址
+            $path = [
+                'mark' => 'sys',
+                'bid'  => $req->company_id,
+                'pl_name'=>'admin',
+            ];
+            $query = [
+                'mod'=>'user',
+                'act'=>'admin'
+            ];
+            $cate_index_url=  urlGen($req,$path,$query,true);
+
+            //图片上传地址
+            $path = [
+                'mark' => 'sys',
+                'bid'  => $req->company_id,
+                'pl_name'=>'admin',
+            ];
+            $query = [
+                'mod'=>'asset',
+                'act'=>'upload',
+            ];
+            $asset_upload_url = urlGen($req,$path,$query,true);
+
+            $status = true;
+            $mess = '成功';
+            $data = [
+                'cate_name'=>'管理员',
+                'op'=>'add',
+                'cate_index_url'=>$cate_index_url,
+                'asset_upload_url'=>$asset_upload_url,
+                'cate_name'=>'管理员',
+            ];
+
+            if($req->request_method == 'POST') {
+                $post = $req->post_datas['post'];
+
+                if ($post) {
+                    $account_model = new model\Account($this->service);
+                    //正常的编辑
+                    $map = [];
+                    if ($post['account'] && preg_match('/\w{5,16}/is',$post['account'])) {
+                        $map['account'] = $post['account'];
+                    } else {
+                        throw new \Exception('账号不对。');
+                    }
+                    $check_account_where = [
+                        'account'=>$map['account'],
+                    ];
+                    $exist = $account_model->getAdminAccount($check_account_where);
+                    if ($exist) {
+                        throw new \Exception('账号已经存在');
+                    }
+
+                    if ($post['company_id'] && preg_match('/[1-9]\d{2,15}/is',$post['company_id'])) {
+                        $map['company_id'] = $post['company_id'];
+                    } else {
+                        throw new \Exception('域id格式不对。');
+                    }
+
+                    if ($post['nickname'] && (mb_strlen($post['nickname'],'UTF-8')>=3 && mb_strlen($post['nickname'],'UTF-8')<=10)) {
+                        $map['nickname'] = $post['nickname'];
+                    } else {
+                        throw new \Exception('昵称不对。');
+                    }
+
+                    //密码
+                    if (!$post['newpassword'] || !$post['comfirm_password']) {
+                        throw new \Exception('密码必须填。');
+                    } else if($post['newpassword']!=$post['comfirm_password']) {
+                        throw new \Exception('错认密码错误。');
+                    } else {
+                        $slat = substr(getRandomStr(),0,6);
+                        $map['password'] = md5($post['newpassword'].$slat);
+                        $map['slat'] =  $slat;
+                    }
+
+                    $map['status'] = $post['status'];
+                    if ($post['expire_time']) {
+                        $map['expire_time'] = $post['expire_time'];
+                    } else {
+                        $map['expire_time'] = 0;
+                    }
+                    $map['avatar'] = $post['avatar'];
+                    $map['ctime'] = time();
+                    $map['mtime'] = time();
+
+
+
+                    $flag = $account_model->addAdminAccount($map);
+                    if (!$flag) {
+                        throw new \Exception('保存错误');
+                    } else {
+                        $data = [
+                            'info'=>'保存成功',
+                        ];
+                        $status = true;
+                        $mess = '成功';
+                    }
+
+                }
+
+            }
+        }catch (\Exception $e) {
+            $error = $e->getMessage();
+            $data = [
+                'error'=>$error,
+                'info'=>$error,
+            ];
+            $status = false;
+            $mess = '失败';
+        }
+
+        if($req->request_method == 'POST') {
+            //json返回
+            return $this->render($status,$mess,$data);
+        } else {
+
+            return $this->render($status,$mess,$data,'template','user/admin_edit');
+        }
+    }
     public function admin_editAction(RequestHelper $req,array $preData)
     {
         $request_uid = $req->query_datas['uid'];
         try {
             $account_model = new model\Account($this->service);
             if ($request_uid) {
-                //图片返回地址
+                //返回地址
                 $path = [
                     'mark' => 'sys',
                     'bid'  => $req->company_id,
@@ -136,15 +268,13 @@ class User extends PermissionBase
 
                 $admin_account = $account_model->getAdminAccount(['id'=>$request_uid]);
                 if (!$admin_account) {
-                    throw new \Exception('用户不存在');
+                    throw new \Exception('账号不存在');
                 }
 
                 if (!$admin_account['expire_time']) {
                     $admin_account['expire_time'] = '';
                 }
-                if ($admin_account['avatar']!='default') {
-                    $admin_account['avatar'] = $admin_account['avatar'];
-                }
+
                 $data = [
                     'uid'=>$request_uid,
                     'admin_uid'=>$request_uid,
@@ -168,7 +298,14 @@ class User extends PermissionBase
                         if ($post['account'] && preg_match('/\w{5,16}/is',$post['account'])) {
                             $map['account'] = $post['account'];
                         } else {
-                            throw new \Exception('用户名不对。');
+                            throw new \Exception('账号不对。');
+                        }
+                        $check_account_where = [
+                            'account'=>$map['account'],
+                        ];
+                        $exist = $account_model->getAdminAccount($check_account_where);
+                        if ($exist && $post['uid']!=$exist['id']) {
+                            throw new \Exception('账号已经存在');
                         }
 
                         if ($post['company_id'] && preg_match('/[1-9]\d{2,15}/is',$post['company_id'])) {
@@ -202,7 +339,10 @@ class User extends PermissionBase
                             }
                         }
 
-                        $map['status'] = $post['status'];
+                        if ($post['status']) {
+                            $map['status'] = $post['status'];
+                        }
+
                         if ($post['expire_time']) {
                             $map['expire_time'] = $post['expire_time'];
                         }

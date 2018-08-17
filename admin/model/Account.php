@@ -104,6 +104,12 @@ class Account extends AdminModel
         return $res;
     }
 
+    public function addAdminAccount($map)
+    {
+        $flag = $this->db->table($this->admin_account_table)->insertGetId($map);
+        return $flag;
+    }
+
     public function saveAdminAccount($where=[],$map)
     {
         $flag = $this->db->table($this->admin_account_table)->where($where)->update($map);
