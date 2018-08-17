@@ -176,7 +176,14 @@ class Page {
         } else {
             $param = [];
             foreach ($arg as $key=>$val) {
-                $param[] = $key.'='.$val;
+                if (is_array($val)) {
+                    foreach ($val as $k=>$v) {
+                        $param[] = $k.'='.urlencode($v);
+                    }
+                } else {
+                    $param[] = $key.'='.urlencode($val);
+                }
+
             }
             $url = $this->PageLink."?".implode('&',$param);
             return str_replace("%2A", "*", $url);

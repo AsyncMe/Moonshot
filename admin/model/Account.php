@@ -85,14 +85,14 @@ class Account extends AdminModel
      * @param int $page
      * @return mixed
      */
-    public function adminLists($where=[],$order=[],$page=1)
+    public function adminLists($where=[],$order=[],$page=1,$per_page=20,$raw=false)
     {
-        return $this->tableLists($this->admin_account_table,$where,$order,$page);
+        return $this->tableLists($this->admin_account_table,$where,$order,$page,$per_page,$raw);
     }
 
-    public function adminCount($where=[])
+    public function adminCount($where=[],$raw=false)
     {
-        return $this->tableCount($this->admin_account_table,$where);
+        return $this->tableCount($this->admin_account_table,$where,$raw);
     }
 
     public function getAdminAccount($where=[])

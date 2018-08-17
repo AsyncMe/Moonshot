@@ -89,9 +89,14 @@ class AdminModel
      * @param int $page
      * @return mixed
      */
-    protected function tableLists($table,$where=[],$order=[],$page=1)
+    protected function tableLists($table,$where=[],$order=[],$page=1,$per_page=20,$raw=false)
     {
-        $obj = $this->db->table($table)->where($where);
+        $obj = $this->db->table($table);
+        if (!$raw) {
+            $obj=$obj->where($where);
+        } else {
+            $obj=$obj->whereRaw($where[0],$where[1]);
+        }
         if ($order) {
             if(is_array($order[0])) {
                 foreach($order as $val) {
@@ -102,7 +107,7 @@ class AdminModel
             }
         }
         if ($page) {
-            $obj = $obj->forPage($page,20);
+            $obj = $obj->forPage($page,$per_page);
         }
         $res = $obj->get();
         if ($res) {
@@ -118,9 +123,16 @@ class AdminModel
      * @param array $where
      * @return mixed
      */
-    protected function tableCount($table,$where=[])
+    protected function tableCount($table,$where=[],$raw=false)
     {
-        return $this->db->table($table)->where($where)->count();
+        $obj = $this->db->table($table);
+        if (!$raw) {
+            $obj=$obj->where($where);
+        } else {
+            $obj=$obj->whereRaw($where[0],$where[1]);
+        }
+        $count = $obj->count();
+        return $count;
     }
 
 }

@@ -42,19 +42,35 @@ class User extends PermissionBase
 
         $nav_data = $this->nav_default($req,$preData);
 
-
         $where =[];
+        $raw = false;
+
+        if ($req->request_method == 'POST') {
+            $formget = $req->post_datas['formget'];
+        } else {
+            $keyword = urldecode($req->query_datas['keyword']);
+            $formget['keyword'] = $keyword;
+        }
+        if ($formget && $formget['keyword']) {
+            $where[0] = "( account like ? or nickname like ? )";
+            $where[1] = ['%'.$formget['keyword'].'%','%'.$formget['keyword'].'%'];
+            $raw = true;
+        }
+
+
         $account_model = new model\Account($this->service);
-        $total = $account_model->adminCount($where);
+        $total = $account_model->adminCount($where,$raw);
 
         $path = [
             'mark' => 'sys',
             'bid'  => $req->company_id,
             'pl_name'=>'admin',
         ];
+
         $pageLink = urlGen($req,$path,[],true);
-        $page = $this->page($pageLink,$total,20);
-        $lists = $account_model->adminLists($where,['ctime','desc'],$page->Current_page);
+        $per_page = 20;
+        $page = $this->page($pageLink,$total,$per_page);
+        $lists = $account_model->adminLists($where,['ctime','desc'],$page->Current_page,$per_page,$raw);
 
         //ng_func_privilege_check($req->company_id,$this->sessions['admin_uid'],'index');
 
@@ -67,6 +83,7 @@ class User extends PermissionBase
             $query = [
                 'mod'=>'user',
             ];
+
             foreach ($lists as $key=>$val) {
                 $operater_url = array_merge($query,['act'=>'admin_edit','uid'=>$val['id']]);
                 $lists[$key]['edit_url'] = urlGen($req,$path,$operater_url,true);
@@ -96,6 +113,7 @@ class User extends PermissionBase
             'add_action_url'=>$operaters_add_action,
             'delete_action_url'=>$operaters_delete_action,
             'pagination' => $pagination,
+            'formget'=>$formget,
 
         ];
         $data = array_merge($nav_data,$data);
