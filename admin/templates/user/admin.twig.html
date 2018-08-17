@@ -44,7 +44,16 @@
             <td><input type="checkbox" class="js-check" data-yid="js-check-y" data-xid="js-check-x" name="ids[]" value="{{ val.id }}" title="ID:{{ val.id }}"></td>
             <td>{{ val.id }}</td>
             <td>{{ val.company_id }}</td>
-            <td><img src="{{ val.avatar }}" onerror="this.onerror='';src='/wxapp/asset/simpleboot/images/avatar/default.jpg'" width="24"/></td>
+            <td>
+                {% if val.avatar == 'default' %}
+                    <img src="{{ val.avatar }}"  onerror="this.onerror='';src='/wxapp/asset/simpleboot/images/avatar/default.jpg'" width="24"/>
+                {% else %}
+                <a href="javascript:parent.image_preview_dialog('{{ val.avatar }}');">
+                    <img src="{{ val.avatar }}"  onerror="this.onerror='';src='/wxapp/asset/simpleboot/images/avatar/default.jpg'" width="24"/>
+                </a>
+                {% endif %}
+
+            </td>
             <td>{{ val.account }}</td>
             <td>{{ val.nickname }}</td>
             <td>{{ val.status }}</td>

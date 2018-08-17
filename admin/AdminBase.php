@@ -194,4 +194,14 @@ class AdminBase extends Plugins
         $upload_setting['upload_max_filesize']=$upload_max_filesize_setting;
         return $upload_setting;
     }
+
+    /**
+     * 获取cdn的地址头
+     * @return string
+     */
+    protected function getCdnHost($host='')
+    {
+        $cdn_prefix = $host."/wxapp/data";
+        return $cdn_prefix;
+    }
 }

@@ -137,11 +137,12 @@ class Asset extends PermissionBase
                     $filesize = $file->getSize();
                     $filetype = $file->getClientMediaType();
                     $preview_url = '/wxapp'.ltrim($asset_path."/".$uploadFileName,'.');
+                    $filepath = ltrim($asset_path."/".$uploadFileName,'./data');
                     $success_upload_data[] = [
                         'name'=>$oldname,
                         'preview_url'=>$preview_url,
                         'url'=>$preview_url,
-                        'filepath'=>$asset_path,
+                        'filepath'=>$filepath,
                         'size'=>$filesize,
                         'type'=>$filetype,
                     ];
