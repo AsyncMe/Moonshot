@@ -143,8 +143,7 @@ class User extends PermissionBase
                     $admin_account['expire_time'] = '';
                 }
                 if ($admin_account['avatar']!='default') {
-                    $cdn_prefix = $this->getCdnHost();
-                    $admin_account['avatar'] = $cdn_prefix.'/'.$admin_account['avatar'];
+                    $admin_account['avatar'] = $admin_account['avatar'];
                 }
                 $data = [
                     'uid'=>$request_uid,
@@ -193,7 +192,7 @@ class User extends PermissionBase
                                 if($post['newpassword']!=$post['comfirm_password']) {
                                     throw new \Exception('错认密码错误。');
                                 } else {
-                                    $slat = substr(0,6,getRandomStr());
+                                    $slat = substr(getRandomStr(),0,6);
                                     $map['password'] = md5($post['newpassword'].$slat);
                                     $map['slat'] =  $slat;
                                 }
