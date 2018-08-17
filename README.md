@@ -50,14 +50,21 @@
 # 模版 useage
 * 模版变量连接符合 ～
 ```
-{% set var1='123' %}
-{% set var2='admin' %}
-then:
-{{ var1~var2 }}
-result:
-123admin
+    {% set var1='123' %}
+    {% set var2='admin' %}
+    then:
+    {{ var1~var2 }}
+    result:
+    123admin
 
 ```
+* 模版输出html标签
+```
+    {% autoescape false %}
+    {{ pagination }}
+    {% endautoescape %}
+```
+
 * 模版中css／js调用地址说明
 ** 通用的资源物理目录在 ./public/assest/ 里面，通过模版调用使用 /wxapp/asset/{具体的js/css} 这样调用
 ** admin 插件的资源目录在 ./admin/templates/ 里面 ，通过模版调用使用 /assets/admin/{具体的js/css} 这样调用
