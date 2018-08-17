@@ -72,7 +72,17 @@ class Pub extends AdminBase
                 }
                 $admin_account = new model\Account($this->service);
                 $admin_res = $admin_account->getAdminWithName($req->company_id,$post_datas['username']);
-                if($admin_res && $admin_res['status']==1) {
+                $flag = true;
+                if ($admin_res && $admin_res['id']!=1) {
+                    if ($admin_res['expire_time']) {
+                        if (time()>$admin_res['expire_time']) {
+                            $flag = false;
+//                            $error_code = 1010;
+//                            $error = '账户已过期';
+                        }
+                    }
+                }
+                if($flag && $admin_res && $admin_res['status']==1) {
                     $flag = $admin_account->checkPass($post_datas['password'],$admin_res['password'],$admin_res['slat']);
                     if (!$flag) {
                         $error_code = 1011;
