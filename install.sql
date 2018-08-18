@@ -128,7 +128,7 @@ CREATE TABLE `ng_sys_company_account` (
   `alias` varchar(150) NOT NULL COMMENT '别名',
   `hash_val` varchar(16) NOT NULL COMMENT '哈希值',
   `version` varchar(16) NOT NULL DEFAULT '1.0' COMMENT '版本号',
-
+  `slat` varchar(10) NULL COMMENT '随机密码',
   `contact_user` varchar(150) NOT NULL COMMENT '联系人',
   `contact_phone` varchar(150) NOT NULL COMMENT '联系电话',
   `desc` varchar(255) COMMENT '简介',
