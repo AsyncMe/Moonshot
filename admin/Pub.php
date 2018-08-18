@@ -70,7 +70,7 @@ class Pub extends AdminBase
                     $error_code = 1003;
                     $error = '密码不为空';
                 }
-                $admin_account = new model\Account($this->service);
+                $admin_account = new model\AccountModel($this->service);
                 $admin_res = $admin_account->getAdminWithName($req->company_id,$post_datas['username']);
                 $flag = true;
                 if ($admin_res && $admin_res['id']!=1) {
