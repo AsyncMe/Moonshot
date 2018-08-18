@@ -41,7 +41,7 @@ class AdminModel
         ];
         $res = $this->db->table('sys_config')->where($map)->first();
         if ($res && isset($res->config)) {
-            $res = json_decode($res->config,true);
+            $res = ng_mysql_json_safe_decode($res->config);
 
         }
         return $res;

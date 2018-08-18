@@ -149,7 +149,6 @@ class User extends PermissionBase
                 if ($remove_id==1) continue;
                 $where = ['id'=>$remove_id];
                 $res = $account_model->deleteAdminAccount($where);
-                $res = true;
                 $flag = $flag && $res;
             }
 

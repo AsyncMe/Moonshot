@@ -35,11 +35,8 @@
         <tr>
             <th width="15"><label><input type="checkbox" class="js-check-all" data-direction="x" data-checklist="js-check-x"></label></th>
             <th width="50">ID</th>
-            <th width="50">企业id</th>
-            <th width="30">头像</th>
-            <th width="120">账号</th>
-            <th width="120">昵称</th>
-            <th>状态</th>
+            <th width="50">名称</th>
+            <th width="30">数据</th>
             <th>创建时间</th>
             <th width="180">操作</th>
         </tr>
@@ -50,28 +47,11 @@
         <tr>
             <td><input type="checkbox" class="js-check" data-yid="js-check-y" data-xid="js-check-x" name="ids[]" value="{{ val.id }}" title="ID:{{ val.id }}"></td>
             <td>{{ val.id }}</td>
-            <td>{{ val.company_id }}</td>
+            <td>{{ val.name }}</td>
             <td>
-                {% if val.avatar == 'default' %}
-                    <img src="{{ val.avatar }}"  onerror="this.onerror='';src='/wxapp/asset/simpleboot/images/avatar/default.jpg'" width="24"/>
-                {% else %}
-                <a href="javascript:parent.image_preview_dialog('{{ val.avatar|prefixWith('/wxapp/data/','default') }}');" title="点击查看大图">
-                    <img src="{{ val.avatar|prefixWith('/wxapp/data/','default') }}"  onerror="this.onerror='';src='/wxapp/asset/simpleboot/images/avatar/default.jpg'" width="24"/>
-                </a>
-                {% endif %}
+            {{ val.config_count }} 对
+            </td>
 
-            </td>
-            <td>{{ val.account }}</td>
-            <td>{{ val.nickname }}</td>
-            <td>
-                {% if val.status == 1 %}
-                <span style="color: green">正常</span>
-                {% elseif val.status == 10 %}
-                <span style="color: red">过期</span>
-                {% else %}
-                <del style="color: red">禁用</del>
-                {% endif %}
-            </td>
             <td>{{ val.ctime|date('Y-m-d H:i:s') }}</td>
             <td>
                 <a href="{{val.edit_url}}">编辑</a>
@@ -83,7 +63,7 @@
         </tr>
         {% endfor %}
         {% else %}
-        <tr><td colspan="9">暂时没有数据！</td></tr>
+        <tr><td colspan="6">暂时没有数据！</td></tr>
         {% endif %}
         </tbody>
     </table>

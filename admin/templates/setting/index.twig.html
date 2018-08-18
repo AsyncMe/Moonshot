@@ -1,0 +1,67 @@
+{% extends 'boot/index.twig.html' %}
+
+{% block custom_lefttop_menu %}
+<ul class="nav nav-list">
+    {# 第1层菜单 #}
+    {% if plugin_menus %}
+    {% for key,val in plugin_menus %}
+    <li>
+        {% if not val.items %}
+        <a href="javascript:openapp('{{ val.url }}','{{ val.id }}','{{ val.name }}',true);">
+            <i class="fa fa-{{ val.icon|default('desktop') }}"></i>
+                                        <span class="menu-text">
+                                            {{ val.name }}
+                                        </span>
+        </a>
+        {% else %}
+        <a href="#" class="dropdown-toggle">
+            <i class="fa fa-{{ val.icon|default('desktop') }} normal"></i>
+								<span class="menu-text normal">
+									{{ val.name }}
+								</span>
+            <b class="arrow fa fa-angle-right normal"></b>
+        </a>
+        <ul  class="submenu" {% if val.open !="no" %}style="display: block"{% endif %}>
+            {# 第2层菜单 #}
+
+            {% for sub_val in val.items %}
+            <li>
+                {% if not sub_val.items %}
+                <a href="javascript:openapp('{{ sub_val.url }}','{{ sub_val.id }}','{{ sub_val.name }}',true);">
+                    <i class="fa fa-caret-right"></i>
+                                        <span class="menu-text">
+                                            {{ sub_val.name }}
+                                        </span>
+                </a>
+                {% else %}
+                <a href="#" class="dropdown-toggle">
+                    <i class="fa fa-caret-right"></i>
+                                        <span class="menu-text">
+                                            {{ sub_val.name }}
+                                        </span>
+                    <b class="arrow fa fa-angle-right"></b>
+                </a>
+                <ul  class="submenu">
+                    {# 第3层菜单 #}
+
+                    {% for thrid_val in sub_val.items %}
+                    <li>
+                        <a href="javascript:openapp('{{ thrid_val.url }}','{{ thrid_val.id }}','{{ thrid_val.name }}',true);">
+                            <i class="fa fa-caret-right"></i>
+                                        <span class="menu-text">
+                                            {{ thrid_val.name }}
+                                        </span>
+                        </a>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% endif %}
+            </li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+    </li>
+    {% endfor %}
+    {% endif %}
+</ul>
+{% endblock %}

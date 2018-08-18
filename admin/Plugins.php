@@ -400,7 +400,7 @@ class Plugins extends PermissionBase
                 $plugin_info = $plugin_dao->getPluginInfo($where);
                 if ($plugin_info) {
                     if ($plugin_info['plugin_process']) {
-                        $plugin_info['plugin_process'] = json_decode(stripslashes($plugin_info['plugin_process']),true);
+                        $plugin_info['plugin_process'] = ng_mysql_json_safe_decode($plugin_info['plugin_process']);
                     }
                     // 2.对数据表的数据进行导出打包
 
