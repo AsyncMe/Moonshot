@@ -468,12 +468,24 @@ class User extends PermissionBase
             $formget = $req->post_datas['formget'];
         } else {
             $keyword = urldecode($req->query_datas['keyword']);
+            $group_id = urldecode($req->query_datas['group_id']);
             $formget['keyword'] = $keyword;
+            $formget['group_id'] = $group_id;
         }
-        if ($formget && $formget['keyword']) {
-            $where[0] = "( account like ? or nickname like ? )";
-            $where[1] = ['%'.$formget['keyword'].'%','%'.$formget['keyword'].'%'];
-            $raw = true;
+
+        if ($formget) {
+            if ($formget['group_id'] && !$formget['keyword']) {
+                $raw = false;
+                $where['group_id']=$formget['group_id'];
+            } else if  (!isset($formget['group_id']) && $formget['keyword']) {
+                $where[0] = "( account like ? or nickname like ? )";
+                $where[1] = ['%'.$formget['keyword'].'%','%'.$formget['keyword'].'%'];
+                $raw = true;
+            } else if  (isset($formget['group_id']) && $formget['keyword']) {
+                $where[0] = "group_id = ? and ( account like ? or nickname like ? )";
+                $where[1] = [$formget['group_id'], '%'.$formget['keyword'].'%','%'.$formget['keyword'].'%'];
+                $raw = true;
+            }
         }
 
 
