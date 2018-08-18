@@ -209,7 +209,7 @@
                                     //返回带跳转地址
                                 	window.location.href = dataset.referer;
                                 } else {
-                                	if (data.state === true ) {
+                                	if (dataset.status === true ) {
                                 		//刷新当前页
                                         reloadPage(window);
                                 	}
@@ -467,12 +467,13 @@ if ($('.js-ajax-changeStatus').length) {
                     ok: function () {
 
                         $.getJSON(href).done(function (data) {
-                            if (data.state === 'success') {
-                                if (data.referer) {
-                                    location.href = data.referer;
+                            var  dataset = data.data;
+                            if (dataset.status === true) {
+                                if (dataset.referer) {
+                                    location.href = dataset.referer;
                                 } else {
                                     art.dialog({
-                                        content: data.info,
+                                        content: dataset.info,
                                         icon: 'succeed',
                                         ok: function () {
                                             reloadPage(window);
@@ -481,13 +482,13 @@ if ($('.js-ajax-changeStatus').length) {
 
                                     });
                                 }
-                            } else if (data.state === 'fail') {
+                            } else if (dataset.status === false) {
                                 //art.dialog.alert(data.info);
                                 art.dialog({
-                                    content: data.info,
+                                    content: dataset.info,
                                     icon: 'warning',
                                     ok: function () {
-                                        this.title(data.info);
+                                        this.title(dataset.info);
                                         return true;
                                     }
                                 });
