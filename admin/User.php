@@ -23,12 +23,22 @@ class User extends PermissionBase
 
         $nav_data = $this->nav_default($req,$preData);
 
+        $path = [
+            'mark' => 'sys',
+            'bid'  => $req->company_id,
+            'pl_name'=>'admin',
+        ];
+        $query = [
+            'mod'=>'user',
+            'act'=>'admin'
+        ];
+        $default_frame_url = urlGen($req,$path,$query,true);
 
         //ng_func_privilege_check($req->company_id,$this->sessions['admin_uid'],'index');
 
         $data = [
-            'title'=>'hello admin!',
-            'content'=>'',
+            'default_frame_name'=>'管理者',
+            'default_frame_url'=>$default_frame_url,
         ];
         $data = array_merge($nav_data,$data);
 
