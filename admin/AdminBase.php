@@ -32,7 +32,7 @@ class AdminBase extends Plugins
             $this->global_view_var = $this->service->getCache()->get($cache_key);
 
             if (!$this->global_view_var) {
-                $model = new model\Menu($this->service);
+                $model = new model\MenuModel($this->service);
                 $config_vals = $model->getConfig('sys_global');
                 $this->global_view_var = $config_vals;
                 $this->service->getCache()->set($cache_key,$config_vals,3600);
@@ -91,7 +91,7 @@ class AdminBase extends Plugins
 
     public function nav_default(RequestHelper $req,array $preData)
     {
-        $model = new model\Menu($this->service);
+        $model = new model\MenuModel($this->service);
         $navs = $model->getNav();
 
         $default_menu_id = 0;

@@ -9,7 +9,7 @@
 namespace admin\model;
 
 
-class Menu extends AdminModel
+class MenuModel extends AdminModel
 {
 
     public function getNav()

@@ -44,6 +44,10 @@ class Setting extends PermissionBase
                 'data'=>'','category'=>'设置','placehold'=>'','use_priv'=>1,'type'=>1,
                 'link'=>1,'status'=>1,'name'=>'设置','icon'=>'th'
             ],
+            ['id'=>81002,'parentid'=>0,'app'=>'admin' ,'model'=>'menu','action'=>'info',
+                'data'=>'','category'=>'设置','placehold'=>'','use_priv'=>1,'type'=>1,
+                'link'=>1,'status'=>1,'name'=>'菜单','icon'=>'th'
+            ],
         ];
 
 
