@@ -43,104 +43,56 @@
 
     <form action="" method="post" class="form-horizontal js-ajax-form" enctype="multipart/form-data">
         <div class="row-fluid">
-            <div class="span9">
+            <div class="span9" id="table_container">
                 <table class="table table-bordered">
 
                     <tr>
-                        <th width="80">账号</th>
+                        <th width="80">名称</th>
                         <td>
-                            <input type="text" style="width: 400px;" name="post[account]" required value="{{ admin_account.account }}" placeholder="请输入账号"/>
+                            <input type="text" style="width: 400px;" name="post[name]" required value="{{ admin_account.name }}" placeholder="请输入账号"/>
                             <span class="form-required">*</span>
-                            <span class="form-required">5～16位数</span>
-                        </td>
-                    </tr>
-
-                    <tr>
-                        <th width="80">所属域</th>
-                        <td>
-                            <input type="text" style="width: 400px;" name="post[company_id]" required value="{{ admin_account.company_id }}" placeholder="请输入所属域"/>
-                            <span class="form-required">*</span>
-                            <span class="form-required">所属域也称为企业id [3-16位]</span>
-                        </td>
-                    </tr>
-
-                    <tr>
-                        <th width="80">昵称</th>
-                        <td>
-                            <input type="text" style="width: 400px;" name="post[nickname]" required value="{{ admin_account.nickname }}" placeholder="请输入昵称"/>
-                            <span class="form-required">*</span>
-                            <span class="form-required">2-16个字</span>
-                        </td>
-                    </tr>
-                </table>
-                <table class="table table-bordered">
-                    <blockquote>如果需要修改密码请填写下方字段，不修改则留空</blockquote>
-                    {%if op !='add' %}
-                    <tr>
-                        <th width="80">原始密码</th>
-                        <td>
-                            <input type="password" style="width: 400px;" name="post[password]"  value="" placeholder="请输入新密码"/>
-                            <span class="form-required"></span>
-                        </td>
-                    </tr>
-                    {% endif %}
-                    <tr>
-                        <th width="80">新密码</th>
-                        <td>
-                            <input type="password" style="width: 400px;" name="post[newpassword]"  value="" placeholder="请输入新密码"/>
-                            <span class="form-required"></span>
-                        </td>
-                    </tr>
-                    <tr>
-                        <th width="80">确认密码</th>
-                        <td>
-                            <input type="password" style="width: 400px;" name="post[comfirm_password]"  value="" placeholder="请输入确认密码"/>
-                            <span class="form-required"></span>
+                            <span class="form-required">配置名称</span>
                         </td>
                     </tr>
 
                 </table>
-                {% if admin_account.id > 1 %}
-                {# 超级管理员不能设置状态 #}
-                <table class="table table-bordered">
-                    <blockquote>状态</blockquote>
+                {% for key,val in admin_account.config %}
+                <table id="tb_{{loop.index}}" class="table table-bordered config_item">
+                    <blockquote id="block_{{loop.index}}">
+                        <div style="height: 24px;">
+                            <span style="float: left">配置</span>
+                            <div style="float: right">
+                                <a class="add_item" href="javascript:void(0);">添加项</a>
+                                | <a class="del_item" rel="{{loop.index}}" href="javascript:void(0);">删除项</a>
+                            </div>
+                        </div>
+                    </blockquote>
                     <tr>
-                        <th width="80">状态</th>
+                        <th width="80">key</th>
                         <td>
-                            <input type="radio"  name="post[status]"  value="1" {% if admin_account.status == 1 %} checked="checked"{% endif %} /> 正常
-                            &nbsp;&nbsp;
-                            <input type="radio"  name="post[status]"  value="0" {% if admin_account.status == 0 %} checked="checked"{% endif %}/> 禁用
+                            <input type="text" style="width: 400px;" name="post_c[{{loop.index}}][key]"  value="{{ key }}" placeholder="请输入键名" />
                         </td>
                     </tr>
                     <tr>
-                        <th width="80">过期时间：</th>
+                        <th width="80">值</th>
                         <td>
-                            <input type="text" name="post[expire_time]" class="js-date" value="{{ admin_account.expire_time|default('') }}" style="width: 120px;" autocomplete="off">
-                            <span class="form-required">空或0为永不过期</span>
+                            <input type="text" style="width: 400px;" name="post_c[{{loop.index}}][val]"  value="{{ val }}" placeholder="请输入值" />
                         </td>
                     </tr>
                 </table>
-                {% endif %}
+                {% endfor %}
+
             </div>
             <div class="span3">
                 <table class="table table-bordered">
                     <tr>
-                        <td><b>头像</b></td>
+                        <td>锁定</td>
                     </tr>
                     <tr>
                         <td>
-                            <div style="text-align: center;">
-                                <input type="hidden" name="post[avatar]" id="thumb" value="{{admin_account.avatar}}">
-                                <a href="javascript:upload_one_image('图片上传','#thumb',_extram_data,app_extra_params);">
-                                    {% if not admin_account.avatar %}
-                                    <img src="/wxapp/asset/simpleboot/images/default-thumbnail.png" id="thumb-preview" width="135" style="cursor: hand"/>
-                                    {% else %}
-                                    <img src="{{admin_account.avatar|prefixWith('/wxapp/data/','default')}}" id="thumb-preview" width="135" style="cursor: hand" onerror="this.onerror='';src='/wxapp/asset/simpleboot/images/default-thumbnail.png'"/>
-                                    {% endif %}
-
-                                </a>
-                                <input type="button" class="btn btn-small" onclick="$('#thumb-preview').attr('src','/wxapp/asset/simpleboot/images/default-thumbnail.png');$('#thumb').val('');return false;" value="取消图片" style="margin-top: 5px;">
-                            </div>
+                            <input type="radio"  name="post[lock]"  value="1" {% if admin_account.lock == 1 %} checked="checked"{% endif %} /> 锁定
+                            &nbsp;&nbsp;
+                            <input type="radio"  name="post[lock]"  value="0" {% if admin_account.lock == 0 %} checked="checked"{% endif %}/> 正常
                         </td>
                     </tr>
                     {%if op !='add' %}
@@ -155,6 +107,31 @@
                 </table>
             </div>
         </div>
+        <div id="template" style="display: none;">
+            <table id="tb_@id@" class="table table-bordered config_item">
+                <blockquote id="block_@id@">
+                    <div style="height: 24px;">
+                        <span style="float: left">配置</span>
+                        <div style="float: right">
+                            <a class="add_item" href="javascript:void(0);">添加项</a>
+                            | <a class="del_item" rel="@id@" href="javascript:void(0);">删除项</a>
+                        </div>
+                    </div>
+                </blockquote>
+                <tr>
+                    <th width="80">key</th>
+                    <td>
+                        <input type="text" style="width: 400px;" name="post_c[@id@][key]"  value="{{ key }}" placeholder="请输入键名" />
+                    </td>
+                </tr>
+                <tr>
+                    <th width="80">值</th>
+                    <td>
+                        <input type="text" style="width: 400px;" name="post_c[@id@][val]"  value="{{ val }}" placeholder="请输入值" />
+                    </td>
+                </tr>
+            </table>
+        </div>
         <div class="form-actions">
             <input type="hidden" name="post[uid]" value="{{ admin_account.id }}">
             <button class="btn btn-primary js-ajax-submit" type="submit">提交</button>
@@ -167,8 +144,65 @@
 {% endblock %}
 {% block frame_footer %}
 <script type="application/javascript">
+    Wind.use('artDialog');
     $(function(){
 
+        var item_template = $('#template').html();
+        var config_item_len =$('.config_item').length;
+
+        function  add_item()
+        {
+            config_item_len = config_item_len+1;
+            var item_template_str = item_template.replace(/@id@/g,config_item_len);
+            $('#table_container').append(item_template_str);
+            $('.add_item').unbind('click');
+            $('.add_item').bind('click',function(){add_item();});
+            $('.del_item').unbind('click');
+            $('.del_item').bind('click',function(){del_item($(this));});
+        }
+        function  del_item(obj)
+        {
+            var $_this = $(obj).get(0);
+            art.dialog({
+                title: false,
+                icon: 'question',
+                content: '你确认删除？',
+                follow: $_this,
+                close: function () {
+                    $_this.focus(); //关闭时让触发弹窗的元素获取焦点
+                    return true;
+                },
+                ok: function () {
+
+                    var rel_id = $(obj).attr('rel');
+                    console.log(rel_id);
+                    $('#block_'+rel_id).remove();
+                    $('#tb_'+rel_id).remove();
+                    check_item();
+                },
+                cancelVal: '关闭',
+                cancel: true
+            });
+
+
+        }
+
+        function check_item() {
+            var check_len = $('.config_item').length;
+            if (check_len<=1) {
+                add_item();
+            }
+        }
+
+        $('.add_item').click(function(){
+            add_item();
+        });
+
+        $('.del_item').click(function(){
+            del_item($(this));
+        });
+
+        check_item();
     });
 </script>
 

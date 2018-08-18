@@ -78,11 +78,10 @@ class Setting extends PermissionBase
             $formget['keyword'] = $keyword;
         }
         if ($formget && $formget['keyword']) {
-            $where[0] = "( account like ? or nickname like ? )";
+            $where[0] = "( name like ? or name like ? )";
             $where[1] = ['%'.$formget['keyword'].'%','%'.$formget['keyword'].'%'];
             $raw = true;
         }
-
 
         $rel_model = new model\ConfigModel($this->service);
         $total = $rel_model->configCount($where,$raw);
@@ -117,6 +116,9 @@ class Setting extends PermissionBase
 
                 $operater_url = array_merge($query,['act'=>'setting_delete','uid'=>$val['id']]);
                 $lists[$key]['delete_url'] = urlGen($req,$path,$operater_url,true);
+
+                $operater_url = array_merge($query,['act'=>'setting_info','uid'=>$val['id']]);
+                $lists[$key]['info_url'] = urlGen($req,$path,$operater_url,true);
 
                 $lists[$key]['config_count'] = 0;
                 if ($val['config']) {
@@ -190,6 +192,40 @@ class Setting extends PermissionBase
         return $this->render($status,$mess,$data);
     }
 
+    public function setting_infoAction(RequestHelper $req,array $preData)
+    {
+        $request_uid = $req->query_datas['uid'];
+        try {
+            $account_model = new model\ConfigModel($this->service);
+            if ($request_uid) {
+                $admin_account = $account_model->getConfigInfo(['id'=>$request_uid]);
+                if (!$admin_account) {
+                    throw new \Exception('配置不存在');
+                }
+
+                if ($admin_account['config']) {
+                    $admin_account['config'] = ng_mysql_json_safe_decode($admin_account['config']);
+                }
+                $data = [
+                    'info'=>$admin_account,
+                ];
+                $status = true;
+                $mess = '成功';
+                dump($admin_account['config']);
+            }
+        }catch (\Exception $e) {
+            $error = $e->getMessage();
+            $data = [
+                'error'=>$error,
+                'info'=>$error,
+            ];
+            $status = false;
+            $mess = '失败';
+        }
+
+        return $this->render($status,$mess,$data,'template','empty');
+    }
+
 
     public function setting_addAction(RequestHelper $req,array $preData)
     {
@@ -201,8 +237,8 @@ class Setting extends PermissionBase
                 'pl_name'=>'admin',
             ];
             $query = [
-                'mod'=>'user',
-                'act'=>'admin'
+                'mod'=>'setting',
+                'act'=>'lists'
             ];
             $cate_index_url=  urlGen($req,$path,$query,true);
 
@@ -224,59 +260,45 @@ class Setting extends PermissionBase
                 'op'=>'add',
                 'cate_index_url'=>$cate_index_url,
                 'asset_upload_url'=>$asset_upload_url,
-                'cate_name'=>'管理员',
+                'cate_name'=>'设置',
             ];
 
             if($req->request_method == 'POST') {
                 $post = $req->post_datas['post'];
-
+                $post_c = $req->post_datas['post_c'];
                 if ($post) {
                     $account_model = new model\ConfigModel($this->service);
-                    //正常的编辑
                     $map = [];
-                    if ($post['account'] && preg_match('/\w{5,16}/is',$post['account'])) {
-                        $map['account'] = $post['account'];
+                    if ($post['name']) {
+                        $map['name'] = trim($post['name']);
                     } else {
-                        throw new \Exception('账号不对。');
+                        throw new \Exception('名称不对。');
                     }
                     $check_account_where = [
-                        'account'=>$map['account'],
+                        'name'=>$map['name'],
                     ];
                     $exist = $account_model->getConfigInfo($check_account_where);
-                    if ($exist) {
-                        throw new \Exception('账号已经存在');
+                    if ($exist && $post['uid']!=$exist['id']) {
+                        throw new \Exception('名称已经存在');
                     }
 
-                    if ($post['company_id'] && preg_match('/[1-9]\d{2,15}/is',$post['company_id'])) {
-                        $map['company_id'] = $post['company_id'];
-                    } else {
-                        throw new \Exception('域id格式不对。');
+                    $map['lock'] = $post['lock'];
+
+                    if ($post['status']) {
+                        $map['status'] = $post['status'];
                     }
 
-                    if ($post['nickname'] && (mb_strlen($post['nickname'],'UTF-8')>=2 && mb_strlen($post['nickname'],'UTF-8')<=10)) {
-                        $map['nickname'] = $post['nickname'];
-                    } else {
-                        throw new \Exception('昵称不对。');
-                    }
 
-                    //密码
-                    if (!$post['newpassword'] || !$post['comfirm_password']) {
-                        throw new \Exception('密码必须填。');
-                    } else if($post['newpassword']!=$post['comfirm_password']) {
-                        throw new \Exception('错认密码错误。');
-                    } else {
-                        $slat = substr(getRandomStr(),0,6);
-                        $map['password'] = md5($post['newpassword'].$slat);
-                        $map['slat'] =  $slat;
+                    if ($post_c) {
+                        foreach ($post_c as $c_item) {
+                            if ($c_item['key'] && $c_item['val']) {
+                                $c_key_data = trim($c_item['key']);
+                                $c_val_data = trim($c_item['val']);
+                                $config_map[$c_key_data] = $c_val_data;
+                            }
+                        }
+                        $map['config'] = ng_mysql_json_safe_encode($config_map);
                     }
-
-                    $map['status'] = $post['status'];
-                    if ($post['expire_time']) {
-                        $map['expire_time'] = strtotime($post['expire_time']);
-                    } else {
-                        $map['expire_time'] = 0;
-                    }
-                    $map['avatar'] = $post['avatar'];
                     $map['ctime'] = time();
                     $map['mtime'] = time();
 
@@ -311,7 +333,7 @@ class Setting extends PermissionBase
             return $this->render($status,$mess,$data);
         } else {
 
-            return $this->render($status,$mess,$data,'template','user/admin_edit');
+            return $this->render($status,$mess,$data,'template','setting/setting_edit');
         }
     }
     public function setting_editAction(RequestHelper $req,array $preData)
@@ -327,8 +349,8 @@ class Setting extends PermissionBase
                     'pl_name'=>'admin',
                 ];
                 $query = [
-                    'mod'=>'user',
-                    'act'=>'admin'
+                    'mod'=>'setting',
+                    'act'=>'lists'
                 ];
                 $cate_index_url=  urlGen($req,$path,$query,true);
 
@@ -348,13 +370,11 @@ class Setting extends PermissionBase
 
                 $admin_account = $account_model->getConfigInfo(['id'=>$request_uid]);
                 if (!$admin_account) {
-                    throw new \Exception('账号不存在');
+                    throw new \Exception('配置不存在');
                 }
 
-                if (!$admin_account['expire_time']) {
-                    $admin_account['expire_time'] = '';
-                } else {
-                    $admin_account['expire_time'] = date("Y-m-d",$admin_account['expire_time']);
+                if ($admin_account['config']) {
+                    $admin_account['config'] = ng_mysql_json_safe_decode($admin_account['config']);
                 }
 
                 $data = [
@@ -362,7 +382,7 @@ class Setting extends PermissionBase
                     'admin_uid'=>$request_uid,
                     'cate_index_url'=>$cate_index_url,
                     'asset_upload_url'=>$asset_upload_url,
-                    'cate_name'=>'管理员',
+                    'cate_name'=>'设置',
                     'admin_account'=>$admin_account,
                 ];
                 $status = true;
@@ -370,6 +390,7 @@ class Setting extends PermissionBase
 
                 if($req->request_method == 'POST') {
                     $post = $req->post_datas['post'];
+                    $post_c = $req->post_datas['post_c'];
 
                     if ($post) {
                         if($post['uid']!=$request_uid) {
@@ -377,63 +398,41 @@ class Setting extends PermissionBase
                         }
                         //正常的编辑
                         $map = [];
-                        if ($post['account'] && preg_match('/\w{5,16}/is',$post['account'])) {
-                            $map['account'] = $post['account'];
+                        if ($post['name']) {
+                            $map['name'] = trim($post['name']);
                         } else {
-                            throw new \Exception('账号不对。');
+                            throw new \Exception('名称不对。');
                         }
                         $check_account_where = [
-                            'account'=>$map['account'],
+                            'name'=>$map['name'],
                         ];
                         $exist = $account_model->getConfigInfo($check_account_where);
                         if ($exist && $post['uid']!=$exist['id']) {
-                            throw new \Exception('账号已经存在');
+                            throw new \Exception('名称已经存在');
                         }
 
-                        if ($post['company_id'] && preg_match('/[1-9]\d{2,15}/is',$post['company_id'])) {
-                            $map['company_id'] = $post['company_id'];
-                        } else {
-                            throw new \Exception('域id格式不对。');
-                        }
-
-                        if ($post['nickname'] && (mb_strlen($post['nickname'],'UTF-8')>=2 && mb_strlen($post['nickname'],'UTF-8')<=10)) {
-                            $map['nickname'] = $post['nickname'];
-                        } else {
-                            throw new \Exception('昵称不对。');
-                        }
-
-                        //密码
-                        if (!$post['password'] && ($post['newpassword'] || $post['comfirm_password'])) {
-                            throw new \Exception('原始密码必须填。');
-                        } else if($post['password']) {
-                            if($account_model->checkPass($post['password'],$admin_account['password'],$admin_account['slat'])) {
-
-                                if($post['newpassword']!=$post['comfirm_password']) {
-                                    throw new \Exception('错认密码错误。');
-                                } else {
-                                    $slat = substr(getRandomStr(),0,6);
-                                    $map['password'] = md5($post['newpassword'].$slat);
-                                    $map['slat'] =  $slat;
-                                }
-
-                            } else {
-                                throw new \Exception('原始密码错误。');
-                            }
-                        }
+                        $map['lock'] = $post['lock'];
 
                         if ($post['status']) {
                             $map['status'] = $post['status'];
                         }
 
-                        if ($post['expire_time']) {
-                            $map['expire_time'] = strtotime($post['expire_time']);
-                        }
-                        $map['avatar'] = $post['avatar'];
                         $map['mtime'] = time();
 
                         $save_where = [
                             'id'=> $post['uid'],
                         ];
+
+                        if ($post_c) {
+                            foreach ($post_c as $c_item) {
+                                if ($c_item['key'] && $c_item['val']) {
+                                    $c_key_data = trim($c_item['key']);
+                                    $c_val_data = trim($c_item['val']);
+                                    $config_map[$c_key_data] = $c_val_data;
+                                }
+                            }
+                            $map['config'] = ng_mysql_json_safe_encode($config_map);
+                        }
                         $flag = $account_model->saveConfigInfo($save_where,$map);
                         if (!$flag) {
                             throw new \Exception('保存错误');
@@ -465,7 +464,7 @@ class Setting extends PermissionBase
             //json返回
             return $this->render($status,$mess,$data);
         } else {
-            return $this->render($status,$mess,$data,'template','user/admin_edit');
+            return $this->render($status,$mess,$data,'template','setting/setting_edit');
         }
 
     }
