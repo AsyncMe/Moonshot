@@ -189,14 +189,16 @@ insert into  `ng_sys_menu` ( `parentid`, `app`, `model`, `action`, `data`,`categ
 (4,'admin','user','company','','用户','',1,1,'',1,'运营者','th','',30,1532693502,1532693502);
 
 CREATE TABLE `ng_sys_config` (
-  `id` smallint(6) unsigned NOT NULL,
+  `id` smallint(6) unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(50) NOT NULL COMMENT '名称',
   `config` text NULL COMMENT '键值对,json格式',
+  `lock` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT '锁定',
   `ctime` int(11) NOT NULL COMMENT '创建时间',
   `mtime` int(11) NOT NULL COMMENT '修改时间',
   PRIMARY KEY (`id`),
   UNIQUE KEY `uni_name` (`name`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='后台管理配置表';
 
-insert into `ng_sys_config` (`id`,`name`,`config`,`ctime`,`mtime`) VALUES
-(1,'sys_global','{\"site_title\":\"插件管理平台\",\"site_desc\":\"插件,管理,平台,微信,小程序\",\"site_style\":\"bluesky\",\"root\":\"xxx\"}',1532693502,1532693502);
+insert into `ng_sys_config` (`id`,`name`,`config`,`lock`,`ctime`,`mtime`) VALUES
+(1,'sys_global','{\"site_title\":\"插件管理平台\",\"site_desc\":\"插件,管理,平台,微信,小程序\",\"site_style\":\"bluesky\",\"root\":\"xxx\"}',1,1532693502,1532693502);
+
