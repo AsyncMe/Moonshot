@@ -58,7 +58,7 @@ class User extends PermissionBase
         }
 
 
-        $account_model = new model\Account($this->service);
+        $account_model = new model\AccountModel($this->service);
         $total = $account_model->adminCount($where,$raw);
 
         $path = [
@@ -144,7 +144,7 @@ class User extends PermissionBase
 
         $flag = true;
         if (!empty($remove_uids)) {
-            $account_model = new model\Account($this->service);
+            $account_model = new model\AccountModel($this->service);
             foreach ($remove_uids as $remove_id) {
                 if ($remove_id==1) continue;
                 $where = ['id'=>$remove_id];
@@ -215,7 +215,7 @@ class User extends PermissionBase
                 $post = $req->post_datas['post'];
 
                 if ($post) {
-                    $account_model = new model\Account($this->service);
+                    $account_model = new model\AccountModel($this->service);
                     //正常的编辑
                     $map = [];
                     if ($post['account'] && preg_match('/\w{5,16}/is',$post['account'])) {
@@ -302,7 +302,7 @@ class User extends PermissionBase
     {
         $request_uid = $req->query_datas['uid'];
         try {
-            $account_model = new model\Account($this->service);
+            $account_model = new model\AccountModel($this->service);
             if ($request_uid) {
                 //返回地址
                 $path = [
@@ -489,7 +489,7 @@ class User extends PermissionBase
         }
 
 
-        $account_model = new model\Account($this->service);
+        $account_model = new model\AccountModel($this->service);
         $total = $account_model->companyCount($where,$raw);
 
         $path = [
@@ -571,7 +571,7 @@ class User extends PermissionBase
 
         $flag = true;
         if (!empty($remove_uids)) {
-            $account_model = new model\Account($this->service);
+            $account_model = new model\AccountModel($this->service);
             foreach ($remove_uids as $remove_id) {
                 $where = ['id'=>$remove_id];
                 $res = $account_model->deleteCompanyAccount($where);
@@ -638,7 +638,7 @@ class User extends PermissionBase
                 $post = $req->post_datas['post'];
 
                 if ($post) {
-                    $account_model = new model\Account($this->service);
+                    $account_model = new model\AccountModel($this->service);
                     //正常的编辑
                     $map = [];
                     if ($post['account'] && preg_match('/\w{5,16}/is',$post['account'])) {
@@ -752,7 +752,7 @@ class User extends PermissionBase
     {
         $request_uid = $req->query_datas['uid'];
         try {
-            $account_model = new model\Account($this->service);
+            $account_model = new model\AccountModel($this->service);
             if ($request_uid) {
                 //返回地址
                 $path = [

@@ -199,4 +199,4 @@ CREATE TABLE `ng_sys_config` (
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='后台管理配置表';
 
 insert into `ng_sys_config` (`id`,`name`,`config`,`ctime`,`mtime`) VALUES
-(1,'sys_global','{"site_title":"插件管理平台","site_desc":"插件,管理,平台,微信,小程序","site_style":"bluesky"}',1532693502,1532693502);
+(1,'sys_global','{\"site_title\":\"插件管理平台\",\"site_desc\":\"插件,管理,平台,微信,小程序\",\"site_style\":\"bluesky\",\"root\":\"xxx\"}',1532693502,1532693502);

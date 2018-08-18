@@ -9,7 +9,7 @@
 namespace admin\model;
 
 
-class Account extends AdminModel
+class AccountModel extends AdminModel
 {
     protected $admin_account_table = 'sys_admin_account';
     protected $admin_account_faillog_table = 'sys_admin_account_faillog';
