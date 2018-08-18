@@ -56,9 +56,17 @@
                     </tr>
 
                     <tr>
+                        <th width="80">账号类型</th>
+                        <td>
+                            <input type="radio"  name="post[group_type]"  value="1" {% if admin_account.group_type == 1 %} checked="checked"{% endif %} /> 子账户
+                            &nbsp;&nbsp;
+                            <input type="radio"  name="post[group_type]"  value="0" {% if admin_account.group_type == 0 %} checked="checked"{% endif %}/> 主账户
+                        </td>
+                    </tr>
+                    <tr>
                         <th width="80">所属域</th>
                         <td>
-                            <input type="text" style="width: 400px;" name="post[company_id]" required value="{{ admin_account.company_id }}" placeholder="请输入所属域"/>
+                            <input type="text" style="width: 400px;" name="post[group_id]" required value="{{ admin_account.group_id }}" placeholder="请输入所属域"/>
                             <span class="form-required">*</span>
                             <span class="form-required">所属域也称为企业id [3-16位]</span>
                         </td>
@@ -100,8 +108,42 @@
                     </tr>
 
                 </table>
-                {% if admin_account.id > 1 %}
-                {# 超级管理员不能设置状态 #}
+
+                <table class="table table-bordered">
+                    <blockquote>联系信息</blockquote>
+                    <tr>
+                        <th width="80">联系人</th>
+                        <td>
+                            <input type="text" style="width: 400px;" name="post[contact_user]" required value="{{ admin_account.contact_user }}" placeholder="请输入昵称"/>
+                            <span class="form-required">*</span>
+                            <span class="form-required">2-16个字</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th width="80">手机</th>
+                        <td>
+                            <input type="text" style="width: 400px;" name="post[contact_phone]" required value="{{ admin_account.contact_phone }}" placeholder="请输入昵称"/>
+                            <span class="form-required">*</span>
+                            <span class="form-required">手机号码</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th width="80">别名</th>
+                        <td>
+                            <input type="text" style="width: 400px;" name="post[alias]" required value="{{ admin_account.alias }}" placeholder="请输入昵称"/>
+                            <span class="form-required">*</span>
+                            <span class="form-required">3-16个字【用户作为唯一的账号访问名称】</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th width="80">简介</th>
+                        <td>
+                            <textarea name="post[desc]" rows="5" cols="57" style="width: 403px; height: 92px;">{{ admin_account.desc }}</textarea>
+                            <span class="form-required">简介</span>
+                        </td>
+                    </tr>
+                </table>
+
                 <table class="table table-bordered">
                     <blockquote>状态</blockquote>
                     <tr>
@@ -120,7 +162,7 @@
                         </td>
                     </tr>
                 </table>
-                {% endif %}
+
             </div>
             <div class="span3">
                 <table class="table table-bordered">

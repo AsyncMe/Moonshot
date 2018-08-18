@@ -55,8 +55,8 @@
                 {% if val.avatar == 'default' %}
                     <img src="{{ val.avatar }}"  onerror="this.onerror='';src='/wxapp/asset/simpleboot/images/avatar/default.jpg'" width="24"/>
                 {% else %}
-                <a href="javascript:parent.image_preview_dialog('{{ val.avatar }}');" title="点击查看大图">
-                    <img src="{{ val.avatar }}"  onerror="this.onerror='';src='/wxapp/asset/simpleboot/images/avatar/default.jpg'" width="24"/>
+                <a href="javascript:parent.image_preview_dialog('{{ val.avatar|prefixWith('/wxapp/data/','default') }}');" title="点击查看大图">
+                    <img src="{{ val.avatar|prefixWith('/wxapp/data/','default') }}"  onerror="this.onerror='';src='/wxapp/asset/simpleboot/images/avatar/default.jpg'" width="24"/>
                 </a>
                 {% endif %}
 
@@ -66,9 +66,10 @@
             <td>
                 {% if val.status == 1 %}
                 <span style="color: green">正常</span>
+                {% elseif val.status == 10 %}
+                <span style="color: red">过期</span>
                 {% else %}
                 <del style="color: red">禁用</del>
-
                 {% endif %}
             </td>
             <td>{{ val.ctime|date('Y-m-d H:i:s') }}</td>
