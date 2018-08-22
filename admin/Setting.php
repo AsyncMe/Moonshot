@@ -44,7 +44,7 @@ class Setting extends PermissionBase
                 'data'=>'','category'=>'设置','placehold'=>'','use_priv'=>1,'type'=>1,
                 'link'=>1,'status'=>1,'name'=>'设置','icon'=>'th'
             ],
-            ['id'=>81002,'parentid'=>0,'app'=>'admin' ,'model'=>'menu','action'=>'info',
+            ['id'=>81002,'parentid'=>0,'app'=>'admin' ,'model'=>'setting','action'=>'menu',
                 'data'=>'','category'=>'设置','placehold'=>'','use_priv'=>1,'type'=>1,
                 'link'=>1,'status'=>1,'name'=>'菜单','icon'=>'th'
             ],
@@ -474,5 +474,55 @@ class Setting extends PermissionBase
     }
 
 
+    /**
+     * 菜单项
+     * @param RequestHelper $req
+     * @param array $preData
+     */
+
+    protected function buildMenuTree($data,$parentid=0,&$tree,$path='')
+    {
+
+        if (isset($path)) {
+            $path = $path.'/'.$parentid;
+        } else {
+            $path = 0;
+        }
+        foreach ($data as $key=>$val) {
+            if($parentid == $val['parentid']) {
+                $id = $val['id'];
+                if (!$val['items'])$val['items']=[];
+
+                $val['path'] = $path;
+                $this->buildMenuTree($data,$id,$val['items'],$path);
+                $val['subcount'] = count($val['items']);
+                $tree[] = $val;
+            }
+        }
+    }
+
+
+    public function menuAction(RequestHelper $req,array $preData)
+    {
+        $status = true;
+        $mess = '成功';
+
+        $model = new model\MenuModel($this->service);
+        $where = [];
+        $count = $model->menuCount($where);
+        $lists = $model->menuLists($where,[['listorder','desc'],['ctime','asc']]);
+
+        $tree = [];
+        $parentid = 0;
+        if ($lists) {
+            $this->buildMenuTree($lists,$parentid,$tree);
+        }
+        $data =[
+            'lists'=>$tree,
+            'count'=>$count,
+        ];
+
+        return $this->render($status,$mess,$data,'template','setting/menu');
+    }
 
 }
