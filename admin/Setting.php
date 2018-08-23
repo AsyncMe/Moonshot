@@ -529,11 +529,16 @@ class Setting extends PermissionBase
         $url_options = ['act'=>'menu_delete'];
         $url_options = array_merge($url_options,$query);
         $delete_action_url = urlGen($req,$path,$url_options,true);
+
+        $url_options = ['act'=>'menu_listorder'];
+        $url_options = array_merge($url_options,$query);
+        $listorder_action_url = urlGen($req,$path,$url_options,true);
         $data =[
             'lists'=>$tree,
             'count'=>$count,
             'add_action_url'=>$add_action_url,
             'delete_action_url'=>$delete_action_url,
+            'listorder_action_url'=>$listorder_action_url,
         ];
 
         return $this->render($status,$mess,$data,'template','setting/menu');
@@ -864,6 +869,46 @@ class Setting extends PermissionBase
         } else {
             $status = false;
             $mess = '失败，不允许删除';
+            $data = [
+                'info'=>$mess,
+                'status' => false,
+            ];
+        }
+
+        return $this->render($status,$mess,$data);
+    }
+
+    public function menu_listorderAction(RequestHelper $req,array $preData)
+    {
+
+
+
+        $listorders = $req->post_datas['listorders'];
+
+        $flag = true;
+        if ($listorders) {
+            $handle_model = new model\MenuModel($this->service);
+            foreach ($listorders as $id=>$val) {
+                if ($id) {
+                    $save_where = ['id'=>$id];
+                    $map = ['listorder'=>$val,'mtime'=>time()];
+                    $flag1 = $handle_model->saveMenu($save_where,$map);
+                    $flag = $flag&&$flag1;
+                }
+
+            }
+        }
+
+        if ($flag) {
+            $status = true;
+            $mess = '成功';
+            $data = [
+                'info'=>$mess,
+                'status' => true,
+            ];
+        } else {
+            $status = false;
+            $mess = '失败';
             $data = [
                 'info'=>$mess,
                 'status' => false,
