@@ -197,6 +197,85 @@ class AdminBase extends Plugins
     }
 
     /**
+     * 构造树形数组
+     * @param RequestHelper $req
+     * @param array $preData
+     */
+
+    protected function buildTree($data,$parentid=0,&$tree,$path='')
+    {
+
+        if (isset($path)) {
+            $path = $path.'/'.$parentid;
+        } else {
+            $path = 0;
+        }
+        foreach ($data as $key=>$val) {
+            if($parentid == $val['parentid']) {
+                $id = $val['id'];
+
+                if (!$val['items'])$val['items']=[];
+
+                $val['path'] = $path;
+                $this->buildTree($data,$id,$val['items'],$path);
+                $val['subcount'] = count($val['items']);
+                $tree[] = $val;
+            }
+        }
+    }
+
+    /**
+     * @param $tree
+     * @param $myself_id
+     * @return array
+     */
+    protected function selectTree($tree,$myself_id,$space='',$root=false,$disable='',$withoutMyself=false)
+    {
+        $option = [];
+        if ($root) {
+            $option[] = [
+                'id'=>0,
+                'name'=>'根',
+                'space'=>'',
+                'level_str'=>'',
+                'disabled'=>$disable,
+            ];
+            $space = $space."&nbsp;&nbsp;&nbsp;&nbsp;";
+        }
+
+        if($tree ) {
+            foreach($tree as $tree) {
+                 $option_item = [
+                    'id'=>$tree['id'],
+                    'name'=>$tree['name'],
+                    'space'=>$space,
+                    'level_str'=>'└─',
+                    'disabled'=> $disable,
+                ];
+                if ($withoutMyself) {
+                    if($myself_id==$tree['id'] && $myself_id>0) {
+                        $option_item['disabled'] ='disabled="disabled"';
+                        $sub_disable = 'disabled="disabled"';
+                    }
+                } else {
+                    $disable = '';
+                    $sub_disable='';
+                }
+
+                $option[] = $option_item;
+                if ($tree['subcount']>0) {
+                    $sub_space= $space."&nbsp;&nbsp;&nbsp;&nbsp;";
+                    $sub_option = $this->selectTree($tree['items'],$myself_id,$sub_space,false,$sub_disable,$withoutMyself);
+                    $option = array_merge($option,$sub_option);
+                }
+                $sub_disable = '';
+
+
+            }
+        }
+        return $option;
+    }
+    /**
      * 获取cdn的地址头
      * @return string
      */

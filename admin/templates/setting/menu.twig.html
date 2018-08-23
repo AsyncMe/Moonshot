@@ -15,6 +15,7 @@
     #container .table {margin: 10px 0px;}
     .table_contents {width: 100%;height: auto;  overflow: hidden;}
     .table_item{height: auto;padding: 5px;overflow: hidden;display: block;}
+    .table-actions {margin-top: 5px;}
 </style>
 {% endblock %}
 
@@ -24,7 +25,6 @@
     <form class="js-ajax-form" action="#" method="post">
         <div class="table-actions">
             <a class="btn btn-info btn-small"  href="{{ add_action_url }}" >添加</a>
-            <button class="btn btn-primary btn-small js-ajax-submit" type="submit" data-action="{{ delete_action_url }}" data-subcheck="true" data-msg="您确定删除吗？">删除</button>
         </div>
 
         <table class="table table-hover table-bordered table-list" id="menus-table">
@@ -44,6 +44,7 @@
         <tbody>
         {% if lists %}
         {% for key,val in lists %}
+        {# 第一层菜单 #}
         {% if val.parentid %}
         {% set parentid_node = ' class=child-of-node-' ~ val.parentid %}
         {% endif %}
@@ -52,14 +53,13 @@
             <td>{{val.id}}</td>
             <td>{{val.app}}</td>
             <td>{{val.name}}</td>
-            <td>{{val.type}}</td>
-            <td>{{val.status}}</td>
+            <td>{{val.type_str}}</td>
+            <td>{{val.status_str}}</td>
             <td>{{val.ctime|date("Y/m/d")}}</td>
             <td>
                 <a href="{{val.edit_url}}">编辑</a>
-                {% if val.lock == 0 %}
+                | <a href="{{val.addsub_url}}">添加子菜单</a>
                 | <a href="{{val.delete_url}}" class="js-ajax-dialog-btn" data-msg="确定删除吗？">删除</a>
-                {% endif %}
             </td>
         </tr>
         {# 第二层菜单 #}
@@ -76,23 +76,52 @@
             <td>{{s_val.id}}</td>
             <td>{{s_val.app}}</td>
             <td>&nbsp;&nbsp;&nbsp;&nbsp;{{s_spacer}} {{s_val.name}}</td>
-            <td>{{s_val.type}}</td>
-            <td>{{s_val.status}}</td>
+            <td>{{s_val.type_str}}</td>
+            <td>{{s_val.status_str}}</td>
             <td>{{s_val.ctime|date("Y/m/d")}}</td>
             <td>
                 <a href="{{s_val.edit_url}}">编辑</a>
-                {% if val.lock == 0 %}
+                | <a href="{{s_val.addsub_url}}">添加子菜单</a>
                 | <a href="{{s_val.delete_url}}" class="js-ajax-dialog-btn" data-msg="确定删除吗？">删除</a>
-                {% endif %}
             </td>
         </tr>
+        {# 第三层菜单 #}
+        {% if s_val.items %}
+        {% for ss_key,ss_val in s_val.items %}
+
+        {% set ss_parentid_node = ' class=child-of-node-' ~ ss_val.parentid %}
+        {% if s_val.subcount > 1 and s_val.subcount>loop.index %}
+        {% set ss_spacer = '├─' %}
+        {% else %}
+        {% set ss_spacer = '└─' %}
+        {% endif %}
+
+        <tr id='node-{{ss_val.id}}' {{ss_parentid_node}} style='display:none;'>
+            <td style='padding-left:40px;'><input name='listorders[{{ss_val.id}}]' type='text' size='3' value='{{ss_val.listorder}}' class='input input-order'></td>
+            <td>{{ss_val.id}}</td>
+            <td>{{ss_val.app}}</td>
+            <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{ss_spacer}} {{ss_val.name}}</td>
+            <td>{{ss_val.type_str}}</td>
+            <td>{{ss_val.status_str}}</td>
+            <td>{{ss_val.ctime|date("Y/m/d")}}</td>
+            <td>
+                <a href="{{ss_val.edit_url}}">编辑</a>
+                | <a href="{{ss_val.delete_url}}" class="js-ajax-dialog-btn" data-msg="确定删除吗？">删除</a>
+            </td>
+        </tr>
+
+        {% endfor %}
+        {% endif %}
+        {# 结束第三层菜单 #}
         {% endfor %}
         {% endif %}
         {# 结束第二层菜单 #}
         {% endfor %}
+        {# 结束第一层菜单 #}
         {% else %}
         <tr><td colspan="8">暂时没有数据！</td></tr>
         {% endif %}
+
         </tbody>
     </table>
     </form>

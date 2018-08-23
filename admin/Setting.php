@@ -474,33 +474,6 @@ class Setting extends PermissionBase
     }
 
 
-    /**
-     * 菜单项
-     * @param RequestHelper $req
-     * @param array $preData
-     */
-
-    protected function buildMenuTree($data,$parentid=0,&$tree,$path='')
-    {
-
-        if (isset($path)) {
-            $path = $path.'/'.$parentid;
-        } else {
-            $path = 0;
-        }
-        foreach ($data as $key=>$val) {
-            if($parentid == $val['parentid']) {
-                $id = $val['id'];
-                if (!$val['items'])$val['items']=[];
-
-                $val['path'] = $path;
-                $this->buildMenuTree($data,$id,$val['items'],$path);
-                $val['subcount'] = count($val['items']);
-                $tree[] = $val;
-            }
-        }
-    }
-
 
     public function menuAction(RequestHelper $req,array $preData)
     {
@@ -512,17 +485,392 @@ class Setting extends PermissionBase
         $count = $model->menuCount($where);
         $lists = $model->menuLists($where,[['listorder','desc'],['ctime','asc']]);
 
+
+        $path = [
+            'mark' => 'sys',
+            'bid'  => $req->company_id,
+            'pl_name'=>'admin',
+        ];
+        $query = [
+            'mod'=>'setting',
+        ];
+
+
+        if ($lists) {
+            foreach ($lists as $key=>$val) {
+                $val['status_str'] = use2Str($val['status'],['不显示','显示']);
+                $val['type_str'] = use2Str($val['type'],['分组','菜单','外链']);
+
+                $url_options = ['act'=>'menu_edit','id'=>$val['id']];
+                $url_options = array_merge($url_options,$query);
+                $val['edit_url'] = urlGen($req,$path,$url_options,true);
+
+                $url_options = ['act'=>'menu_add','parentid'=>$val['id']];
+                $url_options = array_merge($url_options,$query);
+                $val['addsub_url'] = urlGen($req,$path,$url_options,true);
+
+                $url_options = ['act'=>'menu_delete','id'=>$val['id']];
+                $url_options = array_merge($url_options,$query);
+                $val['delete_url'] = urlGen($req,$path,$url_options,true);
+
+                $lists[$key] = $val;
+            }
+        }
         $tree = [];
         $parentid = 0;
         if ($lists) {
-            $this->buildMenuTree($lists,$parentid,$tree);
+            $this->buildTree($lists,$parentid,$tree);
         }
+
+        $url_options = ['act'=>'menu_add','parentid'=>0];
+        $url_options = array_merge($url_options,$query);
+        $add_action_url = urlGen($req,$path,$url_options,true);
+
+        $url_options = ['act'=>'menu_delete'];
+        $url_options = array_merge($url_options,$query);
+        $delete_action_url = urlGen($req,$path,$url_options,true);
         $data =[
             'lists'=>$tree,
             'count'=>$count,
+            'add_action_url'=>$add_action_url,
+            'delete_action_url'=>$delete_action_url,
         ];
 
         return $this->render($status,$mess,$data,'template','setting/menu');
+    }
+
+
+    public function menu_editAction(RequestHelper $req,array $preData)
+    {
+        $request_id = $req->query_datas['id'];
+        try {
+            $handle_model = new model\MenuModel($this->service);
+            if ($request_id) {
+                //返回地址
+                $path = [
+                    'mark' => 'sys',
+                    'bid'  => $req->company_id,
+                    'pl_name'=>'admin',
+                ];
+                $query = [
+                    'mod'=>'setting',
+                    'act'=>'menu'
+                ];
+                $cate_index_url=  urlGen($req,$path,$query,true);
+
+
+
+
+                $res_info = $handle_model->menuInfo(['id'=>$request_id]);
+                if (!$res_info) {
+                    throw new \Exception('菜单不存在');
+                }
+
+
+                $where = [];
+                $lists = $handle_model->menuLists($where,[['listorder','desc'],['ctime','asc']]);
+                $tree = [];
+                if ($lists) {
+                    $this->buildTree($lists,0,$tree);
+                }
+                $options = $this->selectTree($tree,$request_id,'',true,'',true);
+
+
+
+                $data = [
+                    'id'=>$request_id,
+                    'cate_index_url'=>$cate_index_url,
+                    'cate_name'=>'菜单',
+                    'res_info'=>$res_info,
+                    'options'=>$options,
+                ];
+                $status = true;
+                $mess = '成功';
+
+                if($req->request_method == 'POST') {
+                    $post = $req->post_datas['post'];
+
+                    if ($post) {
+                        if($post['id']!=$request_id) {
+                            throw new \Exception('菜单id不对应。');
+                        }
+                        //正常的编辑
+                        $map = [];
+                        if ($post['name']) {
+                            $map['name'] = trim($post['name']);
+                        } else {
+                            throw new \Exception('名称不对。');
+                        }
+                        if ($post['app']) {
+                            $map['app'] = trim($post['app']);
+                        } else {
+                            throw new \Exception('应用不对。');
+                        }
+                        if ($post['model']) {
+                            $map['model'] = trim($post['model']);
+                        } else {
+                            throw new \Exception('模型不对。');
+                        }
+                        if ($post['action']) {
+                            $map['action'] = trim($post['action']);
+                        } else {
+                            throw new \Exception('行为不对。');
+                        }
+                        $map['parentid'] = $post['parentid'];
+                        $check_info_where = [
+                            'name'=>$map['name'],
+                            'parentid'=>$map['parentid'],
+                        ];
+                        $exist = $handle_model->menuInfo($check_info_where);
+                        if ($exist && $post['uid']!=$exist['id']) {
+                            throw new \Exception('名称已经存在');
+                        }
+
+
+
+                        if ($post['status']) {
+                            $map['status'] = $post['status'];
+                        }
+
+                        if ($post['data']) {
+                            $map['data'] = $post['data'];
+                        }
+                        if ($post['type']) {
+                            $map['type'] = $post['type'];
+                        }
+                        if ($post['link']) {
+                            $map['link'] = $post['link'];
+                        }
+                        if ($post['use_priv']) {
+                            $map['use_priv'] = $post['use_priv'];
+                        }
+                        if ($post['remark']) {
+                            $map['remark'] = $post['remark'];
+                        }
+
+                        $map['mtime'] = time();
+
+                        $save_where = [
+                            'id'=> $post['id'],
+                        ];
+
+
+                        $flag = $handle_model->saveMenu($save_where,$map);
+                        if (!$flag) {
+                            throw new \Exception('保存错误');
+                        } else {
+                            $data = [
+                                'info'=>'保存成功',
+                            ];
+                            $status = true;
+                            $mess = '成功';
+                        }
+
+                    }
+
+                }
+
+            }
+
+
+        } catch (\Exception $e) {
+            $error = $e->getMessage();
+            $data = [
+                'error'=>$error,
+                'info'=>$error,
+            ];
+            $status = false;
+            $mess = '失败';
+        }
+        if($req->request_method == 'POST') {
+            //json返回
+            return $this->render($status,$mess,$data);
+        } else {
+            return $this->render($status,$mess,$data,'template','setting/menu_edit');
+        }
+    }
+
+
+
+    public function menu_addAction(RequestHelper $req,array $preData)
+    {
+        $request_parentid = $req->query_datas['parentid'];
+        try {
+            $handle_model = new model\MenuModel($this->service);
+            $path = [
+                'mark' => 'sys',
+                'bid'  => $req->company_id,
+                'pl_name'=>'admin',
+            ];
+            $query = [
+                'mod'=>'setting',
+                'act'=>'menu'
+            ];
+            $cate_index_url=  urlGen($req,$path,$query,true);
+
+
+            $where = [];
+            $lists = $handle_model->menuLists($where,[['listorder','desc'],['ctime','asc']]);
+            $tree = [];
+            if ($lists) {
+                $this->buildTree($lists,0,$tree);
+            }
+            $options = $this->selectTree($tree,$request_parentid,'',true);
+            $data = [
+                'parentid'=>$request_parentid,
+                'cate_index_url'=>$cate_index_url,
+                'cate_name'=>'菜单',
+                'options'=>$options,
+                'op'=>'add',
+            ];
+            $status = true;
+            $mess = '成功';
+
+            if($req->request_method == 'POST') {
+                $post = $req->post_datas['post'];
+
+                if ($post) {
+                    if($post['parentid']!=$request_parentid) {
+                        throw new \Exception('菜单id不对应。');
+                    }
+                    //正常的编辑
+                    $map = [];
+                    if ($post['name']) {
+                        $map['name'] = trim($post['name']);
+                    } else {
+                        throw new \Exception('名称不对。');
+                    }
+                    if ($post['app']) {
+                        $map['app'] = trim($post['app']);
+                    } else {
+                        throw new \Exception('应用不对。');
+                    }
+                    if ($post['model']) {
+                        $map['model'] = trim($post['model']);
+                    } else {
+                        throw new \Exception('模型不对。');
+                    }
+                    if ($post['action']) {
+                        $map['action'] = trim($post['action']);
+                    } else {
+                        throw new \Exception('行为不对。');
+                    }
+                    $map['parentid'] = $post['parentid'];
+                    $check_info_where = [
+                        'name'=>$map['name'],
+                        'parentid'=>$map['parentid'],
+                    ];
+                    $exist = $handle_model->menuInfo($check_info_where);
+                    if ($exist && $post['uid']!=$exist['id']) {
+                        throw new \Exception('名称已经存在');
+                    }
+
+
+                    if ($post['status']) {
+                        $map['status'] = $post['status'];
+                    } else {
+                        $map['status'] = 1;
+                    }
+
+                    if ($post['data']) {
+                        $map['data'] = $post['data'];
+                    }
+                    if ($post['type']) {
+                        $map['type'] = $post['type'];
+                    } else {
+                        $map['type'] = 1;
+                    }
+                    if ($post['link']) {
+                        $map['link'] = $post['link'];
+                    }
+                    if ($post['use_priv']) {
+                        $map['use_priv'] = $post['use_priv'];
+                    } else {
+                        $map['use_priv'] = 0;
+                    }
+                    if ($post['remark']) {
+                        $map['remark'] = $post['remark'];
+                    }
+
+                    $map['ctime'] = time();
+                    $map['mtime'] = time();
+
+
+
+                    $flag = $handle_model->addMenu($map);
+                    if (!$flag) {
+                        throw new \Exception('保存错误');
+                    } else {
+                        $data = [
+                            'info'=>'保存成功',
+                            'op'=>'add',
+                        ];
+                        $status = true;
+                        $mess = '成功';
+                    }
+
+                }
+
+            }
+
+
+        } catch (\Exception $e) {
+            $error = $e->getMessage();
+            $data = [
+                'error'=>$error,
+                'info'=>$error,
+                'op'=>'add',
+            ];
+
+            $status = false;
+            $mess = '失败';
+        }
+        if($req->request_method == 'POST') {
+            //json返回
+            return $this->render($status,$mess,$data);
+        } else {
+            return $this->render($status,$mess,$data,'template','setting/menu_edit');
+        }
+    }
+
+    public function menu_deleteAction(RequestHelper $req,array $preData)
+    {
+        if ($req->request_method=='POST') {
+            $remove_uids = $req->post_datas['ids'];
+        } else {
+            $request_uid = $req->query_datas['id'];
+            $remove_uids = [$request_uid];
+        }
+
+        $flag = true;
+        if (!empty($remove_uids)) {
+            $rel_model = new model\MenuModel($this->service);
+            foreach ($remove_uids as $remove_id) {
+                if ($remove_id==1) continue;
+                $where = ['id'=>$remove_id];
+                $res = $rel_model->deleteMenu($where);
+                $flag = $flag && $res;
+            }
+
+        }
+
+        if ($flag) {
+            $status = true;
+            $mess = '成功';
+            $data = [
+                'info'=>$mess,
+                'status' => true,
+            ];
+        } else {
+            $status = false;
+            $mess = '失败，不允许删除';
+            $data = [
+                'info'=>$mess,
+                'status' => false,
+            ];
+        }
+
+        return $this->render($status,$mess,$data);
     }
 
 }

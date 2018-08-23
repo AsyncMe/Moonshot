@@ -1,0 +1,197 @@
+{% extends 'boot/frame.twig.html' %}
+
+
+{% block frame_global_style %}
+<style type="text/css">
+    #container .conteiner_wrap {padding:10px;}
+
+    .pic-list li {  margin-bottom: 5px;  }
+    .color-box { float:left;width:30px; height:30px;margin:5px;border: 1px solid #c2ccd1;}
+    .item_attr{float: left;margin-right: 5px;margin-top: 10px;width: 36px;height: 18px;line-height: 18px;}
+    .item_attr_input{width: 36px;float: left;margin: 5px 5px 5px 0px;height: 30px;padding: 4px 5px !important;}
+    .item_prefix_input{width: 96px;float: left;margin: 5px 5px 5px 0px;height: 30px;padding: 4px 5px !important;}
+    #smeta_prefix_select{width: 96px !important;margin-top:5px;}
+    .table-bordered th{font-weight: 200;}
+
+    .form-required {margin-left: 5px;}
+</style>
+{% endblock %}
+
+{% block frame_head_script %}
+<script type="application/javascript">
+    GV = GV ? GV : {};
+    GV.UPLOAD_HANDLE = '{{ asset_upload_url }}';
+    var _extram_data = {
+        admin_uid : "{{ admin_uid }}"
+    }
+    var app_extra_params='sys';
+</script>
+{% endblock %}
+
+{% block frame_content %}
+<div class="conteiner_wrap js-check-wrap">
+    <ul class="nav nav-tabs">
+        <li><a href="{{ cate_index_url|default('#') }}">{{ cate_name }}</a></li>
+        <li class="active"><a>
+            {%if op=='add' %} 新增 {% else %} 编辑 {% endif %}
+        </a></li>
+    </ul>
+
+    {% if error %}
+    {% include 'error_box.twig.html' %}
+    {% else %}
+
+    <form action="" method="post" class="form-horizontal js-ajax-form" enctype="multipart/form-data">
+        <div class="row-fluid">
+            <div class="span9">
+                <table class="table table-bordered">
+
+
+
+                    <tr>
+                        <th width="80">父菜单</th>
+                        <td>
+                            <select name="post[parentid]">
+
+                                {% for opt_key,opt_val in options %}
+                                {% if op=='add' %}
+                                <option value="{{opt_val.id}}" {{opt_val.disabled|raw}} {% if opt_val.id==parentid %} selected="selected" {% endif %}>{{opt_val.space|raw}}{{opt_val.level_str}} {{opt_val.name}}</option>
+                                {% else %}
+                                <option value="{{opt_val.id}}" {{opt_val.disabled|raw}} {% if opt_val.id==res_info.parentid %} selected="selected" {% endif %}>{{opt_val.space|raw}}{{opt_val.level_str}} {{opt_val.name}}</option>
+                                {% endif %}
+                                {% endfor %}
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th width="80">名称</th>
+                        <td>
+                            <input type="text" style="width: 400px;" name="post[name]" required value="{{ res_info.name }}" placeholder="请输入名称"/>
+                            <span class="form-required">*</span>
+                            <span class="form-required"></span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th width="80">应用</th>
+                        <td>
+                            <input type="text" style="width: 400px;" name="post[app]" required value="{{ res_info.app }}" placeholder="请输入应用"/>
+                            <span class="form-required">*</span>
+                            <span class="form-required"></span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th width="80">模型</th>
+                        <td>
+                            <input type="text" style="width: 400px;" name="post[model]" required value="{{ res_info.model }}" placeholder="请输入模型"/>
+                            <span class="form-required">*</span>
+                            <span class="form-required"></span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th width="80">行为</th>
+                        <td>
+                            <input type="text" style="width: 400px;" name="post[action]" required value="{{ res_info.action }}" placeholder="请输入行为"/>
+                            <span class="form-required">*</span>
+                            <span class="form-required"></span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th width="80">额外参数</th>
+                        <td>
+                            <input type="text" style="width: 400px;" name="post[data]"  value="{{ res_info.data }}" placeholder="请输入额外参数"/>
+                            <span class="form-required"></span>
+                        </td>
+                    </tr>
+
+
+
+                </table>
+                <table class="table table-bordered">
+                    <blockquote>属性</blockquote>
+                    <tr>
+                        <th width="80">类型</th>
+                        <td>
+                            <input type="radio"  name="post[type]"  value="1" {% if res_info.type == 1 %} checked="checked"{% endif %} /> 菜单
+                            &nbsp;&nbsp;
+                            <input type="radio"  name="post[type]"  value="2" {% if res_info.type == 2 %} checked="checked"{% endif %} /> 外链
+                            &nbsp;&nbsp;
+                            <input type="radio"  name="post[type]"  value="0" {% if res_info.type == 0 %} checked="checked"{% endif %}/> 分组
+                        </td>
+                    </tr>
+                    <tr>
+                        <th width="80">外链的url</th>
+                        <td>
+                            <input type="text" style="width: 400px;" name="post[link]"  value="{{ res_info.link }}" placeholder="请输入外链"/>
+                            <span class="form-required"></span>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <th width="80">权限控制</th>
+                        <td>
+                            <input type="radio"  name="post[use_priv]"  value="1" {% if res_info.use_priv == 1 %} checked="checked"{% endif %} /> 控制
+                            &nbsp;&nbsp;
+                            <input type="radio"  name="post[use_priv]"  value="0" {% if res_info.use_priv == 0 %} checked="checked"{% endif %}/> 不控制
+                        </td>
+                    </tr>
+
+                </table>
+
+                <table class="table table-bordered">
+                    <blockquote>说明</blockquote>
+                    <tr>
+                        <th width="80">备注</th>
+                        <td>
+                            <textarea name="post[remark]" rows="5" cols="57" style="width: 403px; height: 92px;">{{ res_info.remark }}</textarea>
+                            <span class="form-required"></span>
+                        </td>
+                    </tr>
+
+                </table>
+
+
+
+            </div>
+            <div class="span3">
+                <table class="table table-bordered">
+                    <tr>
+                        <th width="80">状态</th>
+                    </tr>
+                    <tr>
+                        <td>
+                            <input type="radio"  name="post[status]"  value="1" {% if res_info.type == 1 %} checked="checked"{% endif %} /> 显示
+                            &nbsp;&nbsp;
+                            <input type="radio"  name="post[status]"  value="0" {% if res_info.type == 0 %} checked="checked"{% endif %}/> 不显示
+                        </td>
+                    </tr>
+                    {%if op !='add' %}
+                    <tr>
+                        <td>创建时间 ： {{ res_info.ctime|date("Y-m-d H:i:s")}}</td>
+                    </tr>
+
+                    <tr>
+                        <td>修改时间 ： {{ res_info.mtime|date("Y-m-d H:i:s")}}</td>
+                    </tr>
+                    {% endif %}
+                </table>
+            </div>
+        </div>
+        <div class="form-actions">
+            <input type="hidden" name="post[id]" value="{{ res_info.id }}">
+            <input type="hidden" name="post[parentid]" value="{{ parentid }}">
+            <button class="btn btn-primary js-ajax-submit" type="submit">提交</button>
+            <a class="btn" href="{{ cate_index_url|default('#') }}">返回</a>
+        </div>
+    </form>
+    {% endif %}
+</div>
+
+{% endblock %}
+{% block frame_footer %}
+<script type="application/javascript">
+    $(function(){
+
+    });
+</script>
+
+{% endblock %}
