@@ -282,11 +282,30 @@ function ng_mysql_json_safe_decode($data)
     return json_decode(stripslashes($data),true);
 }
 
+/**
+ * 调试输出
+ * @param $data
+ */
 function dump($data)
 {
     echo "<pre>";
     var_dump($data);
     echo "</pre>";
+}
+
+/**
+ * 使用转换
+ * @param int $use
+ * @return string
+ */
+function use2Str($use=1,$option=['不显示','显示'])
+{
+    if (isset($option[$use]))
+    {
+        return $option[$use];
+    }
+
+    return $option[0];
 }
 
 
