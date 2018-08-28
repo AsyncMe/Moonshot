@@ -126,18 +126,32 @@ class AdminBase extends Plugins
         if ($default_menu_id) {
             $subMenus = $model->getSubMenu($default_menu_id);
             $subMenus = $this->recursion_menus($req,$subMenus);
+
+        }
+
+        if($subMenus) {
+            $path = [
+                'mark' => 'sys',
+                'bid'  => $req->company_id,
+                'pl_name'=>$subMenus[0]['app'],
+            ];
+            $query = [
+                'mod'=>$subMenus[0]['model'],
+                'act'=>$subMenus[0]['action']
+            ];
+        } else {
+            $path = [
+                'mark' => 'sys',
+                'bid'  => $req->company_id,
+                'pl_name'=>'admin',
+            ];
+            $query = [
+                'mod'=>'index',
+                'act'=>'info'
+            ];
         }
 
 
-        $path = [
-            'mark' => 'sys',
-            'bid'  => $req->company_id,
-            'pl_name'=>'admin',
-        ];
-        $query = [
-            'mod'=>'index',
-            'act'=>'info'
-        ];
         $default_frame_url = urlGen($req,$path,$query,true);
         $default_frame_name = '首页';
 

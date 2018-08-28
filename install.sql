@@ -145,7 +145,7 @@ CREATE TABLE `ng_sys_company_account` (
   KEY `idx_nickname` (`nickname`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='企业账号信息表';
 
-#功能权限表
+#管理功能权限表
 CREATE TABLE `ng_sys_menu` (
   `id` smallint(6) unsigned NOT NULL AUTO_INCREMENT,
   `parentid` smallint(6) unsigned NOT NULL DEFAULT '0',
@@ -172,21 +172,49 @@ CREATE TABLE `ng_sys_menu` (
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='后台管理菜单表';
 
 #insert datas
-insert into  `ng_sys_menu` (`id`, `parentid`, `app`, `model`, `action`, `data`,`category`, `placehold`, `use_priv`,`type`,`link`, `status`, `name`, `icon`, `remark`, `listorder` ,`ctime`,`mtime`) VALUES
-(1,0,'admin','index','index','','top','',1,1,'',1,'首页','th','',30,1532693502,1532693502),
-(2,0,'admin','site','index','','top','',1,1,'',1,'网站','th','',30,1532693502,1532693502),
-(3,0,'admin','mini','index','','top','',1,1,'',1,'小程序','th','',25,1532693502,1532693502),
-(4,0,'admin','user','index','','top','',1,1,'',1,'用户','th','',20,1532693502,1532693502),
-(5,0,'admin','setting','index','','top','',1,1,'',1,'设置','th','',15,1532693502,1532693502),
-(6,0,'admin','plugins','index','','top','',1,1,'',1,'插件','th','',10,1532693502,1532693502);
 
-insert into  `ng_sys_menu` (`id`, `parentid`, `app`, `model`, `action`, `data`,`category`, `placehold`, `use_priv`,`type`,`link`, `status`, `name`, `icon`, `remark`, `listorder` ,`ctime`,`mtime`) VALUES
-(10,1,'admin','index','info','','综合','',1,1,'',1,'信息','th','',30,1532693502,1532693502),
-(11,1,'admin','index','dashboard','','综合','',1,1,'',1,'仪表盘','th','',30,1532693502,1532693502);
+INSERT INTO `ng_sys_menu` VALUES
+(1,0,'admin','index','index','','top','',1,1,'',1,'首页','th','',30,1532693502,1535022134),
+(2,0,'admin','site','index','','top','',1,1,'',1,'网站','th','',21,1532693502,1535022134),
+(3,0,'admin','mini','index','','top','',1,1,'',1,'小程序','th','',25,1532693502,1535022134),
+(4,0,'admin','user','index','','top','',1,1,'',1,'用户','th','',13,1532693502,1535022134),
+(5,0,'admin','setting','index','','top','',1,1,'',1,'设置','th','',15,1532693502,1535022134),
+(6,0,'admin','plugins','index','','top','',1,1,'',1,'插件','th','',10,1532693502,1535022134),
+(10,1,'admin','index','info','','综合','',1,1,'',1,'信息','th','',30,1532693502,1535022134),
+(11,1,'admin','index','dashboard','','综合','',1,1,'',1,'仪表盘','th','',30,1532693502,1535022134),
+(12,4,'admin','user','admin','','用户','',1,1,'',1,'管理者','th','',30,1532693502,1535442995),
+(13,4,'admin','user','company','','用户','',1,1,'',1,'运营者','th','',30,1532693502,1535022134),
+(14,5,'admin','setting','lists','','',NULL,1,1,NULL,1,'配置',NULL,'',0,1535443949,1535443949),
+(15,5,'admin','setting','menu','','',NULL,1,1,NULL,1,'管理菜单',NULL,'',0,1535444004,1535444004),
+(16,5,'admin','setting','manage_menu','','',NULL,1,1,NULL,1,'运营菜单',NULL,'',0,1535445793,1535445793);
 
-insert into  `ng_sys_menu` ( `parentid`, `app`, `model`, `action`, `data`,`category`, `placehold`, `use_priv`,`type`,`link`, `status`, `name`, `icon`, `remark`, `listorder` ,`ctime`,`mtime`) VALUES
-(4,'admin','user','admin','','用户','',1,1,'',1,'管理者','th','',30,1532693502,1532693502),
-(4,'admin','user','company','','用户','',1,1,'',1,'运营者','th','',30,1532693502,1532693502);
+
+
+#经营功能权限表
+CREATE TABLE `ng_manage_menu` (
+  `id` smallint(6) unsigned NOT NULL AUTO_INCREMENT,
+  `parentid` smallint(6) unsigned NOT NULL DEFAULT '0',
+  `app` varchar(100) NOT NULL DEFAULT '' COMMENT '应用名称app/插件名称',
+  `model` varchar(30)  NULL DEFAULT '' COMMENT '控制器',
+  `action` varchar(50)  NULL DEFAULT '' COMMENT '操作名称',
+  `data` varchar(250)  NULL DEFAULT '' COMMENT '额外参数',
+  `category` varchar(250)  NULL DEFAULT '' COMMENT '分类组合',
+  `placehold` varchar(50) null COMMENT '替换符合，通常用于bid',
+  `use_priv` tinyint(1) NOT NULL DEFAULT '1' COMMENT ' 1：权限认证,0:不使用权限',
+  `type` tinyint(1) NOT NULL DEFAULT '1' COMMENT '菜单类型  0：作为分组; 1：只作为菜单；2:外链',
+  `link` varchar(255) NULL  COMMENT '外链URL，仅在type为2时生效',
+  `status` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT '状态，1显示，0不显示',
+  `name` varchar(50) NOT NULL COMMENT '菜单名称',
+  `icon` varchar(50) DEFAULT NULL COMMENT '菜单图标',
+  `remark` varchar(255)  NULL DEFAULT '' COMMENT '备注',
+  `listorder` smallint(6) unsigned NOT NULL DEFAULT '0' COMMENT '排序ID',
+  `ctime` int(11) NOT NULL COMMENT '创建时间',
+  `mtime` int(11) NOT NULL COMMENT '修改时间',
+  PRIMARY KEY (`id`),
+  KEY `idx_name` (`name`),
+  KEY `idx_app` (`app`),
+  KEY `idx_listorder` (`listorder`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='运营管理菜单表';
 
 CREATE TABLE `ng_sys_config` (
   `id` smallint(6) unsigned NOT NULL AUTO_INCREMENT,

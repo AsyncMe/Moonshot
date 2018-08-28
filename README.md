@@ -234,6 +234,28 @@ $this->db->getConnection()->disableQueryLog();
     $this->service->getLogger()->addEmergency($info);
 ```
 
+# 权限分为两种
+1. 功能权限
+1.1 动作权限（菜单）
+* 默认权限 (default)
+* 首页权限 (index)
+* 列表权限 (lists)
+* 增加权限 (add)
+* 查看权限 (info)
+* 修改权限 (edit)
+* 删除权限 (delete)
+* 排序权限 (orderlists)
+* 修改状态权限 (changestatus)
+* 修改类型权限 (changetype)
+* 审核权限   (review)
+* 发布权限   (publish)
+* 撤回权限   (revoke)
+* 授权权限   (grant)
+* 导入权限   (import)
+* 导出权限   (export)
+
+1.2 按钮权限 (按钮)
+2. 数据权限
 
 # docs
 * twig文档 https://www.kancloud.cn/yunye/twig-cn/159454

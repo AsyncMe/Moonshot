@@ -9,9 +9,9 @@
 namespace admin\model;
 
 
-class MenuModel extends AdminModel
+class ManageMenuModel extends AdminModel
 {
-    protected $menu_table = 'sys_menu';
+    protected $menu_table = 'manage_menu';
 
     public function getNav()
     {
