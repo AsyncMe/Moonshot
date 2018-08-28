@@ -23,32 +23,18 @@ class Setting extends PermissionBase
 
         $nav_data = $this->nav_default($req,$preData);
 
-
         //ng_func_privilege_check($req->company_id,$this->sessions['admin_uid'],'index');
-
-        $path = [
-            'mark' => 'sys',
-            'bid'  => $req->company_id,
-            'pl_name'=>'admin',
-        ];
-        $query = [
-            'mod'=>'setting',
-            'act'=>'lists'
-        ];
-        $default_frame_url = urlGen($req,$path,$query,true);
-
 
         $data = [
             'default_frame_name'=>'设置',
             'content'=>'',
-            'default_frame_url'=>$default_frame_url,
         ];
         $data = array_merge($nav_data,$data);
 
         return $this->render($status,$mess,$data,'template','setting/index');
     }
 
-    public function listsAction(RequestHelper $req,array $preData)
+    public function settingAction(RequestHelper $req,array $preData)
     {
         $status = true;
         $mess = '成功';
@@ -136,7 +122,7 @@ class Setting extends PermissionBase
         ];
         $data = array_merge($nav_data,$data);
 
-        return $this->render($status,$mess,$data,'template','setting/lists');
+        return $this->render($status,$mess,$data,'template','setting/setting');
     }
 
     public function setting_deleteAction(RequestHelper $req,array $preData)
@@ -183,22 +169,21 @@ class Setting extends PermissionBase
     {
         $request_uid = $req->query_datas['uid'];
         try {
-            $account_model = new model\ConfigModel($this->service);
+            $rel_model = new model\ConfigModel($this->service);
             if ($request_uid) {
-                $admin_account = $account_model->getConfigInfo(['id'=>$request_uid]);
-                if (!$admin_account) {
+                $rel_info = $rel_model->getConfigInfo(['id'=>$request_uid]);
+                if (!$rel_info) {
                     throw new \Exception('配置不存在');
                 }
 
-                if ($admin_account['config']) {
-                    $admin_account['config'] = ng_mysql_json_safe_decode($admin_account['config']);
+                if ($rel_info['config']) {
+                    $rel_info['config'] = ng_mysql_json_safe_decode($rel_info['config']);
                 }
                 $data = [
-                    'info'=>$admin_account,
+                    'info'=>$rel_info,
                 ];
                 $status = true;
                 $mess = '成功';
-                dump($admin_account['config']);
             }
         }catch (\Exception $e) {
             $error = $e->getMessage();
@@ -210,6 +195,26 @@ class Setting extends PermissionBase
             $mess = '失败';
         }
 
+        return $this->render($status,$mess,$data,'template','setting/setting_info');
+    }
+
+    public function setting_export(RequestHelper $req,array $preData)
+    {
+        $status = true;
+        $mess = '成功';
+        $data =[
+            'info'=>'building'
+        ];
+        return $this->render($status,$mess,$data,'template','empty');
+    }
+
+    public function setting_import(RequestHelper $req,array $preData)
+    {
+        $status = true;
+        $mess = '成功';
+        $data =[
+            'info'=>'building'
+        ];
         return $this->render($status,$mess,$data,'template','empty');
     }
 

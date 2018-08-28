@@ -1,0 +1,69 @@
+{% extends 'boot/frame.twig.html' %}
+
+
+{% block frame_global_style %}
+<style type="text/css">
+    #container .conteiner_wrap {padding:10px;}
+
+    .pic-list li {  margin-bottom: 5px;  }
+    .color-box { float:left;width:30px; height:30px;margin:5px;border: 1px solid #c2ccd1;}
+    .item_attr{float: left;margin-right: 5px;margin-top: 10px;width: 36px;height: 18px;line-height: 18px;}
+    .item_attr_input{width: 36px;float: left;margin: 5px 5px 5px 0px;height: 30px;padding: 4px 5px !important;}
+    .item_prefix_input{width: 96px;float: left;margin: 5px 5px 5px 0px;height: 30px;padding: 4px 5px !important;}
+    #smeta_prefix_select{width: 96px !important;margin-top:5px;}
+    .table-bordered th{font-weight: 200;}
+
+    .form-required {margin-left: 5px;}
+</style>
+{% endblock %}
+
+{% block frame_head_script %}
+
+{% endblock %}
+
+{% block frame_content %}
+<div class="conteiner_wrap js-check-wrap">
+
+
+    {% if error %}
+    {% include 'error_box.twig.html' %}
+    {% else %}
+
+    <div class="row-fluid">
+        <div class="span9" id="table_container">
+            <table class="table table-bordered">
+                <tr>
+                    <th width="80">配置</th>
+                    <td>
+                        <span class="form-required">{{info.name}}</span>
+                    </td>
+                </tr>
+            </table>
+            <table class="table table-bordered">
+                <blockquote>键值对</blockquote>
+                <tr>
+                    <th>键名</th>
+                    <th><span class="form-required">值</span></th>
+                </tr>
+                {% for key,val in info.config %}
+                <tr>
+                    <th width="80">{{key}}</th>
+                    <td>
+                        <span class="form-required">{{val}}</span>
+                    </td>
+                </tr>
+                {% endfor %}
+            </table>
+
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+{% endblock %}
+{% block frame_footer %}
+<script type="application/javascript">
+
+</script>
+
+{% endblock %}
