@@ -24,7 +24,7 @@
     var _extram_data = {
         admin_uid : "{{ admin_uid }}"
     }
-    var app_extra_params='sys';
+    var app_extra_params='user';
 </script>
 {% endblock %}
 
@@ -51,7 +51,7 @@
                         <td>
                             <input type="text" style="width: 400px;" name="post[username]" required value="{{ obj_rel.username }}" placeholder="请输入账号"/>
                             <span class="form-required">*</span>
-                            <span class="form-required">5～16位数</span>
+                            <span class="form-required">3～16位数</span>
                         </td>
                     </tr>
 
@@ -66,9 +66,9 @@
                     <tr>
                         <th width="80">性别</th>
                         <td>
-                            <input type="radio"  name="post[sex]"  value="1" {% if obj_rel.sex == 2 %} checked="checked"{% endif %} /> 男
+                            <input type="radio"  name="post[sex]"  value="2" {% if obj_rel.sex == 2 %} checked="checked"{% endif %} /> 男
                             &nbsp;&nbsp;
-                            <input type="radio"  name="post[sex]"  value="0" {% if obj_rel.sex == 1 %} checked="checked"{% endif %}/> 女
+                            <input type="radio"  name="post[sex]"  value="1" {% if obj_rel.sex == 1 %} checked="checked"{% endif %}/> 女
                             &nbsp;&nbsp;
                             <input type="radio"  name="post[sex]"  value="0" {% if obj_rel.sex == 0 %} checked="checked"{% endif %}/> 保密
                         </td>
@@ -80,7 +80,7 @@
                     <tr>
                         <th width="80">sys_uid</th>
                         <td>
-                            <input style="width: 400px;"  value="{{ obj_rel.sys_uid }}" placeholder="sys_uid"/>
+                            <input style="width: 400px;" readonly  value="{{ obj_rel.sys_uid }}" placeholder="sys_uid"/>
                             <span class="form-required"></span>
                         </td>
                     </tr>
@@ -144,14 +144,14 @@
                     <tr>
                         <th width="80">openid</th>
                         <td>
-                            <input type="text" style="width: 400px;" name="post[openid]" required value="{{ obj_rel.openid }}" placeholder="请输入openid"/>
+                            <input type="text" style="width: 400px;" name="post[openid]"  value="{{ obj_rel.openid }}" placeholder="请输入openid"/>
                             <span class="form-required">openid</span>
                         </td>
                     </tr>
                     <tr>
                         <th width="80">unionid</th>
                         <td>
-                            <input type="text" style="width: 400px;" name="post[unionid]" required value="{{ obj_rel.unionid }}" placeholder="请输入unionid"/>
+                            <input type="text" style="width: 400px;" name="post[unionid]"  value="{{ obj_rel.unionid }}" placeholder="请输入unionid"/>
                             <span class="form-required">unionid</span>
                         </td>
                     </tr>
@@ -164,18 +164,6 @@
                     </tr>
                 </table>
 
-                <table class="table table-bordered">
-                    <blockquote>状态</blockquote>
-                    <tr>
-                        <th width="80">状态</th>
-                        <td>
-                            <input type="radio"  name="post[status]"  value="1" {% if obj_rel.status == 1 %} checked="checked"{% endif %} /> 正常
-                            &nbsp;&nbsp;
-                            <input type="radio"  name="post[status]"  value="0" {% if obj_rel.status == 0 %} checked="checked"{% endif %}/> 禁用
-                        </td>
-                    </tr>
-
-                </table>
 
             </div>
             <div class="span3">
@@ -199,6 +187,16 @@
                             </div>
                         </td>
                     </tr>
+                    <tr>
+                        <td><b>状态</b></td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <input type="radio"  name="post[status]"  value="1" {% if obj_rel.status == 1 %} checked="checked"{% endif %} /> 正常
+                            &nbsp;&nbsp;
+                            <input type="radio"  name="post[status]"  value="0" {% if obj_rel.status == 0 %} checked="checked"{% endif %}/> 禁用
+                        </td>
+                    </tr>
                     {%if op !='add' %}
                     <tr>
                         <td>创建时间 ： {{ obj_rel.ctime|date("Y-m-d H:i:s")}}</td>
@@ -212,7 +210,7 @@
             </div>
         </div>
         <div class="form-actions">
-            <input type="hidden" name="post[uid]" value="{{ obj_rel.id }}">
+            <input type="hidden" name="post[sys_uid]" value="{{ obj_rel.sys_uid }}">
             <button class="btn btn-primary js-ajax-submit" type="submit">提交</button>
             <a class="btn" href="{{ cate_index_url|default('#') }}">返回</a>
         </div>

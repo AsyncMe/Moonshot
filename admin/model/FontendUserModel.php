@@ -68,7 +68,7 @@ class FontendUserModel extends AdminModel
         if (!$info['sys_uid']) $info['sys_uid'] = $map['sys_uid'];
         if (!$info['company_id']) $info['company_id'] = $map['company_id'];
         if (!$info['work_id']) $info['work_id'] = $map['work_id'];
-        if (!$info['username']) $info['work_id'] = $map['username'];
+        if (!$info['username']) $info['username'] = $map['username'];
         if (!$info['mtime']) $info['mtime'] = time();
         if (!$info['ctime']) $info['ctime'] = time();
 

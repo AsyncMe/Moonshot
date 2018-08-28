@@ -1068,7 +1068,7 @@ class User extends PermissionBase
         if ($req->request_method=='POST') {
             $remove_uids = $req->post_datas['ids'];
         } else {
-            $request_uid = $req->query_datas['uid'];
+            $request_uid = $req->query_datas['sys_uid'];
             $remove_uids = [$request_uid];
         }
 
@@ -1134,6 +1134,7 @@ class User extends PermissionBase
                 'op'=>'add',
                 'cate_index_url'=>$cate_index_url,
                 'asset_upload_url'=>$asset_upload_url,
+                'admin_uid'=>$this->sessions['admin_uid'],
             ];
 
             if($req->request_method == 'POST') {
@@ -1143,7 +1144,7 @@ class User extends PermissionBase
                     $account_model = new model\FontendUserModel($this->service);
                     //正常的编辑
                     $map = [];
-                    if ($post['username'] && preg_match('/\w{5,16}/is',$post['username'])) {
+                    if ($post['username'] && preg_match('/\w{3,16}/is',$post['username'])) {
                         $map['username'] = $post['username'];
                     } else {
                         throw new \Exception('用户名不对。');
@@ -1168,9 +1169,7 @@ class User extends PermissionBase
                     }
 
                     //密码
-                    if (!$post['newpassword'] || !$post['comfirm_password']) {
-                        throw new \Exception('密码必须填。');
-                    } else if($post['newpassword']!=$post['comfirm_password']) {
+                    if($post['newpassword']!=$post['comfirm_password']) {
                         throw new \Exception('错认密码错误。');
                     } else {
                         $map['password'] = md5($post['newpassword']);
@@ -1181,8 +1180,8 @@ class User extends PermissionBase
                     $map['unionid'] = $post['unionid'];
                     $map['sex'] = $post['sex'];
                     $map['comeform'] = $post['comeform'];
+                    $map['status'] = $post['status'];
 
-                    //管理员添加
                     if ($post['config']) {
                         $map['config'] = ng_mysql_json_safe_encode($post['config']);
                     }
@@ -1227,9 +1226,9 @@ class User extends PermissionBase
 
     public function frontend_user_editAction(RequestHelper $req,array $preData)
     {
-        $request_uid = $req->query_datas['uid'];
+        $request_uid = $req->query_datas['sys_uid'];
         try {
-            $account_model = new model\AccountModel($this->service);
+            $rel_model = new model\FontendUserModel($this->service);
             if ($request_uid) {
                 //返回地址
                 $path = [
@@ -1239,7 +1238,7 @@ class User extends PermissionBase
                 ];
                 $query = [
                     'mod'=>'user',
-                    'act'=>'company'
+                    'act'=>'frontend_user'
                 ];
                 $cate_index_url=  urlGen($req,$path,$query,true);
 
@@ -1252,34 +1251,28 @@ class User extends PermissionBase
                 $query = [
                     'mod'=>'asset',
                     'act'=>'upload',
-                    'admin_uid'=>$request_uid,
+                    'admin_uid'=>$this->sessions['admin_uid'],
                 ];
                 $asset_upload_url = urlGen($req,$path,$query,true);
 
 
-                $admin_account = $account_model->getCompanyAccount(['id'=>$request_uid]);
-                if (!$admin_account) {
-                    throw new \Exception('账号不存在');
+                $rel_info = $rel_model->userInfo(['sys_uid'=>$request_uid]);
+                if (!$rel_info) {
+                    throw new \Exception('用户不存在');
                 }
 
-                if (!$admin_account['expire_time']) {
-                    $admin_account['expire_time'] = '';
-                } else {
-                    $admin_account['expire_time'] = date('Y-m-d',$admin_account['expire_time']);
+                if (!$rel_info['config']) {
+                    $rel_info['config'] = htmlspecialchars_decode($rel_info['config']);
                 }
-                if (!$admin_account['desc']) {
-                    $admin_account['desc'] = htmlspecialchars_decode($admin_account['desc']);
-                }
-
 
 
                 $data = [
                     'uid'=>$request_uid,
-                    'admin_uid'=>$request_uid,
+                    'admin_uid'=>$this->sessions['admin_uid'],
                     'cate_index_url'=>$cate_index_url,
                     'asset_upload_url'=>$asset_upload_url,
-                    'cate_name'=>'运营者',
-                    'obj_rel'=>$admin_account,
+                    'cate_name'=>'终端用户',
+                    'obj_rel'=>$rel_info,
                 ];
                 $status = true;
                 $mess = '成功';
@@ -1288,28 +1281,27 @@ class User extends PermissionBase
                     $post = $req->post_datas['post'];
 
                     if ($post) {
-                        if($post['uid']!=$request_uid) {
+                        if($post['sys_uid']!=$request_uid) {
                             throw new \Exception('用户名uid不对应。');
                         }
                         //正常的编辑
                         $map = [];
-                        if ($post['account'] && preg_match('/\w{5,16}/is',$post['account'])) {
-                            $map['account'] = $post['account'];
+                        if ($post['username'] && preg_match('/\w{3,16}/is',$post['username'])) {
+                            $map['username'] = $post['username'];
                         } else {
-                            throw new \Exception('账号不对。');
-                        }
-                        $check_account_where = [
-                            'account'=>$map['account'],
-                        ];
-                        $exist = $account_model->getCompanyAccount($check_account_where);
-                        if ($exist && $post['uid']!=$exist['id']) {
-                            throw new \Exception('账号已经存在');
+                            throw new \Exception('用户名不对。');
                         }
 
-                        if ($post['group_id'] && preg_match('/[1-9]\d{2,15}/is',$post['group_id'])) {
-                            $map['group_id'] = $post['group_id'];
+                        if ($post['company_id'] && preg_match('/[1-9]\d{2,10}/is',$post['company_id'])) {
+                            $map['company_id'] = $post['company_id'];
                         } else {
-                            throw new \Exception('域id格式不对。');
+                            throw new \Exception('大Bid格式不对。');
+                        }
+
+                        if ($post['work_id'] && preg_match('/\w{8,16}/is',$post['work_id'])) {
+                            $map['work_id'] = $post['work_id'];
+                        } else {
+                            throw new \Exception('业务id格式不对。');
                         }
 
                         if ($post['nickname'] && (mb_strlen($post['nickname'],'UTF-8')>=2 && mb_strlen($post['nickname'],'UTF-8')<=10)) {
@@ -1322,14 +1314,12 @@ class User extends PermissionBase
                         if (!$post['password'] && ($post['newpassword'] || $post['comfirm_password'])) {
                             throw new \Exception('原始密码必须填。');
                         } else if($post['password']) {
-                            if($account_model->checkPass($post['password'],$admin_account['password'],$admin_account['slat'])) {
+                            if($rel_info['password']==md5($post['password'])) {
 
                                 if($post['newpassword']!=$post['comfirm_password']) {
                                     throw new \Exception('错认密码错误。');
                                 } else {
-                                    $slat = substr(getRandomStr(),0,6);
                                     $map['password'] = md5($post['newpassword'].$slat);
-                                    $map['slat'] =  $slat;
                                 }
 
                             } else {
@@ -1337,40 +1327,25 @@ class User extends PermissionBase
                             }
                         }
 
-                        if ($post['status']) {
-                            $map['status'] = $post['status'];
-                        }
-
-                        if ($post['expire_time']) {
-                            $map['expire_time'] = strtotime($post['expire_time']);
-                        }
-                        if ($post['contact_user']) {
-                            $map['contact_user'] = $post['contact_user'];
-                        } else {
-                            throw new \Exception('联系人不为空。');
-                        }
-
-                        if ($post['contact_phone']) {
-                            $map['contact_phone'] = $post['contact_phone'];
-                        } else {
-                            throw new \Exception('联系人电话不为空。');
-                        }
-
-                        if ($post['desc']) {
-                            $map['desc'] = htmlspecialchars($post['desc']);
-                        }
-                        if($post['alias']) {
-                            $map['alias'] = $post['alias'];
-                        }
-                        $map['group_type'] = $post['group_type'];
-
                         $map['avatar'] = $post['avatar'];
-                        $map['mtime'] = time();
+                        $map['openid'] = $post['openid'];
+                        $map['unionid'] = $post['unionid'];
+                        $map['sex'] = $post['sex'];
+                        $map['comeform'] = $post['comeform'];
+                        $map['status'] = $post['status'];
+
+                        if ($post['config']) {
+                            $map['config'] = ng_mysql_json_safe_encode($post['config']);
+                        }
+
+                        if ($post['detail']) {
+                            $map['detail'] = ng_mysql_json_safe_encode($post['detail']);
+                        }
 
                         $save_where = [
-                            'id'=> $post['uid'],
+                            'sys_uid'=> $post['sys_uid'],
                         ];
-                        $flag = $account_model->saveCompanyAccount($save_where,$map);
+                        $flag = $rel_model->saveUser($save_where,$map);
                         if (!$flag) {
                             throw new \Exception('保存错误');
                         } else {
@@ -1401,7 +1376,7 @@ class User extends PermissionBase
             //json返回
             return $this->render($status,$mess,$data);
         } else {
-            return $this->render($status,$mess,$data,'template','user/company_edit');
+            return $this->render($status,$mess,$data,'template','user/frontend_user_edit');
         }
 
     }

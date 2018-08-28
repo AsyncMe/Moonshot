@@ -42,6 +42,7 @@
             <th width="30">头像</th>
             <th width="120">用户名</th>
             <th width="120">昵称</th>
+            <th width="120">来自</th>
             <th>状态</th>
             <th>创建时间</th>
             <th width="180">操作</th>
@@ -73,6 +74,7 @@
                 <del style="color: red">禁用</del>
                 {% endif %}
             </td>
+            <td>{{ val.comeform }}</td>
             <td>{{ val.ctime|date('Y-m-d H:i:s') }}</td>
             <td>
                 <a href="{{val.edit_url}}">编辑</a>
@@ -82,7 +84,7 @@
         </tr>
         {% endfor %}
         {% else %}
-        <tr><td colspan="10">暂时没有数据！</td></tr>
+        <tr><td colspan="11">暂时没有数据！</td></tr>
         {% endif %}
         </tbody>
     </table>
