@@ -149,7 +149,7 @@ class Setting extends PermissionBase
             $rel_model = new model\ConfigModel($this->service);
             foreach ($remove_uids as $remove_id) {
                 if ($remove_id==1) continue;
-                $where = ['id'=>$remove_id];
+                $where = ['id'=>$remove_id,'lock'=>0];
                 $res = $rel_model->deleteConfigInfo($where);
                 $flag = $flag && $res;
             }
@@ -324,7 +324,7 @@ class Setting extends PermissionBase
             ];
             $query = [
                 'mod'=>'setting',
-                'act'=>'lists'
+                'act'=>'setting'
             ];
             $cate_index_url=  urlGen($req,$path,$query,true);
 
@@ -436,7 +436,7 @@ class Setting extends PermissionBase
                 ];
                 $query = [
                     'mod'=>'setting',
-                    'act'=>'lists'
+                    'act'=>'setting'
                 ];
                 $cate_index_url=  urlGen($req,$path,$query,true);
 
