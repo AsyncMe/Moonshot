@@ -587,6 +587,7 @@ class Setting extends PermissionBase
                     'cate_index_url'=>$cate_index_url,
                     'cate_name'=>'菜单',
                     'res_info'=>$res_info,
+                    'parentid'=>$res_info['parentid'],
                     'options'=>$options,
                 ];
                 $status = true;
@@ -627,7 +628,7 @@ class Setting extends PermissionBase
                             'parentid'=>$map['parentid'],
                         ];
                         $exist = $handle_model->menuInfo($check_info_where);
-                        if ($exist && $post['uid']!=$exist['id']) {
+                        if ($exist && $post['id']!=$exist['id']) {
                             throw new \Exception('名称已经存在');
                         }
 
@@ -658,7 +659,6 @@ class Setting extends PermissionBase
                         $save_where = [
                             'id'=> $post['id'],
                         ];
-
 
                         $flag = $handle_model->saveMenu($save_where,$map);
                         if (!$flag) {
