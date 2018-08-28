@@ -230,3 +230,44 @@ CREATE TABLE `ng_sys_config` (
 insert into `ng_sys_config` (`id`,`name`,`config`,`lock`,`ctime`,`mtime`) VALUES
 (1,'sys_global','{\"site_title\":\"插件管理平台\",\"site_desc\":\"插件,管理,平台,微信,小程序\",\"site_style\":\"bluesky\",\"root\":\"xxx\"}',1,1532693502,1532693502);
 
+
+
+CREATE TABLE `ng_frontend_user` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `sys_uid` varchar(16)  NOT NULL COMMENT '系统用户uid',
+  `company_id` int(10) unsigned NOT NULL COMMENT '商业id',
+  `work_id` varchar(16)  NOT NULL COMMENT '业务id:一般为8位',
+  `username` varchar(255) NOT NULL COMMENT '用户名称',
+  `password` varchar(255)  NULL COMMENT '密码',
+  `nickname` varchar(255)  NULL COMMENT '用户昵称',
+  `openid` varchar(255)  NULL COMMENT '各个平台用户openid',
+  `unionid` varchar(255)  NULL COMMENT '各个平台用户unionid',
+  `sex` SMALLINT(1) NOT NULL DEFAULT 0 COMMENT '0:保密,1:男,2:女',
+  `avatar` varchar(255)  NULL COMMENT '头像url',
+  `comeform` VARCHAR(255) NOT NULL DEFAULT 'unkonw' comment '来自什么平台',
+  `config` text NULL COMMENT '键值对,json格式',
+  `status` tinyint(1) unsigned NOT NULL DEFAULT '1' COMMENT '1:正常,2:不正常',
+  `ctime` int(11) NOT NULL COMMENT '创建时间',
+  `mtime` int(11) NOT NULL COMMENT '修改时间',
+  PRIMARY KEY (`id`),
+  KEY `idx_username` (`username`),
+  UNIQUE KEY `uni_sys_uid` (`sys_uid`),
+  UNIQUE KEY `uni_company_work` (`company_id`,`work_id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='前端用户表';
+
+CREATE TABLE `ng_frontend_user_detail` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `sys_uid` varchar(16)  NOT NULL COMMENT '系统用户uid',
+  `company_id` int(10) unsigned NOT NULL COMMENT '商业id',
+  `work_id` varchar(16)  NOT NULL COMMENT '业务id:一般为8位',
+  `username` varchar(255) NOT NULL COMMENT '用户名称',
+  `detail` text NULL COMMENT '键值对,json格式',
+  `ctime` int(11) NOT NULL COMMENT '创建时间',
+  `mtime` int(11) NOT NULL COMMENT '修改时间',
+  PRIMARY KEY (`id`),
+  KEY `idx_username` (`username`),
+  KEY `idx_sys_uid` (`sys_uid`),
+  KEY `idx_company_id` (`company_id`),
+  KEY `idx_work_id` (`work_id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='前端用户详细资料表';
+

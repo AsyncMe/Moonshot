@@ -1,0 +1,105 @@
+{% extends 'boot/frame.twig.html' %}
+
+{% block frame_head_script %}
+<style type="text/css">
+    #container .info_header {display: block; overflow: hidden;overflow: hidden;padding: 10px;}
+    #container .info_base {display: block;overflow: hidden;}
+    #container .info_base .info{ margin: 0 20px;overflow: hidden; border-right: 1px dashed #ccc; padding: 0 20px;}
+    #container .block_header {font-weight: bold;}
+    #container .line {clear:both;margin:10px 0; }
+    #container .info_desc {padding: 10px;}
+    #container .indent_content {text-indent: 25px;}
+    #container .info_preview{width: 100%;background: #eee;border: 1px solid #ccc;overflow: hidden;height: 300px;}
+    #container li {list-style-type:none;float: none;width: auto; height:auto;padding: 10px;margin: 10px 0px;border: 0px;}
+    #container .wrap {padding: 0px 20px;}
+    #container .table {margin: 10px 0px;}
+    .table_contents {width: 100%;height: auto;  overflow: hidden;}
+    .table_item{height: auto;padding: 5px;overflow: hidden;display: block;}
+</style>
+{% endblock %}
+
+{% block frame_content %}
+<form class="well form-search" method="post" action="#">
+    <input type="text" name="formget[company_id]" style="width: 200px;" value="{{ formget.company_id|default('') }}" placeholder="请输大Bid.">
+    <input type="text" name="formget[work_id]" style="width: 200px;" value="{{ formget.work_id|default('') }}" placeholder="请输业务id.">
+    <input type="text" name="formget[keyword]" style="width: 200px;" value="{{ formget.keyword|default('') }}" placeholder="请输入用户名或者昵称或者uid...">
+    <input id="default_search_btn" type="submit" class="btn btn-primary" value="搜索" />
+</form>
+<div class="wrap js-check-wrap">
+    <form class="js-ajax-form" action="#" method="post">
+        <div class="table-actions">
+            <a class="btn btn-info btn-small"  href="{{ add_action_url }}" >添加</a>
+            <button class="btn btn-primary btn-small js-ajax-submit" type="submit" data-action="{{ delete_action_url }}" data-subcheck="true" data-msg="您确定删除吗？">删除</button>
+        </div>
+
+        <table class="table table-hover table-bordered table-list" id="menus-table">
+        <thead>
+        <tr>
+            <th width="15"><label><input type="checkbox" class="js-check-all" data-direction="x" data-checklist="js-check-x"></label></th>
+            <th width="50">UID</th>
+            <th width="50">大Bid</th>
+            <th width="50">业务id</th>
+            <th width="30">头像</th>
+            <th width="120">用户名</th>
+            <th width="120">昵称</th>
+            <th>状态</th>
+            <th>创建时间</th>
+            <th width="180">操作</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% if lists %}
+        {% for key,val in lists %}
+        <tr>
+            <td><input type="checkbox" class="js-check" data-yid="js-check-y" data-xid="js-check-x" name="ids[]" value="{{ val.sys_uid }}" title="ID:{{ val.sys_uid }}"></td>
+            <td>{{ val.sys_uid }}</td>
+            <td>{{ val.company_id }}</td>
+            <td>{{ val.work_id }}</td>
+            <td>
+                {% if val.avatar == 'default' %}
+                    <img src="{{ val.avatar }}"  onerror="this.onerror='';src='/wxapp/asset/simpleboot/images/avatar/default.jpg'" width="24"/>
+                {% else %}
+                <a href="javascript:parent.image_preview_dialog('{{ val.avatar|prefixWith('/wxapp/data/','default') }}');" title="点击查看大图">
+                    <img src="{{ val.avatar|prefixWith('/wxapp/data/','default') }}"  onerror="this.onerror='';src='/wxapp/asset/simpleboot/images/avatar/default.jpg'" width="24"/>
+                </a>
+                {% endif %}
+            </td>
+            <td>{{ val.username }}</td>
+            <td>{{ val.nickname }}</td>
+            <td>
+                {% if val.status == 1 %}
+                <span style="color: green">正常</span>
+                {% else %}
+                <del style="color: red">禁用</del>
+                {% endif %}
+            </td>
+            <td>{{ val.ctime|date('Y-m-d H:i:s') }}</td>
+            <td>
+                <a href="{{val.edit_url}}">编辑</a>
+                | <a href="{{val.delete_url}}" class="js-ajax-dialog-btn" data-msg="确定删除吗？">删除</a>
+            </td>
+
+        </tr>
+        {% endfor %}
+        {% else %}
+        <tr><td colspan="10">暂时没有数据！</td></tr>
+        {% endif %}
+        </tbody>
+    </table>
+    </form>
+    <div class="pagination">
+        {% autoescape false %}
+        {{ pagination }}
+        {% endautoescape %}
+    </div>
+</div>
+
+{% endblock %}
+{% block frame_footer %}
+<script type="application/javascript">
+    $(function(){
+
+    });
+</script>
+
+{% endblock %}

@@ -126,10 +126,12 @@ class AdminModel
     protected function tableCount($table,$where=[],$raw=false)
     {
         $obj = $this->db->table($table);
-        if (!$raw) {
-            $obj=$obj->where($where);
-        } else {
-            $obj=$obj->whereRaw($where[0],$where[1]);
+        if ($where) {
+            if (!$raw) {
+                $obj=$obj->where($where);
+            } else {
+                $obj=$obj->whereRaw($where[0],$where[1]);
+            }
         }
         $count = $obj->count();
         return $count;
