@@ -12,6 +12,10 @@ namespace libs\asyncme;
 class ResponeHelper
 {
 
+    public $export_file_name;
+
+    public $export_file_type;
+
     private $status;
 
     private $mess;
@@ -68,4 +72,6 @@ class ResponeHelper
     {
         return $this->plugin_name;
     }
+
+
 }

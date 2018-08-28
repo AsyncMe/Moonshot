@@ -10,9 +10,11 @@ namespace admin;
 
 use admin\model;
 use libs\asyncme\RequestHelper;
+use libs\asyncme\ResponeHelper as ResponeHelper;
 use PHPSQLParser\PHPSQLParser;
 use PHPSQLParser\utils\PHPSQLParserConstants;
 use libs\asyncme\Page as Page;
+use \Slim\Http\UploadedFile;
 
 class Setting extends PermissionBase
 {
@@ -109,6 +111,12 @@ class Setting extends PermissionBase
         $operater_url = array_merge($query,['act'=>'setting_add']);
         $operaters_add_action =  urlGen($req,$path,$operater_url,true);
 
+        $operater_url = array_merge($query,['act'=>'setting_export']);
+        $operaters_export_action =  urlGen($req,$path,$operater_url,true);
+
+        $operater_url = array_merge($query,['act'=>'setting_import']);
+        $operaters_import_action =  urlGen($req,$path,$operater_url,true);
+
         $pagination = $page->show('Admin');
 
         $data = [
@@ -116,6 +124,8 @@ class Setting extends PermissionBase
             'lists' => $lists,
             'add_action_url'=>$operaters_add_action,
             'delete_action_url'=>$operaters_delete_action,
+            'export_action_url'=>$operaters_export_action,
+            'import_action_url'=>$operaters_import_action,
             'pagination' => $pagination,
             'formget'=>$formget,
 
@@ -198,24 +208,108 @@ class Setting extends PermissionBase
         return $this->render($status,$mess,$data,'template','setting/setting_info');
     }
 
-    public function setting_export(RequestHelper $req,array $preData)
+    public function setting_exportAction(RequestHelper $req,array $preData)
     {
+        $rel_model = new model\ConfigModel($this->service);
+        $total = $rel_model->configCount();
+        if ($total) {
+            $data = [];
+            $where =[];
+            $per_page = 100;
+            $page = $this->page('',$total,$per_page);
+            $total_page = $page->getTotalPages();
+            $current_page = $page->Current_page;
+            while($current_page <= $total_page) {
+
+                $lists = $rel_model->configLists($where,['ctime','desc'],$current_page,$per_page);
+                if ($lists) {
+                    foreach ($lists as $key=>$val) {
+                        if (is_array($val)) {
+                            foreach ($val as $k=>$v) {
+                                if($k=='id') continue;
+                                $value = stripslashes($v);
+                                $value = iconv('utf-8','gb2312',$value);
+                                $value = str_replace(',','#;#',$value);
+                                $data[$key][$k] = $value;
+                            }
+                        }
+                    }
+                }
+                $current_page++;
+            }
+
+        }
+
+
         $status = true;
         $mess = '成功';
-        $data =[
-            'info'=>'building'
-        ];
-        return $this->render($status,$mess,$data,'template','empty');
+
+        $string = '';
+        foreach ($data as $key => $value)
+        {
+            $string .= implode(",",$value)."\n"; //用英文逗号分开
+        }
+        unset($data);
+        $respone = new ResponeHelper($status,$mess,$string,'file','','');
+        $respone->export_file_name = 'setting_config_'.date('YmdHis').'.csv';
+        $respone->export_file_type = 'text/csv';
+        return $respone;
     }
 
-    public function setting_import(RequestHelper $req,array $preData)
+    public function setting_importAction(RequestHelper $req,array $preData)
     {
-        $status = true;
-        $mess = '成功';
-        $data =[
-            'info'=>'building'
-        ];
-        return $this->render($status,$mess,$data,'template','empty');
+        $rel_model = new model\ConfigModel($this->service);
+        foreach ( $req->upload_files as $file) {
+            $error = $file->getError();
+            if ($error === UPLOAD_ERR_OK) {
+
+                $filetype = $file->getClientMediaType();
+                if (strtolower($filetype) == 'text/csv') {
+                    $excelData = file($file->file);
+                    $chunkData = array_chunk($excelData, 5000);
+
+                    $count = count($chunkData);
+                    for ($i = 0; $i < $count; $i++) {
+                        foreach ($chunkData[$i] as $value) {
+                            $string = mb_convert_encoding(trim(strip_tags($value)), 'utf-8', 'gb2312');
+                            $v = explode(',', trim($string));
+                            $map = [];
+                            $map['name'] = $v[0];
+                            $map['config'] = addslashes(str_replace('#;#',',',$v[1]));
+                            $map['lock'] = $v[2];
+                            $map['ctime'] = $v[3];
+                            $map['mtime'] = $v[4];
+                            $exit = $rel_model->getConfigInfo(['name'=>$map['name']]);
+                            if (!$exit) {
+                                $flag = $rel_model->addConfigInfo($map);
+                            }
+
+                        }
+                    }
+                }
+
+            } else {
+                $flag = false;
+                break;
+            }
+        }
+        if ($flag) {
+            $status = true;
+            $mess = '成功';
+            $data = [
+                'info'=>$mess,
+                'status' => true,
+            ];
+        } else {
+            $status = false;
+            $mess = '失败';
+            $data = [
+                'info'=>$mess,
+                'status' => false,
+            ];
+        }
+
+        return $this->render($status,$mess,$data);
     }
 
 

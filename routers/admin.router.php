@@ -91,6 +91,16 @@ $app->any('/sys/{bid:[\w]+}/{pl_name:[\w]+}', function (Request $request, Respon
             return $response->withRedirect($response_data,301);
         case 'captcha' :
             return $response->withHeader('Content-Type','image/jpeg')->write($response_data->output());
+        case 'file' : {
+            return $response
+                ->withHeader('Content-Type',$pl_respone->export_file_type)
+                ->withHeader('Content-Disposition','attachment;filename='.$pl_respone->export_file_name)
+                ->withHeader('Cache-Control','must-revalidate,post-check=0,pre-check=0')
+                ->withHeader('Expires','0')
+                ->withHeader('Pragma','public')
+                ->write($response_data);
+        }
+
         case 'template' :{
             if('admin'==$response_plugin_name) {
                 return $this->admin_view->render($response,$response_template,$response_data);
