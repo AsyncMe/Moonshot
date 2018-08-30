@@ -208,111 +208,6 @@ class Setting extends PermissionBase
         return $this->render($status,$mess,$data,'template','setting/setting_info');
     }
 
-    public function setting_exportAction(RequestHelper $req,array $preData)
-    {
-        $rel_model = new model\ConfigModel($this->service);
-        $total = $rel_model->configCount();
-        if ($total) {
-            $data = [];
-            $where =[];
-            $per_page = 100;
-            $page = $this->page('',$total,$per_page);
-            $total_page = $page->getTotalPages();
-            $current_page = $page->Current_page;
-            while($current_page <= $total_page) {
-
-                $lists = $rel_model->configLists($where,['ctime','desc'],$current_page,$per_page);
-                if ($lists) {
-                    foreach ($lists as $key=>$val) {
-                        if (is_array($val)) {
-                            foreach ($val as $k=>$v) {
-                                if($k=='id') continue;
-                                $value = stripslashes($v);
-                                $value = iconv('utf-8','gb2312',$value);
-                                $value = str_replace(',','#;#',$value);
-                                $data[$key][$k] = $value;
-                            }
-                        }
-                    }
-                }
-                $current_page++;
-            }
-
-        }
-
-
-        $status = true;
-        $mess = '成功';
-
-        $string = '';
-        foreach ($data as $key => $value)
-        {
-            $string .= implode(",",$value)."\n"; //用英文逗号分开
-        }
-        unset($data);
-        $respone = new ResponeHelper($status,$mess,$string,'file','','');
-        $respone->export_file_name = 'setting_config_'.date('YmdHis').'.csv';
-        $respone->export_file_type = 'text/csv';
-        return $respone;
-    }
-
-    public function setting_importAction(RequestHelper $req,array $preData)
-    {
-        $rel_model = new model\ConfigModel($this->service);
-        foreach ( $req->upload_files as $file) {
-            $error = $file->getError();
-            if ($error === UPLOAD_ERR_OK) {
-
-                $filetype = $file->getClientMediaType();
-                if (strtolower($filetype) == 'text/csv') {
-                    $excelData = file($file->file);
-                    $chunkData = array_chunk($excelData, 5000);
-
-                    $count = count($chunkData);
-                    for ($i = 0; $i < $count; $i++) {
-                        foreach ($chunkData[$i] as $value) {
-                            $string = mb_convert_encoding(trim(strip_tags($value)), 'utf-8', 'gb2312');
-                            $v = explode(',', trim($string));
-                            $map = [];
-                            $map['name'] = $v[0];
-                            $map['config'] = addslashes(str_replace('#;#',',',$v[1]));
-                            $map['lock'] = $v[2];
-                            $map['ctime'] = $v[3];
-                            $map['mtime'] = $v[4];
-                            $exit = $rel_model->getConfigInfo(['name'=>$map['name']]);
-                            if (!$exit) {
-                                $flag = $rel_model->addConfigInfo($map);
-                            }
-
-                        }
-                    }
-                }
-
-            } else {
-                $flag = false;
-                break;
-            }
-        }
-        if ($flag) {
-            $status = true;
-            $mess = '成功';
-            $data = [
-                'info'=>$mess,
-                'status' => true,
-            ];
-        } else {
-            $status = false;
-            $mess = '失败';
-            $data = [
-                'info'=>$mess,
-                'status' => false,
-            ];
-        }
-
-        return $this->render($status,$mess,$data);
-    }
-
-
     public function setting_addAction(RequestHelper $req,array $preData)
     {
         try {
@@ -422,6 +317,7 @@ class Setting extends PermissionBase
             return $this->render($status,$mess,$data,'template','setting/setting_edit');
         }
     }
+
     public function setting_editAction(RequestHelper $req,array $preData)
     {
         $request_uid = $req->query_datas['uid'];
@@ -555,6 +451,109 @@ class Setting extends PermissionBase
 
     }
 
+    public function setting_exportAction(RequestHelper $req,array $preData)
+    {
+        $rel_model = new model\ConfigModel($this->service);
+        $total = $rel_model->configCount();
+        if ($total) {
+            $data = [];
+            $where =[];
+            $per_page = 100;
+            $page = $this->page('',$total,$per_page);
+            $total_page = $page->getTotalPages();
+            $current_page = $page->Current_page;
+            while($current_page <= $total_page) {
+
+                $lists = $rel_model->configLists($where,['ctime','desc'],$current_page,$per_page);
+                if ($lists) {
+                    foreach ($lists as $key=>$val) {
+                        if (is_array($val)) {
+                            foreach ($val as $k=>$v) {
+                                if($k=='id') continue;
+                                $value = stripslashes($v);
+                                $value = iconv('utf-8','gb2312',$value);
+                                $value = str_replace(',','#;#',$value);
+                                $data[$key][$k] = $value;
+                            }
+                        }
+                    }
+                }
+                $current_page++;
+            }
+
+        }
+
+
+        $status = true;
+        $mess = '成功';
+
+        $string = '';
+        foreach ($data as $key => $value)
+        {
+            $string .= implode(",",$value)."\n"; //用英文逗号分开
+        }
+        unset($data);
+        $respone = new ResponeHelper($status,$mess,$string,'file','','');
+        $respone->export_file_name = 'setting_config_'.date('YmdHis').'.csv';
+        $respone->export_file_type = 'text/csv';
+        return $respone;
+    }
+
+    public function setting_importAction(RequestHelper $req,array $preData)
+    {
+        $rel_model = new model\ConfigModel($this->service);
+        foreach ( $req->upload_files as $file) {
+            $error = $file->getError();
+            if ($error === UPLOAD_ERR_OK) {
+
+                $filetype = $file->getClientMediaType();
+                if (strtolower($filetype) == 'text/csv') {
+                    $excelData = file($file->file);
+                    $chunkData = array_chunk($excelData, 5000);
+
+                    $count = count($chunkData);
+                    for ($i = 0; $i < $count; $i++) {
+                        foreach ($chunkData[$i] as $value) {
+                            $string = mb_convert_encoding(trim(strip_tags($value)), 'utf-8', 'gb2312');
+                            $v = explode(',', trim($string));
+                            $map = [];
+                            $map['name'] = $v[0];
+                            $map['config'] = addslashes(str_replace('#;#',',',$v[1]));
+                            $map['lock'] = $v[2];
+                            $map['ctime'] = $v[3];
+                            $map['mtime'] = $v[4];
+                            $exit = $rel_model->getConfigInfo(['name'=>$map['name']]);
+                            if (!$exit) {
+                                $flag = $rel_model->addConfigInfo($map);
+                            }
+
+                        }
+                    }
+                }
+
+            } else {
+                $flag = false;
+                break;
+            }
+        }
+        if ($flag) {
+            $status = true;
+            $mess = '成功';
+            $data = [
+                'info'=>$mess,
+                'status' => true,
+            ];
+        } else {
+            $status = false;
+            $mess = '失败';
+            $data = [
+                'info'=>$mess,
+                'status' => false,
+            ];
+        }
+
+        return $this->render($status,$mess,$data);
+    }
     /**
      * 管理菜单
      */
@@ -617,12 +616,21 @@ class Setting extends PermissionBase
         $url_options = ['act'=>'menu_listorder'];
         $url_options = array_merge($url_options,$query);
         $listorder_action_url = urlGen($req,$path,$url_options,true);
+
+        $operater_url = array_merge($query,['act'=>'menu_export']);
+        $operaters_export_action =  urlGen($req,$path,$operater_url,true);
+
+        $operater_url = array_merge($query,['act'=>'menu_import']);
+        $operaters_import_action =  urlGen($req,$path,$operater_url,true);
+
         $data =[
             'lists'=>$tree,
             'count'=>$count,
             'add_action_url'=>$add_action_url,
             'delete_action_url'=>$delete_action_url,
             'listorder_action_url'=>$listorder_action_url,
+            'export_action_url'=>$operaters_export_action,
+            'import_action_url'=>$operaters_import_action,
         ];
 
         return $this->render($status,$mess,$data,'template','setting/menu');
@@ -997,6 +1005,124 @@ class Setting extends PermissionBase
         return $this->render($status,$mess,$data);
     }
 
+    public function menu_exportAction(RequestHelper $req,array $preData)
+    {
+        $rel_model = new model\MenuModel($this->service);
+        $total = $rel_model->menuCount();
+        if ($total) {
+            $data = [];
+            $where =[];
+            $per_page = 100;
+            $page = $this->page('',$total,$per_page);
+            $total_page = $page->getTotalPages();
+            $current_page = $page->Current_page;
+            while($current_page <= $total_page) {
+
+                $lists = $rel_model->menuLists($where,['ctime','desc'],$current_page,$per_page);
+                if ($lists) {
+                    foreach ($lists as $key=>$val) {
+                        if (is_array($val)) {
+                            foreach ($val as $k=>$v) {
+                                $value = stripslashes($v);
+                                $value = iconv('utf-8','gb2312',$value);
+                                $value = str_replace(',','#;#',$value);
+                                $data[$key][$k] = $value;
+                            }
+                        }
+                    }
+                }
+                $current_page++;
+            }
+
+        }
+
+
+        $status = true;
+        $mess = '成功';
+
+        $string = '';
+        foreach ($data as $key => $value)
+        {
+            $string .= implode(",",$value)."\n"; //用英文逗号分开
+        }
+        unset($data);
+        $respone = new ResponeHelper($status,$mess,$string,'file','','');
+        $respone->export_file_name = 'menu_'.date('YmdHis').'.csv';
+        $respone->export_file_type = 'text/csv';
+        return $respone;
+    }
+
+    public function menu_importAction(RequestHelper $req,array $preData)
+    {
+        $rel_model = new model\MenuModel($this->service);
+        foreach ( $req->upload_files as $file) {
+            $error = $file->getError();
+            if ($error === UPLOAD_ERR_OK) {
+
+                $filetype = $file->getClientMediaType();
+                if (strtolower($filetype) == 'text/csv') {
+                    $excelData = file($file->file);
+                    $chunkData = array_chunk($excelData, 5000);
+
+                    $count = count($chunkData);
+                    for ($i = 0; $i < $count; $i++) {
+                        foreach ($chunkData[$i] as $value) {
+                            $string = mb_convert_encoding(trim(strip_tags($value)), 'utf-8', 'gb2312');
+                            $v = explode(',', trim($string));
+                            $map = [];
+                            $map['id'] = $v[0];
+                            $map['parentid'] = $v[1];
+                            $map['app'] = $v[2];
+                            $map['model'] = $v[3];
+                            $map['action'] = $v[4];
+                            $map['data'] = $v[5];
+
+                            $map['category'] = $v[6];
+                            $map['placehold'] = $v[7];
+                            $map['use_priv'] = $v[8];
+                            $map['type'] = $v[9];
+                            $map['link'] = $v[10];
+
+                            $map['status'] = $v[11];
+                            $map['name'] = addslashes(str_replace('#;#',',',$v[12]));
+                            $map['icon'] = $v[13];
+                            $map['remark'] = $v[14];
+                            $map['listorder'] = $v[15];
+
+                            $map['ctime'] = $v[16];
+                            $map['mtime'] = $v[17];
+                            $exit = $rel_model->menuInfo(['id'=>$map['id']]);
+                            if (!$exit) {
+                                $flag = $rel_model->addMenu($map);
+                            }
+
+                        }
+                    }
+                }
+
+            } else {
+                $flag = false;
+                break;
+            }
+        }
+        if ($flag) {
+            $status = true;
+            $mess = '成功';
+            $data = [
+                'info'=>$mess,
+                'status' => true,
+            ];
+        } else {
+            $status = false;
+            $mess = '失败';
+            $data = [
+                'info'=>$mess,
+                'status' => false,
+            ];
+        }
+
+        return $this->render($status,$mess,$data);
+    }
     /**
      * 运营管理菜单
      */
@@ -1058,12 +1184,21 @@ class Setting extends PermissionBase
         $url_options = ['act'=>'manage_menu_listorder'];
         $url_options = array_merge($url_options,$query);
         $listorder_action_url = urlGen($req,$path,$url_options,true);
+
+        $operater_url = array_merge($query,['act'=>'manage_menu_export']);
+        $operaters_export_action =  urlGen($req,$path,$operater_url,true);
+
+        $operater_url = array_merge($query,['act'=>'manage_menu_import']);
+        $operaters_import_action =  urlGen($req,$path,$operater_url,true);
+
         $data =[
             'lists'=>$tree,
             'count'=>$count,
             'add_action_url'=>$add_action_url,
             'delete_action_url'=>$delete_action_url,
             'listorder_action_url'=>$listorder_action_url,
+            'export_action_url'=>$operaters_export_action,
+            'import_action_url'=>$operaters_import_action,
         ];
 
         return $this->render($status,$mess,$data,'template','setting/manage_menu');
@@ -1437,4 +1572,124 @@ class Setting extends PermissionBase
 
         return $this->render($status,$mess,$data);
     }
+
+    public function manage_menu_exportAction(RequestHelper $req,array $preData)
+    {
+        $rel_model = new model\ManageMenuModel($this->service);
+        $total = $rel_model->menuCount();
+        if ($total) {
+            $data = [];
+            $where =[];
+            $per_page = 100;
+            $page = $this->page('',$total,$per_page);
+            $total_page = $page->getTotalPages();
+            $current_page = $page->Current_page;
+            while($current_page <= $total_page) {
+
+                $lists = $rel_model->menuLists($where,['ctime','desc'],$current_page,$per_page);
+                if ($lists) {
+                    foreach ($lists as $key=>$val) {
+                        if (is_array($val)) {
+                            foreach ($val as $k=>$v) {
+                                $value = stripslashes($v);
+                                $value = iconv('utf-8','gb2312',$value);
+                                $value = str_replace(',','#;#',$value);
+                                $data[$key][$k] = $value;
+                            }
+                        }
+                    }
+                }
+                $current_page++;
+            }
+
+        }
+
+
+        $status = true;
+        $mess = '成功';
+
+        $string = '';
+        foreach ($data as $key => $value)
+        {
+            $string .= implode(",",$value)."\n"; //用英文逗号分开
+        }
+        unset($data);
+        $respone = new ResponeHelper($status,$mess,$string,'file','','');
+        $respone->export_file_name = 'manage_menu_'.date('YmdHis').'.csv';
+        $respone->export_file_type = 'text/csv';
+        return $respone;
+    }
+
+    public function manage_menu_importAction(RequestHelper $req,array $preData)
+    {
+        $rel_model = new model\ManageMenuModel($this->service);
+        foreach ( $req->upload_files as $file) {
+            $error = $file->getError();
+            if ($error === UPLOAD_ERR_OK) {
+
+                $filetype = $file->getClientMediaType();
+                if (strtolower($filetype) == 'text/csv') {
+                    $excelData = file($file->file);
+                    $chunkData = array_chunk($excelData, 5000);
+
+                    $count = count($chunkData);
+                    for ($i = 0; $i < $count; $i++) {
+                        foreach ($chunkData[$i] as $value) {
+                            $string = mb_convert_encoding(trim(strip_tags($value)), 'utf-8', 'gb2312');
+                            $v = explode(',', trim($string));
+                            $map = [];
+                            $map['id'] = $v[0];
+                            $map['parentid'] = $v[1];
+                            $map['app'] = $v[2];
+                            $map['model'] = $v[3];
+                            $map['action'] = $v[4];
+                            $map['data'] = $v[5];
+
+                            $map['category'] = $v[6];
+                            $map['placehold'] = $v[7];
+                            $map['use_priv'] = $v[8];
+                            $map['type'] = $v[9];
+                            $map['link'] = $v[10];
+
+                            $map['status'] = $v[11];
+                            $map['name'] = addslashes(str_replace('#;#',',',$v[12]));
+                            $map['icon'] = $v[13];
+                            $map['remark'] = $v[14];
+                            $map['listorder'] = $v[15];
+
+                            $map['ctime'] = $v[16];
+                            $map['mtime'] = $v[17];
+                            $exit = $rel_model->menuInfo(['id'=>$map['id']]);
+                            if (!$exit) {
+                                $flag = $rel_model->addMenu($map);
+                            }
+
+                        }
+                    }
+                }
+
+            } else {
+                $flag = false;
+                break;
+            }
+        }
+        if ($flag) {
+            $status = true;
+            $mess = '成功';
+            $data = [
+                'info'=>$mess,
+                'status' => true,
+            ];
+        } else {
+            $status = false;
+            $mess = '失败';
+            $data = [
+                'info'=>$mess,
+                'status' => false,
+            ];
+        }
+
+        return $this->render($status,$mess,$data);
+    }
+
 }
