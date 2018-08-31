@@ -858,23 +858,16 @@ class User extends PermissionBase
                         }
 
                         //密码
-                        if (!$post['password'] && ($post['newpassword'] || $post['comfirm_password'])) {
-                            throw new \Exception('原始密码必须填。');
-                        } else if($post['password']) {
-                            if($account_model->checkPass($post['password'],$admin_account['password'],$admin_account['slat'])) {
-
-                                if($post['newpassword']!=$post['comfirm_password']) {
-                                    throw new \Exception('错认密码错误。');
-                                } else {
-                                    $slat = substr(getRandomStr(),0,6);
-                                    $map['password'] = md5($post['newpassword'].$slat);
-                                    $map['slat'] =  $slat;
-                                }
-
+                        if ($post['newpassword'] || $post['comfirm_password']) {
+                            if($post['newpassword']!=$post['comfirm_password']) {
+                                throw new \Exception('错认密码错误。');
                             } else {
-                                throw new \Exception('原始密码错误。');
+                                $slat = substr(getRandomStr(),0,6);
+                                $map['password'] = md5($post['newpassword'].$slat);
+                                $map['slat'] =  $slat;
                             }
                         }
+                        
 
                         if ($post['status']) {
                             $map['status'] = $post['status'];

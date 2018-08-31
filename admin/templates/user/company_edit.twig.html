@@ -83,7 +83,7 @@
                 </table>
                 <table class="table table-bordered">
                     <blockquote>如果需要修改密码请填写下方字段，不修改则留空</blockquote>
-                    {%if op !='add' %}
+                    {%if op !='add' and oper == 'self' %}
                     <tr>
                         <th width="80">原始密码</th>
                         <td>
