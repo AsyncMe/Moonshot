@@ -60,3 +60,6 @@ public/data/*
 .idea/
 # test
 /test/
+
+# 去掉plugins
+plugins/
