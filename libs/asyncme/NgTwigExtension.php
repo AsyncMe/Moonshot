@@ -66,10 +66,10 @@ class NgTwigExtension extends Twig_Extension
     }
 
     //简写pathfor
-    public function parse_url($name,$url,$queryParams)
+    public function parse_url($name,$url,$queryParams,$mark='sys')
     {
 
-        $app_route = $this->router->getNamedRoute('sys');
+        $app_route = $this->router->getNamedRoute($mark);
         $url_lists = explode('/',$url);
         $data = $app_route->getArguments();
         $index = 0;
