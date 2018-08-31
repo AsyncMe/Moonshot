@@ -88,9 +88,7 @@
                         </a>
                         <ul class="user-menu pull-right dropdown-menu dropdown-yellow dropdown-caret dropdown-closer">
 
-                            <li><a href="javascript:openapp('{{ URL("sys",bid~"/"~pl_name,{"mod":"user","act":"userinfo"}) }}','index_userinfo','用户信息');"><i class="fa fa-user"></i> 用户信息 </a></li>
-
-                            <li><a href="javascript:openapp('{{ URL("sys",bid~"/"~pl_name,{"mod":"setting","act":"password"}) }}','index_password','修改密码');"><i class="fa fa-lock"></i> 修改密码</a></li>
+                            <li><a href="javascript:openapp('{{ URL("sys",bid~"/"~pl_name,{"mod":"user","act":"admin_edit","uid":sessions.admin_uid}) }}','index_userinfo','用户信息');"><i class="fa fa-user"></i> 用户信息 </a></li>
 
                             <li><a href="{{ URL('sys',bid~'/'~pl_name,{'mod':'pub','act':'logout'}) }}"><i class="fa fa-sign-out"></i> 退出 </a></li>
                         </ul>
