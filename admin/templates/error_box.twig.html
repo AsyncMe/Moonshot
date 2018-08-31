@@ -10,7 +10,7 @@
     .notify p {display: block;line-height: 1.5em;margin-bottom: 22px;text-align: center;}
 </style>
 <div class="notify errorbox">
-    <h1>Warning!</h1>
+    <h1>{{ mess_title|default('Error!')}}</h1>
     <span class="alerticon"><img src="/wxapp/asset/simpleboot/images/error.png" alt="error"></span>
     <p>{{ error|default('错误发送') }}</p>
 </div>

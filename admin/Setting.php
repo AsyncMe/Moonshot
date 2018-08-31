@@ -1692,4 +1692,21 @@ class Setting extends PermissionBase
         return $this->render($status,$mess,$data);
     }
 
+    /**
+     * 缓存
+     */
+    public function clean_cacheAction(RequestHelper $req,array $preData)
+    {
+        $cache_key = 'global_view_val';
+        $cache_rel = $this->service->getCache();
+        $cache_rel->delete($cache_key);
+
+        $status = true;
+        $mess = '成功';
+        $data =[
+            'mess_title'=>'消息提示',
+            'success'=>'缓存清除成功'
+        ];
+        return $this->render($status,$mess,$data,'template','success_box');
+    }
 }
