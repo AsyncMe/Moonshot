@@ -63,3 +63,5 @@ public/data/*
 
 # 去掉plugins
 plugins/
+# 去掉manage
+manager/
