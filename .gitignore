@@ -61,7 +61,11 @@ public/data/*
 # test
 /test/
 
-# 去掉plugins
+# 去掉plugins 另外项目管理
 plugins/
-# 去掉manage
+# 去掉manage 另外项目管理
 manager/
+# 去掉miniapp 另外项目管理
+miniapp
+# 去掉ngeditor 另外项目管理
+ngeditor
