@@ -1695,7 +1695,7 @@ class Setting extends PermissionBase
     /**
      * 缓存
      */
-    public function clean_cacheAction(RequestHelper $req,array $preData)
+    public function cache_cleanAction(RequestHelper $req,array $preData)
     {
         $cache_key = 'global_view_val';
         $cache_rel = $this->service->getCache();

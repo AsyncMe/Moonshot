@@ -190,7 +190,7 @@ INSERT INTO `ng_sys_menu` VALUES
 
 
 
-#经营功能权限表
+#经营功能菜单表
 CREATE TABLE `ng_manage_menu` (
   `id` smallint(6) unsigned NOT NULL AUTO_INCREMENT,
   `parentid` smallint(6) unsigned NOT NULL DEFAULT '0',
@@ -216,6 +216,18 @@ CREATE TABLE `ng_manage_menu` (
   KEY `idx_listorder` (`listorder`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='运营管理菜单表';
 
+#经营者功能权限表
+CREATE TABLE `ng_manage_func_privs` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `company_id` int(10) unsigned NOT NULL COMMENT '商业id',
+  `account_id` bigint(20) unsigned NOT NULL COMMENT '运营者账号id',
+  `privs` text NULL COMMENT '权限池',
+  `ctime` int(11) NOT NULL COMMENT '创建时间',
+  `mtime` int(11) NOT NULL COMMENT '修改时间',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uni_company_account` (`company_id`,`account_id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='经营者功能权限表';
+
 CREATE TABLE `ng_sys_config` (
   `id` smallint(6) unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(50) NOT NULL COMMENT '名称',
@@ -229,7 +241,6 @@ CREATE TABLE `ng_sys_config` (
 
 insert into `ng_sys_config` (`id`,`name`,`config`,`lock`,`ctime`,`mtime`) VALUES
 (1,'sys_global','{\"site_title\":\"插件管理平台\",\"site_desc\":\"插件,管理,平台,微信,小程序\",\"site_style\":\"bluesky\",\"root\":\"xxx\"}',1,1532693502,1532693502);
-
 
 
 CREATE TABLE `ng_frontend_user` (
@@ -271,3 +282,66 @@ CREATE TABLE `ng_frontend_user_detail` (
   KEY `idx_work_id` (`work_id`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='前端用户详细资料表';
 
+
+
+CREATE TABLE `ng_works` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `work_id` varchar(10) NOT NULL DEFAULT 1 COMMENT '业务id',
+  `company_id` int(10) unsigned NOT NULL COMMENT '商业id',
+  `type_id` int(10) unsigned NOT NULL DEFAULT 1 COMMENT '类型',
+  `name` varchar(50) NOT NULL COMMENT '业务名称',
+  `config` text NULL COMMENT '键值对,json格式',
+  `lock` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT '锁定',
+  `status` tinyint(1) unsigned NOT NULL DEFAULT '1' COMMENT '1:正常,2:不正常',
+  `ctime` int(11) NOT NULL COMMENT '创建时间',
+  `mtime` int(11) NOT NULL COMMENT '修改时间',
+  PRIMARY KEY (`id`),
+  KEY `idx_company_type` (`company_id`,`type_id`),
+  UNIQUE KEY `uni_work_id` (`work_id`),
+  KEY `idx_name` (`name`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='业务表';
+
+CREATE TABLE `ng_works_admin` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `company_id` int(10) unsigned NOT NULL COMMENT '商业id',
+  `work_id` varchar(10)  NOT NULL DEFAULT 1 COMMENT '业务id',
+  `account_id` varchar(50) NOT NULL COMMENT '用户id',
+  `account_nickname` varchar(50) NOT NULL COMMENT '用户名称',
+  `privs` text NULL COMMENT '权限设置,json格式',
+  `expire_time` int(11) NOT NULL COMMENT '有效时间',
+  `status` tinyint(1) unsigned NOT NULL DEFAULT '1' COMMENT '1:正常,2:不正常',
+  `ctime` int(11) NOT NULL COMMENT '创建时间',
+  `mtime` int(11) NOT NULL COMMENT '修改时间',
+  PRIMARY KEY (`id`),
+  KEY `idx_company_type` (`company_id`,`type_id`),
+  KEY `idx_work_id` (`work_id`),
+  KEY `idx_account_id` (`account_id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='业务管理人员表';
+
+CREATE TABLE `ng_works_config` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `work_id` varchar(10) unsigned NOT NULL DEFAULT 1 COMMENT '业务id',
+  `name` varchar(50) NOT NULL COMMENT '业务名称',
+  `config` text NULL COMMENT '键值对,json格式',
+  `status` tinyint(1) unsigned NOT NULL DEFAULT '1' COMMENT '1:正常,2:不正常',
+  `ctime` int(11) NOT NULL COMMENT '创建时间',
+  `mtime` int(11) NOT NULL COMMENT '修改时间',
+  PRIMARY KEY (`id`),
+  KEY `idx_work_id` (`work_id`),
+  KEY `idx_name` (`name`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='业务配置表';
+
+CREATE TABLE `ng_works_plugin_ref` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `work_id` varchar(10) unsigned NOT NULL DEFAULT 1 COMMENT '业务id',
+  `company_id` int(10) unsigned NOT NULL COMMENT '商业id',
+  `plugin_id` int(10) unsigned NOT NULL DEFAULT 1 COMMENT '插件id',
+  `name` varchar(50) NOT NULL COMMENT '业务名称',
+  `status` tinyint(1) unsigned NOT NULL DEFAULT '1' COMMENT '1:正常,2:不正常',
+  `ctime` int(11) NOT NULL COMMENT '创建时间',
+  `mtime` int(11) NOT NULL COMMENT '修改时间',
+  PRIMARY KEY (`id`),
+  KEY `idx_company_work` (`company_id`,`work_id`),
+  KEY `idx_plugin_id` (`plugin_id`),
+  KEY `idx_name` (`name`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='业务插件关联表';

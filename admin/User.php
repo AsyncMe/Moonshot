@@ -9,6 +9,7 @@
 namespace admin;
 
 use admin\model;
+use libs\asyncme\NgPrivGen;
 use libs\asyncme\RequestHelper;
 use PHPSQLParser\PHPSQLParser;
 use PHPSQLParser\utils\PHPSQLParserConstants;
@@ -534,11 +535,14 @@ class User extends PermissionBase
         if ($lists) {
 
             foreach ($lists as $key=>$val) {
-                $operater_url = array_merge($query,['act'=>'company_edit','uid'=>$val['id']]);
+                $operater_url = array_merge($query,['act'=>'company_edit','uid'=>$val['id'],'company_id'=>$val['group_id']]);
                 $lists[$key]['edit_url'] = urlGen($req,$path,$operater_url,true);
 
-                $operater_url = array_merge($query,['act'=>'company_delete','uid'=>$val['id']]);
+                $operater_url = array_merge($query,['act'=>'company_delete','uid'=>$val['id'],'company_id'=>$val['group_id']]);
                 $lists[$key]['delete_url'] = urlGen($req,$path,$operater_url,true);
+
+                $operater_url = array_merge($query,['act'=>'company_func_priv_grant','uid'=>$val['id'],'company_id'=>$val['group_id']]);
+                $lists[$key]['func_priv_url'] =  urlGen($req,$path,$operater_url,true);
 
                 if ($lists[$key]['expire_time']) {
                     if (time()-$lists[$key]['expire_time'] >0 ) {
@@ -555,6 +559,8 @@ class User extends PermissionBase
             }
             $operater_url = array_merge($query,['act'=>'company_delete']);
             $operaters_delete_action =  urlGen($req,$path,$operater_url,true);
+
+
         }
 
         $operater_url = array_merge($query,['act'=>'company_add']);
@@ -767,9 +773,10 @@ class User extends PermissionBase
     public function company_editAction(RequestHelper $req,array $preData)
     {
         $request_uid = $req->query_datas['uid'];
+        $request_company_id = $req->query_datas['company_id'];
         try {
             $account_model = new model\AccountModel($this->service);
-            if ($request_uid) {
+            if ($request_uid && $request_company_id) {
                 //返回地址
                 $path = [
                     'mark' => 'sys',
@@ -796,7 +803,7 @@ class User extends PermissionBase
                 $asset_upload_url = urlGen($req,$path,$query,true);
 
 
-                $admin_account = $account_model->getCompanyAccount(['id'=>$request_uid]);
+                $admin_account = $account_model->getCompanyAccount(['id'=>$request_uid,'group_id'=>$request_company_id]);
                 if (!$admin_account) {
                     throw new \Exception('账号不存在');
                 }
@@ -937,6 +944,138 @@ class User extends PermissionBase
         }
 
     }
+
+    /**
+     * 功能授权
+     * @param RequestHelper $req
+     * @param array $preData
+     */
+    public function company_func_priv_grantAction(RequestHelper $req,array $preData)
+    {
+
+        //返回地址
+        $path = [
+            'mark' => 'sys',
+            'bid'  => $req->company_id,
+            'pl_name'=>'admin',
+        ];
+        $query = [
+            'mod'=>'user',
+            'act'=>'company'
+        ];
+        $cate_name = '运营者';
+        $cate_index_url=  urlGen($req,$path,$query,true);
+
+        $request_account_id = $req->query_datas['uid'];
+        $request_company_id = $req->query_datas['company_id'];
+
+
+        $func_obj = new model\ManageFuncPrivsModel($this->service);
+        $where = ['company_id'=>$request_company_id,'account_id'=>$request_account_id];
+
+        if($req->request_method == 'POST') {
+            if($request_account_id == $req->post_datas['post']['uid'] && $request_company_id == $req->post_datas['post']['company_id']) {
+
+                $func_info = $func_obj->funcPrivsInfo($where);
+
+                $post_privs = $req->post_datas['priv'];
+                $post_privs = $post_privs ? $post_privs : [];
+
+                $post_privs = ng_mysql_json_safe_encode($post_privs);
+                $map = [
+                    'privs'=>$post_privs,
+                    'mtime'=>time(),
+                ];
+                if ($func_info) {
+                    $flag = $func_obj->saveFuncPrivs(['id'=>$func_info['id']],$map);
+                } else {
+                    $map['company_id'] = $req->post_datas['post']['company_id'];
+                    $map['account_id'] = $req->post_datas['post']['uid'];
+                    $map['ctime'] = time();
+                    $flag = $func_obj->addFuncPrivs($map);
+                }
+                if ($flag) {
+                    $data = [
+                        'info'=>'保存成功',
+                    ];
+                    $status = true;
+                    $mess = '成功';
+                } else {
+                    $data = [
+                        'info'=>'保存失败',
+                    ];
+                    $status = false;
+                    $mess = '失败';
+                }
+
+            } else {
+                $data = [
+                    'info'=>'参数出错',
+                ];
+                $status = false;
+                $mess = '失败';
+            }
+        } else {
+            $func_info = $func_obj->funcPrivsInfo($where);
+            if ($func_info && $func_info['privs']) {
+                $func_priv_info = ng_mysql_json_safe_decode($func_info['privs']);
+            }
+
+            $model_obj = new model\ManageMenuModel($this->service);
+            $priv_gen_obj = new NgPrivGen();
+            $where = [];
+            $priv_lists = [];
+            $all_manage_menu_lists = $model_obj->menuLists($where);
+            foreach ($all_manage_menu_lists as $m_key=>$m_val) {
+                $v_model = $m_val['model'];
+                $v_action = $m_val['action'];
+                $gen_lists = $priv_gen_obj->gen_privs($v_model,$v_action,'manager');
+
+                if($func_priv_info) {
+                    foreach ($gen_lists as $k=>$v) {
+                        if($func_priv_info['manager'][$v_model][$k]) {
+                            $gen_lists[$k] = [
+                                'name'=>$v,
+                                'checked'=>'checked="checked"',
+                            ];
+                        } else {
+                            $gen_lists[$k] = [
+                                'name'=>$v,
+                                'checked'=>'',
+                            ];
+                        }
+                    }
+                }
+
+                if (!empty($gen_lists)) {
+                    $priv_lists[$v_model] = [
+                        'mark'=>'manager',
+                        'title'=>$m_val['name'],
+                        'lists'=>$gen_lists
+                    ];
+                }
+            }
+            $status = true;
+            $mess = '成功';
+            $data = [
+                'company_id'=>$request_company_id,
+                'account_id'=>$request_account_id,
+                'cate_index_url'=>$cate_index_url,
+                'lists'=>$priv_lists,
+                'cate_name'=>$cate_name,
+            ];
+        }
+
+
+        if($req->request_method == 'POST') {
+            //json返回
+            return $this->render($status,$mess,$data);
+        } else {
+            return $this->render($status, $mess, $data, 'template', 'user/company_priv_func');
+        }
+    }
+
+
 
     /**
      * 前端用户

@@ -85,6 +85,10 @@
             <td>
                 <a href="{{val.edit_url}}">编辑</a>
                 | <a href="{{val.delete_url}}" class="js-ajax-dialog-btn" data-msg="确定删除吗？">删除</a>
+                {% if val.group_type != 1 %}
+                {#主用户才处理权限问题，子用户由运营者自己处理#}
+                | <a href="{{val.func_priv_url}}">功能授权</a>
+                {% endif %}
             </td>
 
         </tr>

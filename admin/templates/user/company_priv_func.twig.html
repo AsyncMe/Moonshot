@@ -1,0 +1,108 @@
+{% extends 'boot/frame.twig.html' %}
+
+{% block frame_head_script %}
+<style type="text/css">
+    #container .info_header {display: block; overflow: hidden;overflow: hidden;padding: 10px;}
+    #container .info_base {display: block;overflow: hidden;}
+    #container .info_base .info{ margin: 0 20px;overflow: hidden; border-right: 1px dashed #ccc; padding: 0 20px;}
+    #container .block_header {font-weight: bold;}
+    #container .line {clear:both;margin:10px 0; }
+    #container .info_desc {padding: 10px;}
+    #container .indent_content {text-indent: 25px;}
+    #container .info_preview{width: 100%;background: #eee;border: 1px solid #ccc;overflow: hidden;height: 300px;}
+    #container li {list-style-type:none;float: none;width: auto; height:auto;padding: 10px;margin: 10px 0px;border: 0px;}
+    #container .wrap {padding: 0px 20px;}
+    #container .table {margin: 10px 0px;}
+    .table_contents {width: 100%;height: auto;  overflow: hidden;}
+    .table_item{height: auto;padding: 5px;overflow: hidden;display: block;}
+    .ng_fieldset { margin: 10px;overflow: hidden;}
+    .ng_fieldset legend{font-size: 16px;border: 1px solid #ccc;margin-bottom: 0px;border-bottom: 0px;}
+    .ng_fieldset legend input{margin: 0px 5px 0px 10px;}
+    .ng_fieldset .priv_container{display: block;border: 1px solid #ccc;overflow: hidden;}
+    .ng_fieldset .priv_item{ float: left;margin: 5px;}
+    .ng_fieldset .priv_item input {float: left;margin: 0px 5px;}
+    .ng_fieldset .priv_item label {float: right;}
+</style>
+{% endblock %}
+
+{% block frame_content %}
+
+<div class="wrap js-check-wrap">
+    <form class="js-ajax-form" action="#" method="post">
+
+        {% if lists %}
+        {% for key,val in lists%}
+        <fieldset class="ng_fieldset">
+            <legend><input type="checkbox" rel="{{key}}" class="checkall"/>{{val.title}}</legend>
+            <div class="priv_container">
+                {%for subkey,subval in val.lists %}
+                <div class="priv_item"><input type="checkbox" rel="{{key}}" class="checkitem" name="priv[{{val.mark}}][{{key}}][{{subkey}}]" id="{{val.mark~key~subkey}}" value="{{val.mark~'@'~key~'@'~subkey}}" {{subval.checked}}/><label for="{{val.mark~key~subkey}}">{{subval.name}}</label> </div>
+                {% endfor %}
+            </div>
+        </fieldset>
+
+        {% endfor %}
+
+        {% endif %}
+
+        <div class="form-actions">
+            <input type="hidden" name="post[uid]" value="{{ account_id }}">
+            <input type="hidden" name="post[company_id]" value="{{ company_id }}">
+            <button class="btn btn-primary js-ajax-submit" type="submit">提交</button>
+            <a class="btn" href="{{ cate_index_url|default('#') }}">返回</a>
+        </div>
+    </form>
+
+</div>
+
+{% endblock %}
+{% block frame_footer %}
+<script type="application/javascript">
+    $(function(){
+        function checkall_rev(rel){
+            var flag = true;
+            $('.checkitem').each(function(){
+                if($(this).attr('rel')==rel) {
+                    var is_checked = $(this).attr('checked');
+                    flag = flag && (is_checked=='checked');
+                }
+            });
+            $('.checkall').each(function(){
+                if($(this).attr('rel')==rel) {
+                    if (flag) {
+                        $(this).attr('checked','checked');
+                    } else {
+                        $(this).attr('checked',false);
+                    }
+                }
+            });
+
+        }
+        $('.checkall').click(function(){
+            var self =this;
+            var rel = $(self).attr('rel');
+            var is_checked = $(self).attr('checked');
+            is_checked = is_checked==undefined ? false : 'checked';
+            $('.checkitem').each(function(){
+                if($(this).attr('rel')==rel) {
+                    $(this).attr('checked',is_checked);
+                }
+            });
+
+        });
+        $('.checkitem').click(function(){
+            var self =this;
+            var rel = $(self).attr('rel');
+            checkall_rev(rel);
+        });
+
+
+        $('.checkall').each(function(){
+            var self =this;
+            var rel = $(self).attr('rel');
+            checkall_rev(rel);
+        });
+    });
+</script>
+
+{% endblock %}

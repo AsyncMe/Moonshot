@@ -51,7 +51,7 @@
 <body style="min-width:900px;" screen_capture_injected="true">
     <div id="right_tools_wrapper">
 
-        <span id="right_tools_clearcache" title="清除缓存" onclick="javascript:openapp('{{ URL('sys',bid~'/'~pl_name,{'act':'clean_cache','mod':'setting','style':site_style}) }}','right_tool_clearcache','清除缓存');"><i class="fa fa-trash-o right_tool_icon"></i></span>
+        <span id="right_tools_clearcache" title="清除缓存" onclick="javascript:openapp('{{ URL('sys',bid~'/'~pl_name,{'act':'cache_clean','mod':'setting','style':site_style}) }}','right_tool_clearcache','清除缓存');"><i class="fa fa-trash-o right_tool_icon"></i></span>
         <span id="toogle_left_side" title="显示边栏" ><i class="fa fa-toggle-on right_tool_icon"></i></span> &nbsp;&nbsp;
         <span id="refresh_wrapper" title="刷新当前页面" ><i class="fa fa-refresh right_tool_icon"></i></span>
     </div>
