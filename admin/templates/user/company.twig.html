@@ -38,12 +38,12 @@
             <th width="50">ID</th>
             <th width="50">企业id</th>
             <th width="30">头像</th>
-            <th width="150">账户属性</th>
+            <th width="90">账户属性</th>
             <th width="120">账号</th>
             <th width="120">昵称</th>
-            <th>状态</th>
-            <th>创建时间</th>
-            <th width="180">操作</th>
+            <th width="30">状态</th>
+            <th width="120">创建时间</th>
+            <th>操作</th>
         </tr>
         </thead>
         <tbody>
@@ -88,6 +88,9 @@
                 {% if val.group_type != 1 %}
                 {#主用户才处理权限问题，子用户由运营者自己处理#}
                 | <a href="{{val.func_priv_url}}">功能授权</a>
+                | <a href="{{val.num_limit_url}}">数量限制</a>
+                | <a href="{{val.plugin_ref_url}}">插件授权</a>
+
                 {% endif %}
             </td>
 

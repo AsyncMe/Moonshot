@@ -17,6 +17,13 @@ use libs\asyncme\Page as Page;
 
 class User extends PermissionBase
 {
+    /**
+     * @name 首页
+     * @param RequestHelper $req
+     * @param array $preData
+     * @return \libs\asyncme\ResponeHelper
+     * @priv ask
+     */
     public function indexAction(RequestHelper $req,array $preData)
     {
         $status = true;
@@ -46,10 +53,15 @@ class User extends PermissionBase
         return $this->render($status,$mess,$data,'template','user/index');
     }
 
-    /**
-     * 管理者
-     */
+    // 管理者
 
+    /**
+     * @name 列表
+     * @param RequestHelper $req
+     * @param array $preData
+     * @return \libs\asyncme\ResponeHelper
+     * @priv ask
+     */
     public function adminAction(RequestHelper $req,array $preData)
     {
         $status = true;
@@ -148,6 +160,13 @@ class User extends PermissionBase
         return $this->render($status,$mess,$data,'template','user/admin');
     }
 
+    /**
+     * @name 删除
+     * @param RequestHelper $req
+     * @param array $preData
+     * @return \libs\asyncme\ResponeHelper
+     * @priv ask
+     */
     public function admin_deleteAction(RequestHelper $req,array $preData)
     {
         if ($req->request_method=='POST') {
@@ -188,6 +207,13 @@ class User extends PermissionBase
         return $this->render($status,$mess,$data);
     }
 
+    /**
+     * @name 添加
+     * @param RequestHelper $req
+     * @param array $preData
+     * @return \libs\asyncme\ResponeHelper
+     * @priv ask
+     */
     public function admin_addAction(RequestHelper $req,array $preData)
     {
         try {
@@ -312,6 +338,13 @@ class User extends PermissionBase
         }
     }
 
+    /**
+     * @name 编辑
+     * @param RequestHelper $req
+     * @param array $preData
+     * @return \libs\asyncme\ResponeHelper
+     * @priv ask
+     */
     public function admin_editAction(RequestHelper $req,array $preData)
     {
         $request_uid = $req->query_datas['uid'];
@@ -468,10 +501,15 @@ class User extends PermissionBase
 
     }
 
-    /**
-     * 运营者
-     */
+    // 运营者
 
+    /**
+     * @name 列表
+     * @param RequestHelper $req
+     * @param array $preData
+     * @return \libs\asyncme\ResponeHelper
+     * @priv ask
+     */
     public function companyAction(RequestHelper $req,array $preData)
     {
         $status = true;
@@ -544,16 +582,19 @@ class User extends PermissionBase
                 $operater_url = array_merge($query,['act'=>'company_func_priv_grant','uid'=>$val['id'],'company_id'=>$val['group_id']]);
                 $lists[$key]['func_priv_url'] =  urlGen($req,$path,$operater_url,true);
 
+                $operater_url = array_merge($query,['act'=>'company_num_limit_grant','uid'=>$val['id'],'company_id'=>$val['group_id']]);
+                $lists[$key]['num_limit_url'] =  urlGen($req,$path,$operater_url,true);
+
+                $operater_url = array_merge($query,['act'=>'company_plugin_ref_grant','uid'=>$val['id'],'company_id'=>$val['group_id']]);
+                $lists[$key]['plugin_ref_url'] =  urlGen($req,$path,$operater_url,true);
+
+
                 if ($lists[$key]['expire_time']) {
                     if (time()-$lists[$key]['expire_time'] >0 ) {
                         $lists[$key]['status']=10;
                     }
                 }
 
-//                if ($lists[$key]['avatar'] != 'default') {
-//                    $cdn_prefix = $this->getCdnHost();
-//                    $lists[$key]['avatar'] = $cdn_prefix.'/'.$lists[$key]['avatar'];
-//                }
 
 
             }
@@ -581,7 +622,13 @@ class User extends PermissionBase
 
         return $this->render($status,$mess,$data,'template','user/company');
     }
-
+    /**
+     * @name 删除
+     * @param RequestHelper $req
+     * @param array $preData
+     * @return \libs\asyncme\ResponeHelper
+     * @priv ask
+     */
     public function company_deleteAction(RequestHelper $req,array $preData)
     {
 
@@ -620,6 +667,13 @@ class User extends PermissionBase
         return $this->render($status,$mess,$data);
     }
 
+    /**
+     * @name 添加
+     * @param RequestHelper $req
+     * @param array $preData
+     * @return \libs\asyncme\ResponeHelper
+     * @priv ask
+     */
     public function company_addAction(RequestHelper $req,array $preData)
     {
         try {
@@ -770,6 +824,13 @@ class User extends PermissionBase
         }
     }
 
+    /**
+     * @name 编辑
+     * @param RequestHelper $req
+     * @param array $preData
+     * @return \libs\asyncme\ResponeHelper
+     * @priv ask
+     */
     public function company_editAction(RequestHelper $req,array $preData)
     {
         $request_uid = $req->query_datas['uid'];
@@ -946,9 +1007,10 @@ class User extends PermissionBase
     }
 
     /**
-     * 功能授权
+     * @name 功能授权
      * @param RequestHelper $req
      * @param array $preData
+     * @priv ask
      */
     public function company_func_priv_grantAction(RequestHelper $req,array $preData)
     {
@@ -1076,12 +1138,138 @@ class User extends PermissionBase
     }
 
 
+    /**
+     * @name 数据限制
+     * @param RequestHelper $req
+     * @param array $preData
+     * @priv ask
+     */
+    public function company_num_limit_grantAction(RequestHelper $req,array $preData)
+    {
+        //返回地址
+        $path = [
+            'mark' => 'sys',
+            'bid'  => $req->company_id,
+            'pl_name'=>'admin',
+        ];
+        $query = [
+            'mod'=>'user',
+            'act'=>'company'
+        ];
+        $cate_name = '运营者';
+        $cate_index_url=  urlGen($req,$path,$query,true);
+
+        $request_account_id = $req->query_datas['uid'];
+        $request_company_id = $req->query_datas['company_id'];
+
+        $config_obj = new model\ConfigModel($this->service);
+        $where = ['name'=>'manage_num_limit'];
+        $config_info = $config_obj->getConfigInfo($where);
+        if ($config_info && $config_info['config']) {
+            $config_template = ng_mysql_json_safe_decode($config_info['config']);
+        }
+        try {
+            if (!$config_template) {
+                throw new \Exception('(manage_num_limit) 配置模版不存在');
+            }
+            $num_limit_obj = new model\ManageNumLimitModel($this->service);
+            $where = ['company_id'=>$request_company_id,'account_id'=>$request_account_id];
+            $num_limit_info = $num_limit_obj->numLimitInfo($where);
+            if($num_limit_info && $num_limit_info['config']) {
+                $num_limit_config = ng_mysql_json_safe_decode($num_limit_info['config']);
+                foreach($config_template as $key=>$val) {
+                    if($num_limit_config[$key]){
+                        $config_template[$key]=$num_limit_config[$key];
+                    }
+                }
+
+            }
+
+            if($req->request_method == 'POST') {
+                if ($request_account_id == $req->post_datas['post']['uid'] && $request_company_id == $req->post_datas['post']['company_id']) {
+
+                    $post_c = $req->post_datas['post_c'];
+
+                    $map = [
+                        'mtime'=>time(),
+                    ];
+                    if ($post_c) {
+                        foreach ($post_c as $c_item) {
+                            if ($c_item['key'] && $c_item['val']) {
+                                $c_key_data = trim($c_item['key']);
+                                $c_val_data = trim($c_item['val']);
+                                $config_map[$c_key_data] = $c_val_data;
+                            }
+                        }
+                        $map['config'] = ng_mysql_json_safe_encode($config_map);
+                    }
+
+
+
+                    if ($num_limit_info) {
+                        $flag = $num_limit_obj->saveNumLimit(['id'=>$num_limit_info['id']],$map);
+                    } else {
+                        $map['company_id'] = $req->post_datas['post']['company_id'];
+                        $map['account_id'] = $req->post_datas['post']['uid'];
+                        $map['ctime'] = time();
+                        $flag = $num_limit_obj->addNumLimit($map);
+                    }
+                    if (!$flag) {
+                        throw  new \Exception('保存失败');
+                    }
+
+                } else {
+                    throw  new \Exception('参数出错');
+                }
+            }
+
+        } catch(\Exception $e) {
+            $error = $e->getMessage();
+        }
+
+        if ($error) {
+            $status = false;
+            $mess = '失败';
+            $data = [
+                'company_id'=>$request_company_id,
+                'account_id'=>$request_account_id,
+                'cate_index_url'=>$cate_index_url,
+                'cate_name'=>$cate_name,
+                'info'=>$error,
+                'mess_title'=>'温馨提示',
+                'error'=>$error,
+            ];
+        } else {
+            $status = true;
+            $mess = '成功';
+            $data = [
+                'company_id'=>$request_company_id,
+                'account_id'=>$request_account_id,
+                'cate_index_url'=>$cate_index_url,
+                'lists'=>$config_template,
+                'info'=>$mess,
+                'cate_name'=>$cate_name,
+            ];
+        }
+
+
+        if($req->request_method == 'POST') {
+            //json返回
+            return $this->render($status,$mess,$data);
+        } else {
+            return $this->render($status, $mess, $data, 'template', 'user/company_num_limit');
+        }
+    }
+
+    // 前端用户
 
     /**
-     * 前端用户
+     * @name 列表
+     * @param RequestHelper $req
+     * @param array $preData
+     * @return \libs\asyncme\ResponeHelper
+     * @priv ask
      */
-
-
     public function frontend_userAction(RequestHelper $req,array $preData)
     {
         $status = true;
@@ -1193,7 +1381,13 @@ class User extends PermissionBase
 
         return $this->render($status,$mess,$data,'template','user/frontend_user');
     }
-
+    /**
+     * @name 删除
+     * @param RequestHelper $req
+     * @param array $preData
+     * @return \libs\asyncme\ResponeHelper
+     * @priv ask
+     */
     public function frontend_user_deleteAction(RequestHelper $req,array $preData)
     {
 
@@ -1231,7 +1425,13 @@ class User extends PermissionBase
 
         return $this->render($status,$mess,$data);
     }
-
+    /**
+     * @name 添加
+     * @param RequestHelper $req
+     * @param array $preData
+     * @return \libs\asyncme\ResponeHelper
+     * @priv ask
+     */
     public function frontend_user_addAction(RequestHelper $req,array $preData)
     {
         try {
@@ -1356,6 +1556,13 @@ class User extends PermissionBase
         }
     }
 
+    /**
+     * @name 编辑
+     * @param RequestHelper $req
+     * @param array $preData
+     * @return \libs\asyncme\ResponeHelper
+     * @priv ask
+     */
     public function frontend_user_editAction(RequestHelper $req,array $preData)
     {
         $request_uid = $req->query_datas['sys_uid'];

@@ -228,6 +228,19 @@ CREATE TABLE `ng_manage_func_privs` (
   UNIQUE KEY `uni_company_account` (`company_id`,`account_id`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='经营者功能权限表';
 
+#经营者数量限制表
+CREATE TABLE `ng_manage_num_limit` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `company_id` int(10) unsigned NOT NULL COMMENT '商业id',
+  `account_id` bigint(20) unsigned NOT NULL COMMENT '运营者账号id',
+  `config` text NULL COMMENT '键值对,json格式',
+  `ctime` int(11) NOT NULL COMMENT '创建时间',
+  `mtime` int(11) NOT NULL COMMENT '修改时间',
+  PRIMARY KEY (`id`),
+  KEY `idx_company_account` (`company_id`,`account_id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='经营者数量限制表';
+
+
 CREATE TABLE `ng_sys_config` (
   `id` smallint(6) unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(50) NOT NULL COMMENT '名称',
