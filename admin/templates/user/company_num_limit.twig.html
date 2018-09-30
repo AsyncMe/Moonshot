@@ -37,9 +37,16 @@
                         </div>
                     </blockquote>
                     <tr>
-                        <th width="80">key</th>
+                        <th width="80">健</th>
                         <td>
-                            <input type="text" style="width: 400px;" name="post_c[{{loop.index}}][key]"  value="{{ key }}" placeholder="请输入键名" />
+                            {{ key }}
+                            <input type="text" readonly  style="width: 400px; display: none;" name="post_c[{{loop.index}}][key]"  value="{{ key }}" placeholder="请输入键名" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th width="80">说明</th>
+                        <td>
+                            {{ lists_desc[key] }}
                         </td>
                     </tr>
                     <tr>

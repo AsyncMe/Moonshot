@@ -1168,6 +1168,9 @@ class User extends PermissionBase
         if ($config_info && $config_info['config']) {
             $config_template = ng_mysql_json_safe_decode($config_info['config']);
         }
+        if ($config_info && $config_info['config_desc']) {
+            $config_template_desc = ng_mysql_json_safe_decode($config_info['config_desc']);
+        }
         try {
             if (!$config_template) {
                 throw new \Exception('(manage_num_limit) 配置模版不存在');
@@ -1177,6 +1180,7 @@ class User extends PermissionBase
             $num_limit_info = $num_limit_obj->numLimitInfo($where);
             if($num_limit_info && $num_limit_info['config']) {
                 $num_limit_config = ng_mysql_json_safe_decode($num_limit_info['config']);
+
                 foreach($config_template as $key=>$val) {
                     if($num_limit_config[$key]){
                         $config_template[$key]=$num_limit_config[$key];
@@ -1247,6 +1251,7 @@ class User extends PermissionBase
                 'account_id'=>$request_account_id,
                 'cate_index_url'=>$cate_index_url,
                 'lists'=>$config_template,
+                'lists_desc'=>$config_template_desc,
                 'info'=>$mess,
                 'cate_name'=>$cate_name,
             ];
