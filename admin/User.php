@@ -1266,6 +1266,148 @@ class User extends PermissionBase
         }
     }
 
+    /**
+     * @param RequestHelper $req
+     * @param array $preData
+     * @priv ask
+     */
+    public function company_plugin_ref_grantAction(RequestHelper $req,array $preData)
+    {
+        //返回地址
+        $path = [
+            'mark' => 'sys',
+            'bid'  => $req->company_id,
+            'pl_name'=>'admin',
+        ];
+        $query = [
+            'mod'=>'user',
+            'act'=>'company'
+        ];
+        $cate_name = '运营者';
+        $cate_index_url=  urlGen($req,$path,$query,true);
+
+        $request_account_id = $req->query_datas['uid'];
+        $request_company_id = $req->query_datas['company_id'];
+
+        $plugin_obj = new model\PluginModel($this->service);
+
+        try {
+            $where = ['status'=>1,'is_recycle'=>0];
+            $filed = ["id","properties","type","category","sub_cate","title","icon","plugin_root","version"];
+            $plugin_lists = $plugin_obj->getPluginLists($where,$filed,[['ctime','desc']]);
+            if (!$plugin_lists) {
+                throw new \Exception('没有任何插件');
+            }
+
+            $has_rel = [];
+            $rel_where = ['bussine_id'=>$request_company_id];
+            $res_plugin_rel = $plugin_obj->getPluginRelLists($rel_where,["id","plugin_id"]);
+            if ($res_plugin_rel) {
+                foreach ($res_plugin_rel as $rel_val) {
+                    $has_rel[$rel_val['id']] = $rel_val['plugin_id'];
+                }
+
+            }
+            $res_lists = [];
+            foreach ($plugin_lists as $key=>$val) {
+                if (in_array($val['id'],$has_rel)) {
+                    $val['grant'] = 1;
+                    $val['checked'] = 'checked="checked"';
+                } else {
+                    $val['grant'] = 0;
+                    $val['checked'] = '';
+                }
+                $res_cate = $val['category'];
+                if (!isset($res_lists[$res_cate])) $res_lists[$res_cate] = [];
+                $res_lists[$res_cate]['title'] = $res_cate;
+                $res_lists[$res_cate]['lists'][] = $val;
+            }
+
+
+            if($req->request_method == 'POST') {
+                if ($request_account_id == $req->post_datas['post']['uid'] && $request_company_id == $req->post_datas['post']['company_id']) {
+                    $privs = $req->post_datas['priv'];
+                    if ($privs) {
+
+                        $post_rels = [];
+                        foreach ($privs as $key=>$val) {
+                            list($post_company_id,$post_plugin_id) = explode("@",$val,2);
+                            $post_rels[] = $post_plugin_id;
+                        }
+                        //原先有的，现在没有的，删除
+                        $diff_rel = array_diff($has_rel,$post_rels);
+                        if ($diff_rel) {
+                            foreach($diff_rel as $key=>$val) {
+                                $plugin_obj->deletePluginRel(['bussine_id'=>$request_company_id,'plugin_id'=>$val]);
+                            }
+                        }
+                        //原先有的，现在也有的，不处理
+                        $array_intersect_rel = array_intersect($has_rel,$post_rels);
+                        if ($array_intersect_rel) {
+                            $post_rels = array_merge(array_diff($post_rels, $array_intersect_rel));
+                        }
+                        //剩下的增加
+                        foreach($post_rels as $key=>$val) {
+                            $add_map = [
+                                'bussine_id'=>$request_company_id,
+                                'plugin_id'=>$val,
+                                'ctime'=>time(),
+                                'mtime'=>time(),
+                            ];
+                            $plugin_obj->addPluginRel($add_map);
+                        }
+
+                    } else {
+                        $plugin_obj->deletePluginRel(['bussine_id'=>$request_company_id]);
+                    }
+                } else {
+                    throw new \Exception('参数出错');
+                }
+            }
+
+
+        } catch ( \Exception $e) {
+            $error = $e->getMessage();
+        }
+
+
+
+
+        if ($error) {
+            $status = false;
+            $mess = '失败';
+            $data = [
+                'company_id'=>$request_company_id,
+                'account_id'=>$request_account_id,
+                'cate_index_url'=>$cate_index_url,
+                'cate_name'=>$cate_name,
+                'info'=>$error,
+                'mess_title'=>'温馨提示',
+                'error'=>$error,
+            ];
+        } else {
+            $status = true;
+            $mess = '成功';
+            $data = [
+                'company_id'=>$request_company_id,
+                'account_id'=>$request_account_id,
+                'cate_index_url'=>$cate_index_url,
+                'lists'=>$res_lists,
+                //'lists_desc'=>$config_template_desc,
+                'info'=>$mess,
+                'cate_name'=>$cate_name,
+            ];
+        }
+
+
+        if($req->request_method == 'POST') {
+            //json返回
+            return $this->render($status,$mess,$data);
+        } else {
+            return $this->render($status, $mess, $data, 'template', 'user/company_plugin_ref');
+        }
+
+    }
     // 前端用户
 
     /**
