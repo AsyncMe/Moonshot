@@ -1,5 +1,7 @@
 CREATE TABLE `ng_sys_plugins` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `properties` VARCHAR (100) NOT NULL DEFAULT 'build in' COMMENT '属性',
+  `type` VARCHAR (100) NOT NULL DEFAULT 'plugin' COMMENT '类型',
   `category`  VARCHAR (100) NOT NULL DEFAULT '默认' COMMENT '插件类别名称',
   `sub_cate` VARCHAR (100) NULL DEFAULT '默认' COMMENT '插件子类别名称',
   `title` VARCHAR (150) NOT NULL COMMENT '插件名称',

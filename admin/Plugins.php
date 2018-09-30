@@ -717,6 +717,18 @@ class Plugins extends PermissionBase
         $pl_map['icon'] = $plugin_base_item['icon'];
         $pl_map['pub_time'] = $plugin_base_item['time'];
 
+        if($plugin_base_item['properties']){
+            $pl_map['properties'] = $plugin_base_item['properties'];
+        }
+        if($plugin_base_item['type']){
+            $pl_map['type'] = $plugin_base_item['type'];
+        }
+        if($plugin_base_item['category']){
+            $pl_map['category'] = $plugin_base_item['category'];
+        }
+        if($plugin_base_item['sub_cate']){
+            $pl_map['sub_cate'] = $plugin_base_item['sub_cate'];
+        }
         $pl_map['plugin_root'] = $plugin_lists['root'].'/'.$plugin_lists['file'].'/';
         $pl_map['class_name'] = $plugin_lists['file'];
 
@@ -773,6 +785,7 @@ class Plugins extends PermissionBase
                     $map['status'] = 1;
                     $map['parentid'] = $parentid;
                     $map['name'] = $item['name'];
+
                     if($item['icon']) $map['icon'] = $item['icon'];
                     $map['ctime']= time();
                     $map['mtime']= time();
