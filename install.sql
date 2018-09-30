@@ -245,6 +245,8 @@ CREATE TABLE `ng_sys_config` (
   `id` smallint(6) unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(50) NOT NULL COMMENT '名称',
   `config` text NULL COMMENT '键值对,json格式',
+  `desc` varchar(150)  NULL COMMENT '描述',
+  `config_desc` text NULL COMMENT '键值对描述,json格式',
   `lock` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT '锁定',
   `ctime` int(11) NOT NULL COMMENT '创建时间',
   `mtime` int(11) NOT NULL COMMENT '修改时间',
