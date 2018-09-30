@@ -40,6 +40,7 @@
             <th width="15"><label><input type="checkbox" class="js-check-all" data-direction="x" data-checklist="js-check-x"></label></th>
             <th width="50">ID</th>
             <th width="50">名称</th>
+            <th width="150">描述</th>
             <th width="30">数据</th>
             <th>创建时间</th>
             <th>状态</th>
@@ -53,6 +54,7 @@
             <td><input type="checkbox" class="js-check" data-yid="js-check-y" data-xid="js-check-x" name="ids[]" value="{{ val.id }}" title="ID:{{ val.id }}"></td>
             <td>{{ val.id }}</td>
             <td>{{ val.name }}</td>
+            <td>{{ val.desc }}</td>
             <td>
                 <a href="javascript:open_iframe_dialog('{{val.info_url}}','查看')" >
                     {{ val.config_count }} 对

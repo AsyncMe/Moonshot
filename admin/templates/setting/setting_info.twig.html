@@ -38,18 +38,28 @@
                         <span class="form-required">{{info.name}}</span>
                     </td>
                 </tr>
+                <tr>
+                    <th width="80">描述</th>
+                    <td>
+                        <span class="form-required">{{info.desc}}</span>
+                    </td>
+                </tr>
             </table>
             <table class="table table-bordered">
                 <blockquote>键值对</blockquote>
                 <tr>
                     <th>键名</th>
                     <th><span class="form-required">值</span></th>
+                    <th><span>说明</span></th>
                 </tr>
                 {% for key,val in info.config %}
                 <tr>
                     <th width="80">{{key}}</th>
                     <td>
                         <span class="form-required">{{val}}</span>
+                    </td>
+                    <td>
+                        <span>{{ info.config_desc[key] }}</span>
                     </td>
                 </tr>
                 {% endfor %}

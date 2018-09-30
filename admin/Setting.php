@@ -189,6 +189,9 @@ class Setting extends PermissionBase
                 if ($rel_info['config']) {
                     $rel_info['config'] = ng_mysql_json_safe_decode($rel_info['config']);
                 }
+                if ($rel_info['config_desc']) {
+                    $rel_info['config_desc'] = ng_mysql_json_safe_decode($rel_info['config_desc']);
+                }
                 $data = [
                     'info'=>$rel_info,
                 ];
@@ -269,6 +272,9 @@ class Setting extends PermissionBase
                         $map['status'] = $post['status'];
                     }
 
+                    if($post['desc']) {
+                        $map['desc'] = trim($post['desc']);
+                    }
 
                     if ($post_c) {
                         foreach ($post_c as $c_item) {
@@ -276,9 +282,12 @@ class Setting extends PermissionBase
                                 $c_key_data = trim($c_item['key']);
                                 $c_val_data = trim($c_item['val']);
                                 $config_map[$c_key_data] = $c_val_data;
+                                $c_desc_data = trim($c_item['desc']);
+                                $config_desc_map[$c_key_data] = $c_desc_data;
                             }
                         }
                         $map['config'] = ng_mysql_json_safe_encode($config_map);
+                        $map['config_desc'] = ng_mysql_json_safe_encode($config_desc_map);
                     }
                     $map['ctime'] = time();
                     $map['mtime'] = time();
@@ -358,6 +367,9 @@ class Setting extends PermissionBase
                 if ($admin_account['config']) {
                     $admin_account['config'] = ng_mysql_json_safe_decode($admin_account['config']);
                 }
+                if ($admin_account['config_desc']) {
+                    $admin_account['config_desc'] = ng_mysql_json_safe_decode($admin_account['config_desc']);
+                }
 
                 $data = [
                     'uid'=>$request_uid,
@@ -398,6 +410,9 @@ class Setting extends PermissionBase
                         if ($post['status']) {
                             $map['status'] = $post['status'];
                         }
+                        if($post['desc']) {
+                            $map['desc'] = trim($post['desc']);
+                        }
 
                         $map['mtime'] = time();
 
@@ -411,9 +426,13 @@ class Setting extends PermissionBase
                                     $c_key_data = trim($c_item['key']);
                                     $c_val_data = trim($c_item['val']);
                                     $config_map[$c_key_data] = $c_val_data;
+
+                                    $c_desc_data = trim($c_item['desc']);
+                                    $config_desc_map[$c_key_data] = $c_desc_data;
                                 }
                             }
                             $map['config'] = ng_mysql_json_safe_encode($config_map);
+                            $map['config_desc'] = ng_mysql_json_safe_encode($config_desc_map);
                         }
                         $flag = $account_model->saveConfigInfo($save_where,$map);
                         if (!$flag) {
@@ -519,9 +538,11 @@ class Setting extends PermissionBase
                             $map = [];
                             $map['name'] = $v[0];
                             $map['config'] = addslashes(str_replace('#;#',',',$v[1]));
-                            $map['lock'] = $v[2];
-                            $map['ctime'] = $v[3];
-                            $map['mtime'] = $v[4];
+                            $map['desc'] = addslashes(str_replace('#;#',',',$v[2]));
+                            $map['config_desc'] = addslashes(str_replace('#;#',',',$v[3]));
+                            $map['lock'] = $v[4];
+                            $map['ctime'] = $v[5];
+                            $map['mtime'] = $v[6];
                             $exit = $rel_model->getConfigInfo(['name'=>$map['name']]);
                             if (!$exit) {
                                 $flag = $rel_model->addConfigInfo($map);

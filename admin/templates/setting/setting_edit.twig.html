@@ -49,9 +49,17 @@
                     <tr>
                         <th width="80">名称</th>
                         <td>
-                            <input type="text" style="width: 400px;" name="post[name]" required value="{{ admin_account.name }}" placeholder="请输入账号"/>
+                            <input type="text" style="width: 400px;" name="post[name]" required value="{{ admin_account.name }}" placeholder="请输入名称"/>
                             <span class="form-required">*</span>
                             <span class="form-required">配置名称</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th width="80">描述</th>
+                        <td>
+                            <input type="text" style="width: 400px;" name="post[desc]"  value="{{ admin_account.desc }}" placeholder=""/>
+                            <span class="form-required">-</span>
+                            <span class="form-required">配置说明</span>
                         </td>
                     </tr>
 
@@ -68,15 +76,21 @@
                         </div>
                     </blockquote>
                     <tr>
-                        <th width="80">key</th>
+                        <th width="80">健-key</th>
                         <td>
                             <input type="text" style="width: 400px;" name="post_c[{{loop.index}}][key]"  value="{{ key }}" placeholder="请输入键名" />
                         </td>
                     </tr>
                     <tr>
-                        <th width="80">值</th>
+                        <th width="80">值-value</th>
                         <td>
                             <input type="text" style="width: 400px;" name="post_c[{{loop.index}}][val]"  value="{{ val }}" placeholder="请输入值" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th width="80">说明-desc</th>
+                        <td>
+                            <input type="text" style="width: 400px;" name="post_c[{{loop.index}}][desc]"  value="{{ admin_account.config_desc[key] }}" placeholder="" />
                         </td>
                     </tr>
                 </table>
@@ -119,15 +133,21 @@
                     </div>
                 </blockquote>
                 <tr>
-                    <th width="80">key</th>
+                    <th width="80">健-key</th>
                     <td>
                         <input type="text" style="width: 400px;" name="post_c[@id@][key]"  value="{{ key }}" placeholder="请输入键名" />
                     </td>
                 </tr>
                 <tr>
-                    <th width="80">值</th>
+                    <th width="80">值-value</th>
                     <td>
                         <input type="text" style="width: 400px;" name="post_c[@id@][val]"  value="{{ val }}" placeholder="请输入值" />
+                    </td>
+                </tr>
+                <tr>
+                    <th width="80">说明-desc</th>
+                    <td>
+                        <input type="text" style="width: 400px;" name="post_c[@id@][desc]"  value="{{ desc }}" placeholder="" />
                     </td>
                 </tr>
             </table>
