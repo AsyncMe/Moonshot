@@ -159,9 +159,9 @@
                     </tr>
                     <tr>
                         <td>
-                            <input type="radio"  name="post[status]"  value="1" {% if res_info.type == 1 %} checked="checked"{% endif %} /> 显示
+                            <input type="radio"  name="post[status]"  value="1" {% if res_info.status == 1 %} checked="checked"{% endif %} /> 显示
                             &nbsp;&nbsp;
-                            <input type="radio"  name="post[status]"  value="0" {% if res_info.type == 0 %} checked="checked"{% endif %}/> 不显示
+                            <input type="radio"  name="post[status]"  value="0" {% if res_info.status == 0 %} checked="checked"{% endif %}/> 不显示
                         </td>
                     </tr>
                     {%if op !='add' %}

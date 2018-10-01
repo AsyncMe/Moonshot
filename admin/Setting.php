@@ -746,20 +746,20 @@ class Setting extends PermissionBase
 
 
 
-                        if ($post['status']) {
+                        if (isset($post['status'])) {
                             $map['status'] = $post['status'];
                         }
 
                         if ($post['data']) {
                             $map['data'] = $post['data'];
                         }
-                        if ($post['type']) {
+                        if (isset($post['type'])) {
                             $map['type'] = $post['type'];
                         }
                         if ($post['link']) {
                             $map['link'] = $post['link'];
                         }
-                        if ($post['use_priv']) {
+                        if (isset($post['use_priv'])) {
                             $map['use_priv'] = $post['use_priv'];
                         }
                         if ($post['remark']) {
@@ -881,7 +881,7 @@ class Setting extends PermissionBase
                     }
 
 
-                    if ($post['status']) {
+                    if (isset($post['status'])) {
                         $map['status'] = $post['status'];
                     } else {
                         $map['status'] = 1;
@@ -890,7 +890,7 @@ class Setting extends PermissionBase
                     if ($post['data']) {
                         $map['data'] = $post['data'];
                     }
-                    if ($post['type']) {
+                    if (isset($post['type'])) {
                         $map['type'] = $post['type'];
                     } else {
                         $map['type'] = 1;
@@ -898,7 +898,7 @@ class Setting extends PermissionBase
                     if ($post['link']) {
                         $map['link'] = $post['link'];
                     }
-                    if ($post['use_priv']) {
+                    if (isset($post['use_priv'])) {
                         $map['use_priv'] = $post['use_priv'];
                     } else {
                         $map['use_priv'] = 0;
@@ -1314,20 +1314,20 @@ class Setting extends PermissionBase
 
 
 
-                        if ($post['status']) {
+                        if (isset($post['status'])) {
                             $map['status'] = $post['status'];
                         }
 
                         if ($post['data']) {
                             $map['data'] = $post['data'];
                         }
-                        if ($post['type']) {
+                        if (isset($post['type'])) {
                             $map['type'] = $post['type'];
                         }
                         if ($post['link']) {
                             $map['link'] = $post['link'];
                         }
-                        if ($post['use_priv']) {
+                        if (isset($post['use_priv'])) {
                             $map['use_priv'] = $post['use_priv'];
                         }
                         if ($post['remark']) {
@@ -1449,7 +1449,7 @@ class Setting extends PermissionBase
                     }
 
 
-                    if ($post['status']) {
+                    if (isset($post['status'])) {
                         $map['status'] = $post['status'];
                     } else {
                         $map['status'] = 1;
@@ -1458,7 +1458,7 @@ class Setting extends PermissionBase
                     if ($post['data']) {
                         $map['data'] = $post['data'];
                     }
-                    if ($post['type']) {
+                    if (isset($post['type'])) {
                         $map['type'] = $post['type'];
                     } else {
                         $map['type'] = 1;
@@ -1466,7 +1466,7 @@ class Setting extends PermissionBase
                     if ($post['link']) {
                         $map['link'] = $post['link'];
                     }
-                    if ($post['use_priv']) {
+                    if (isset($post['use_priv'])) {
                         $map['use_priv'] = $post['use_priv'];
                     } else {
                         $map['use_priv'] = 0;
