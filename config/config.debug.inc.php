@@ -25,6 +25,9 @@ $config['redis']['host']   = 'localhost';
 $config['redis']['pass']   = 'B7dHr2';
 $config['redis']['port']   = '6379';
 $config['redis']['dbnum'] = '10';
+$config['redis']['db_mark'] = 'yazai_app_db';
+
+$config['filecache']['path'] = 'data/cache/file';
 
 if (file_exists("../config/version.inc.php")) {
     $version_config = include "version.inc.php";

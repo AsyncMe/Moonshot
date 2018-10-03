@@ -12,6 +12,59 @@ use Illuminate\Database\Capsule\Manager as Capsule;
 use Illuminate\Container\Container;
 use Illuminate\Events\Dispatcher;
 
+class NGRedis {
+    public static $instance;
+
+    private $config;
+
+    private $fail_time;
+
+    private $redis_obj;
+
+    public function __construct($config)
+    {
+        $this->config = $config;
+        $this->fail_time = 0;
+        $redis = new \Redis();
+        $this->redis_obj = $redis;
+        $this->init();
+    }
+
+    private function init()
+    {
+        $config = $this->config;
+        $redis = $this->redis_obj;
+        $redis->connect($config['host'],$config['port']);
+        $redis->auth($config['pass']);
+        $redis->select($config['dbnum']);
+        $redis->set('db_name',$config['db_mark']);
+    }
+
+
+    public function setAsGlobal()
+    {
+        static::$instance = $this;
+    }
+
+    public function getRedis()
+    {
+        if ($this->redis_obj) {
+            if ($this->fail_time<10) {
+                $response = $this->redis_obj->ping();
+                if ($response != '+PONG' ) {
+                    $this->fail_time++;
+                    $this->init();
+                }
+            } else {
+                throw new \Exception('redis lost connect');
+            }
+            return $this->redis_obj;
+        } else {
+           return null;
+        }
+
+    }
+}
 //日志中间件
 $container['logger'] = function ($c) {
     $settings = $c->get('settings')['logger'];
@@ -43,16 +96,13 @@ $container['db'] = function ($c) {
 //redis中间件
 $container['redis'] = function ($c) {
     $config = $c['settings']['redis'];
-    $redis = new \Redis();
-    $redis->connect($config['host'],$config['port']);
-    $redis->auth($config['pass']);
-    $redis->select($config['dbnum']);
-    $redis->set('db_name','yazai_app_db');
-    return $redis;
+    $ngRedis = new NGRedis($config);
+    $ngRedis->setAsGlobal();
+    return $ngRedis->getRedis();
 };
 //文件缓存
 $container['filecache'] = function($c) {
-    $file_cache = new \libs\asyncme\NgFileCache('data/cache/file');
+    $file_cache = new \libs\asyncme\NgFileCache($c['settings']['filecache']['path']);
     return $file_cache;
 };
 
@@ -85,4 +135,3 @@ $common_header_mw = function ($request, $response, $next ) {
         ->withHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
         ->withHeader('Content-type', 'application/json');
 };
-

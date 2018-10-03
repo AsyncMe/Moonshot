@@ -1057,6 +1057,9 @@ class User extends PermissionBase
                     $flag = $func_obj->addFuncPrivs($map);
                 }
                 if ($flag) {
+                    $redis_key = 'privs_func_'.$req->post_datas['post']['company_id'];
+                    $redis = \NGRedis::$instance->getRedis();
+                    $redis->set($redis_key,$post_privs);
                     $data = [
                         'info'=>'保存成功',
                     ];
@@ -1131,6 +1134,8 @@ class User extends PermissionBase
 
         if($req->request_method == 'POST') {
             //json返回
+            //生成缓存
+
             return $this->render($status,$mess,$data);
         } else {
             return $this->render($status, $mess, $data, 'template', 'user/company_priv_func');
@@ -1220,6 +1225,10 @@ class User extends PermissionBase
                     }
                     if (!$flag) {
                         throw  new \Exception('保存失败');
+                    } else {
+                        $redis_key = 'privs_limit_'.$req->post_datas['post']['company_id'];
+                        $redis = \NGRedis::$instance->getRedis();
+                        $redis->set($redis_key,$map['config']);
                     }
 
                 } else {
@@ -1267,6 +1276,7 @@ class User extends PermissionBase
     }
 
     /**
+     * @name 插件授权
      * @param RequestHelper $req
      * @param array $preData
      * @priv ask
