@@ -1057,7 +1057,7 @@ class User extends PermissionBase
                     $flag = $func_obj->addFuncPrivs($map);
                 }
                 if ($flag) {
-                    $redis_key = 'privs_func_'.$req->post_datas['post']['company_id'];
+                    $redis_key = 'manage_privs_func_'.$req->post_datas['post']['company_id'];
                     $redis = \NGRedis::$instance->getRedis();
                     $redis->set($redis_key,$post_privs);
                     $data = [
@@ -1085,17 +1085,39 @@ class User extends PermissionBase
             if ($func_info && $func_info['privs']) {
                 $func_priv_info = ng_mysql_json_safe_decode($func_info['privs']);
             }
-
             $model_obj = new model\ManageMenuModel($this->service);
             $priv_gen_obj = new NgPrivGen();
             $where = [];
             $priv_lists = [];
+            $white_lists = [];
             $all_manage_menu_lists = $model_obj->menuLists($where);
+            //处理顶级菜单分组
+            $nav_menu_name_ref = [];
             foreach ($all_manage_menu_lists as $m_key=>$m_val) {
+                if($m_val['parentid']==0) {
+                    $nav_menu_name_ref[$m_val['model']] = $m_val['name'];
+                }
+            }
+            //处理顶级菜单分组结束
+            foreach ($all_manage_menu_lists as $m_key=>$m_val) {
+
                 $v_model = $m_val['model'];
                 $v_action = $m_val['action'];
-                $gen_lists = $priv_gen_obj->gen_privs($v_model,$v_action,'manager');
+                $gen_privs_lists = $priv_gen_obj->gen_privs($v_model,$v_action,'manager');
+                $gen_lists = $gen_privs_lists['ask'];
 
+                //处理白名单
+                $gen_white_lists = $gen_privs_lists['allow'];
+                foreach ($gen_white_lists as $k=>$v) {
+                    if(preg_match("/(.+)Action/is",$k,$action_res)) {
+                        $action_name = $action_res[1];
+                        $action_value = 'manage@'.$v_model.'@'.$action_name;
+                        $white_lists['manage'][$v_model][$action_name] = $action_value;
+                    }
+
+                }
+
+                //处理白名单结束
                 if($func_priv_info) {
                     foreach ($gen_lists as $k=>$v) {
                         if($func_priv_info['manager'][$v_model][$k]) {
@@ -1115,11 +1137,17 @@ class User extends PermissionBase
                 if (!empty($gen_lists)) {
                     $priv_lists[$v_model] = [
                         'mark'=>'manager',
-                        'title'=>$m_val['name'],
+                        'title'=>$nav_menu_name_ref[$v_model],
                         'lists'=>$gen_lists
                     ];
                 }
             }
+
+            //生成缓存
+            $redis_key = 'manage_white_func';
+            $redis = \NGRedis::$instance->getRedis();
+            $redis->set($redis_key,ng_mysql_json_safe_encode($white_lists));
+
             $status = true;
             $mess = '成功';
             $data = [
@@ -1134,10 +1162,9 @@ class User extends PermissionBase
 
         if($req->request_method == 'POST') {
             //json返回
-            //生成缓存
-
             return $this->render($status,$mess,$data);
         } else {
+
             return $this->render($status, $mess, $data, 'template', 'user/company_priv_func');
         }
     }
@@ -1226,7 +1253,7 @@ class User extends PermissionBase
                     if (!$flag) {
                         throw  new \Exception('保存失败');
                     } else {
-                        $redis_key = 'privs_limit_'.$req->post_datas['post']['company_id'];
+                        $redis_key = 'manage_privs_limit_'.$req->post_datas['post']['company_id'];
                         $redis = \NGRedis::$instance->getRedis();
                         $redis->set($redis_key,$map['config']);
                     }

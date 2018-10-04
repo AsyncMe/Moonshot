@@ -89,32 +89,38 @@ class NgPrivGen
             }
 
             $methods = $ref->getMethods(\ReflectionMethod::IS_PUBLIC);
-            $method_lists = [];
+            $method_lists = ['ask'=>[],'allow'=>[]];
             foreach ($methods as $key=>$method_item) {
                 if($method_item->class ==$class) {
                     //判断是否是公用的
                     $doc = $ref->getMethod($method_item->name)->getDocComment();
+                    $allow = false;
+                    $name = 'unknow';
                     if($doc) {
                         if (preg_match("/@priv allow/is",$doc)) {
-                            continue;
+                            $allow = true;
+                        }
+                        $doc_line = explode("\n",$doc);
+                        foreach($doc_line as $doc_item) {
+                            $rs = [];
+                            preg_match("/@name (.+)/is",$doc_item,$rs);
+                            if($rs) {
+                                $name = trim($rs[1]);
+                            }
                         }
                     }
-                    $doc_line = explode("\n",$doc);
-                    $name = 'unknow';
-                    foreach($doc_line as $doc_item) {
-                        $rs = [];
-                        preg_match("/@name (.+)/is",$doc_item,$rs);
-                        if($rs) {
-                            $name = trim($rs[1]);
-                        }
+                    if ($allow) {
+                        $method_lists['allow'][$method_item->name] = $name;
+                    } else {
+                        $method_lists['ask'][$method_item->name] = $name;
                     }
-                    $method_lists[$method_item->name] = $name;
+
                 }
             }
             if (!empty($method_lists)) {
-                $method_lists = array_merge($gen_lists,$method_lists);
+                $method_lists['ask'] = array_merge($gen_lists,$method_lists['ask']);
             } else {
-                $method_lists = $gen_lists;
+                $method_lists['ask'] = $gen_lists;
             }
 
         }

@@ -49,6 +49,7 @@ class ManageMenuModel extends AdminModel
         return $this->tableLists($this->menu_table,$where,$order,$page,$per_page,$raw);
     }
 
+
     public function menuCount($where=[],$raw=false)
     {
         return $this->tableCount($this->menu_table,$where,$raw);
