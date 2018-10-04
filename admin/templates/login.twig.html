@@ -43,7 +43,8 @@
                     <input class="input" id="admin_pwd" type="password" name="password" placeholder="密码" title="密码" data-rule-required="true"  data-msg-required=""/>
                 </li>
                 <li class="verifycode-wrapper">
-                    <img class="verify_img" src="{{ vcode_url }}" onclick="this.src='{{ vcode_url }}&time='+Math.random();" style="margin:0 auto;cursor: pointer;" title="点击获取"/>
+                    <img id="verify_img" class="verify_img" src="{{ vcode_url }}" onclick="this.src='{{ vcode_url }}&time='+Math.random();" style="margin:0 auto;cursor: pointer;" title="点击获取"/>
+                    <a href="javascript:void(0)" onclick="document.getElementById('verify_img').src='{{ vcode_url }}&time='+Math.random();" style="display:block;float: right;width: 60px;line-height:50px;height: 100%;text-align: center;text-decoration: none;color: #00a0e9;">刷新</a>
                 </li>
                 <li>
                     <input class="input" type="text" name="verify" placeholder="验证码" />

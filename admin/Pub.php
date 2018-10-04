@@ -37,7 +37,7 @@ class Pub extends AdminBase
         ];
         $query = [
             'act'=>'gen',
-            'w'=>'248',
+            'w'=>'188',
             'h'=>50,
         ];
         $vcode_url = urlGen($req,$path,$query,true);

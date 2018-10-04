@@ -1108,29 +1108,42 @@ class User extends PermissionBase
 
                 //处理白名单
                 $gen_white_lists = $gen_privs_lists['allow'];
-                foreach ($gen_white_lists as $k=>$v) {
-                    if(preg_match("/(.+)Action/is",$k,$action_res)) {
-                        $action_name = $action_res[1];
-                        $action_value = 'manage@'.$v_model.'@'.$action_name;
-                        $white_lists['manage'][$v_model][$action_name] = $action_value;
-                    }
+                if ($gen_white_lists) {
+                    foreach ($gen_white_lists as $k=>$v) {
+                        if(preg_match("/(.+)Action/is",$k,$action_res)) {
+                            $action_name = $action_res[1];
+                            $action_value = 'manager@'.$v_model.'@'.$action_name;
+                            $white_lists['manager'][$v_model][$action_name] = $action_value;
+                        }
 
+                    }
                 }
 
                 //处理白名单结束
-                if($func_priv_info) {
+                if($func_priv_info && $gen_lists) {
                     foreach ($gen_lists as $k=>$v) {
-                        if($func_priv_info['manager'][$v_model][$k]) {
-                            $gen_lists[$k] = [
+
+                        if(preg_match("/(.+)Action/is",$k,$action_res)) {
+                            $action_name = $action_res[1];
+                            unset($gen_lists[$k]);
+                        } else {
+                            $action_name = $k;
+                        }
+
+                        if($func_priv_info['manager'][$v_model][$action_name]) {
+                            $gen_lists[$action_name] = [
                                 'name'=>$v,
                                 'checked'=>'checked="checked"',
                             ];
                         } else {
-                            $gen_lists[$k] = [
+                            $gen_lists[$action_name] = [
                                 'name'=>$v,
                                 'checked'=>'',
                             ];
                         }
+
+
+
                     }
                 }
 
@@ -1147,6 +1160,7 @@ class User extends PermissionBase
             $redis_key = 'manage_white_func';
             $redis = \NGRedis::$instance->getRedis();
             $redis->set($redis_key,ng_mysql_json_safe_encode($white_lists));
+
 
             $status = true;
             $mess = '成功';
