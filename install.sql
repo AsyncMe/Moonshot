@@ -362,3 +362,61 @@ CREATE TABLE `ng_works_plugin_ref` (
   KEY `idx_plugin_id` (`plugin_id`),
   KEY `idx_name` (`name`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='业务插件关联表';
+
+
+CREATE TABLE `ng_sys_keywoks` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(150) NOT NULL COMMENT '名称',
+  `status` tinyint(1) unsigned NOT NULL DEFAULT '1' COMMENT '1:正常,2:不正常',
+  `ctime` int(11) NOT NULL COMMENT '创建时间',
+  `mtime` int(11) NOT NULL COMMENT '修改时间',
+  PRIMARY KEY (`id`),
+  KEY `idx_name` (`name`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='关键字表';
+
+CREATE TABLE `ng_sys_keywoks_ref` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `model_type` varchar(150) NOT NULL COMMENT '数据表类型',
+  `keywork_id` int(10) unsigned NOT NULL DEFAULT 0 COMMENT '关键词id,',
+  `ref_id` int(10) unsigned NOT NULL DEFAULT 0 COMMENT '关键词id,',
+  `ref_type` varchar(150) NOT NULL COMMENT '资源类型',
+  PRIMARY KEY (`id`),
+  KEY `idx_model_type` (`model_type`),
+  KEY `idx_ref_id` (`ref_id`),
+  KEY `idx_keywork_id` (`keywork_id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='关键字引用关系表';
+
+
+CREATE TABLE `ng_manage_assets` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `asset_id` char(16) NOT NULL COMMENT '唯一id',
+  `company_id` int(10) unsigned NOT NULL COMMENT '商业id',
+  `account_id` bigint(20) unsigned NOT NULL COMMENT '运营者账号id',
+  `cate_id` int(10) unsigned NOT NULL DEFAULT 0 COMMENT '分类id,默认分类',
+  `name` varchar(150) NOT NULL COMMENT '名称',
+  `desc` varchar(255)  NULL COMMENT '描述',
+  `thumb` varchar(255)  NULL COMMENT '缩略图',
+  `file` varchar(255) NOT NULL COMMENT '文件路径',
+  `filesize` int(10) unsigned NOT NULL COMMENT '文件大小,字节',
+  `filetype` varchar(150) NOT NULL COMMENT '文件类型',
+  `hash` CHAR(32)  NOT NULL COMMENT '文件唯一校样',
+  `smeta` text  NULL COMMENT '其他属性，比如经纬度,json格式',
+  `keyworks` text  NULL COMMENT '关键词,json格式',
+  `status` tinyint(1) unsigned NOT NULL DEFAULT '1' COMMENT '1:正常,2:不正常',
+  `is_review` tinyint(1) unsigned DEFAULT 0 NULL COMMENT '审核 0:否;1:是',
+  `is_hot` tinyint(1) unsigned DEFAULT 0 NULL COMMENT '热销 0:否;1:是',
+  `is_hot_exipre` int(10) unsigned DEFAULT 0 NULL COMMENT '热销过期时间',
+  `is_favor` tinyint(1) unsigned DEFAULT 0 NULL COMMENT '推荐 0:否;1:是',
+  `is_top` tinyint(1) unsigned DEFAULT 0 NULL COMMENT '置顶 0:否;1:是',
+  `is_recycle` tinyint(1) unsigned DEFAULT 0 NULL COMMENT '回收站 0:否;1:是',
+  `is_recycle_exipre` int(10) unsigned DEFAULT 0 NULL COMMENT '回收站删除时间',
+  `is_lock` tinyint(1) unsigned DEFAULT 0 NULL COMMENT '锁住 0:否;1:是',
+  `ctime` int(11) NOT NULL COMMENT '创建时间',
+  `mtime` int(11) NOT NULL COMMENT '修改时间',
+  PRIMARY KEY (`id`),
+  KEY `idx_company_account` (`company_id`,`account_id`),
+  KEY `idx_asset_id` (`asset_id`),
+  KEY `idx_cate_id` (`cate_id`),
+  KEY `idx_name` (`name`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='经营资源表';
+

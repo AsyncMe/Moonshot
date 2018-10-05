@@ -77,8 +77,21 @@ class NgPrivGen
 
         if (class_exists($class)) {
             $ref = new \ReflectionClass($class);
-            foreach($inner_privs as $priv=>$title) {
+            $class_title = '';
+            //获得类的说明
+            $classDoc = $ref->getDocComment();
+            if ($classDoc) {
+                $doc_line = explode("\n",$classDoc);
+                foreach($doc_line as $doc_item) {
+                    $rs = [];
+                    preg_match("/@name (.+)/is",$doc_item,$rs);
+                    if($rs) {
+                        $class_title = trim($rs[1]);
+                    }
+                }
+            }
 
+            foreach($inner_privs as $priv=>$title) {
                 foreach($actions as $action_item) {
                     if($priv) $method = $action_item.'_'.$priv;
                     else $method = $action_item;
@@ -89,7 +102,7 @@ class NgPrivGen
             }
 
             $methods = $ref->getMethods(\ReflectionMethod::IS_PUBLIC);
-            $method_lists = ['ask'=>[],'allow'=>[]];
+            $method_lists = ['title'=>$class_title,'ask'=>[],'allow'=>[]];
             foreach ($methods as $key=>$method_item) {
                 if($method_item->class ==$class) {
                     //判断是否是公用的

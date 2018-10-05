@@ -1093,13 +1093,23 @@ class User extends PermissionBase
             $all_manage_menu_lists = $model_obj->menuLists($where);
             //处理顶级菜单分组
             $nav_menu_name_ref = [];
+            $all_manage_menu_rel = [];
             foreach ($all_manage_menu_lists as $m_key=>$m_val) {
                 if($m_val['parentid']==0) {
                     $nav_menu_name_ref[$m_val['model']] = $m_val['name'];
                 }
+                $all_manage_menu_rel[$m_val['id']] = [
+                    'parentid'=>$m_val['parentid'],
+                    'model'=>$m_val['model'],
+                    'action'=>$m_val['action'],
+                    'app'=>$m_val['app'],
+                    'use_priv'=>$m_val['use_priv'],
+                    'name'=>$m_val['name'],
+                    'data'=>$m_val['data'],
+                ];
             }
             //处理顶级菜单分组结束
-            foreach ($all_manage_menu_lists as $m_key=>$m_val) {
+            foreach ($all_manage_menu_rel as $m_key=>$m_val) {
 
                 $v_model = $m_val['model'];
                 $v_action = $m_val['action'];
@@ -1148,9 +1158,10 @@ class User extends PermissionBase
                 }
 
                 if (!empty($gen_lists)) {
+                    $model_title = $nav_menu_name_ref[$v_model] ? $nav_menu_name_ref[$v_model] : $gen_privs_lists['title'];
                     $priv_lists[$v_model] = [
                         'mark'=>'manager',
-                        'title'=>$nav_menu_name_ref[$v_model],
+                        'title'=>$model_title,
                         'lists'=>$gen_lists
                     ];
                 }

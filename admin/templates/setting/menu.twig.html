@@ -56,7 +56,11 @@
         <tr id='node-{{val.id}}' {{parentid_node}} style=''>
             <td style='padding-left:20px;'><input name='listorders[{{val.id}}]' type='text' size='3' value='{{val.listorder}}' class='input input-order'></td>
             <td>{{val.id}}</td>
-            <td>{{val.app}}</td>
+            <td>
+                {{val.app}}
+                {% if val.model %}<br/>m : {{val.model}} a : {{val.action}}{% endif %}
+                {% if val.data %}<br/>d : {{val.data}}{% endif %}
+            </td>
             <td>{{val.name}}</td>
             <td>{{val.type_str}}</td>
             <td>{{val.status_str}}</td>
@@ -79,7 +83,11 @@
         <tr id='node-{{s_val.id}}' {{s_parentid_node}} style='display:none;'>
             <td style='padding-left:40px;'><input name='listorders[{{s_val.id}}]' type='text' size='3' value='{{s_val.listorder}}' class='input input-order'></td>
             <td>{{s_val.id}}</td>
-            <td>{{s_val.app}}</td>
+            <td>
+                {{s_val.app}}
+                {% if s_val.model %}<br/>m : {{s_val.model}} a : {{s_val.action}}{% endif %}
+                {% if s_val.data %}<br/>d : {{s_val.data}}{% endif %}
+            </td>
             <td>&nbsp;&nbsp;&nbsp;&nbsp;{{s_spacer}} {{s_val.name}}</td>
             <td>{{s_val.type_str}}</td>
             <td>{{s_val.status_str}}</td>
@@ -104,7 +112,11 @@
         <tr id='node-{{ss_val.id}}' {{ss_parentid_node}} style='display:none;'>
             <td style='padding-left:40px;'><input name='listorders[{{ss_val.id}}]' type='text' size='3' value='{{ss_val.listorder}}' class='input input-order'></td>
             <td>{{ss_val.id}}</td>
-            <td>{{ss_val.app}}</td>
+            <td>
+                {{ss_val.app}}
+                {% if ss_val.model %}<br/>m : {{ss_val.model}} a : {{ss_val.action}}{% endif %}
+                {% if ss_val.data %}<br/>d : {{ss_val.data}}{% endif %}
+            </td>
             <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{ss_spacer}} {{ss_val.name}}</td>
             <td>{{ss_val.type_str}}</td>
             <td>{{ss_val.status_str}}</td>

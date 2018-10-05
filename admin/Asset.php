@@ -15,26 +15,25 @@ use PHPSQLParser\PHPSQLParser;
 use PHPSQLParser\utils\PHPSQLParserConstants;
 use \Slim\Http\UploadedFile;
 
+/**
+ * @name 资源管理
+ * Class Asset
+ * @package admin
+ */
 class Asset extends PermissionBase
 {
     /**
+     * @name 上传对话框
      * @param RequestHelper $req
      * @param array $preData
      * @return ResponeHelper
+     * @priv ask
      */
     public function uploadAction(RequestHelper $req,array $preData)
     {
-        $upload_setting = $this->upload_setting();
-        $filetypes=array(
-            'image'=>array('title'=>'Image files','extensions'=>$upload_setting['image']['extensions']),
-            'video'=>array('title'=>'Video files','extensions'=>$upload_setting['video']['extensions']),
-            'audio'=>array('title'=>'Audio files','extensions'=>$upload_setting['audio']['extensions']),
-            'file'=>array('title'=>'Custom files','extensions'=>$upload_setting['file']['extensions'])
-        );
 
         try {
             $request_uid = $req->query_datas['admin_uid'];
-
 
             $filetype = $req->query_datas['filetype'];
             $filetype = $filetype ? $filetype : 'image';
@@ -43,6 +42,21 @@ class Asset extends PermissionBase
             $multi = $multi ? intval($multi) : 0;
 
             $app = $req->query_datas['app'];
+            //零时文件夹
+            $tmp = $req->query_datas['tmp'];
+
+            $upload_setting = $this->upload_setting($filetype);
+
+            $filetypes = [];
+            foreach (['*','image','video','audio','file'] as $type) {
+                if(isset($upload_setting[$type])) {
+                    $filetypes[$type] = [
+                        'title'=>ucfirst($type).' files',
+                        'extensions'=>$upload_setting[$type]['extensions'],
+                    ];
+                }
+            }
+
 
             $upload_max_filesize=$upload_setting[$filetype]['upload_max_filesize'];
 
@@ -66,7 +80,8 @@ class Asset extends PermissionBase
                 'admin_uid'=>$request_uid,
                 'multi'=>$multi,
                 'filetype'=>$filetype,
-                'app'=>$app
+                'app'=>$app,
+                'tmp'=>'tmp',
             ];
             $asset_upload_url = urlGen($req,$path,$query,true);
 
@@ -97,9 +112,11 @@ class Asset extends PermissionBase
     }
 
     /**
+     * @name 文件上传
      * @param RequestHelper $req
      * @param array $preData
      * @return ResponeHelper
+     * @priv ask
      */
     public function fileuploadAction(RequestHelper $req,array $preData)
     {
@@ -112,14 +129,16 @@ class Asset extends PermissionBase
         $filetype = $filetype ? $filetype : 'image';
 
         $app = $req->query_datas['app'];
+        //零时文件夹
+        $tmp = $req->query_datas['tmp'];
 
-        $asset_path = $this->service->getAssetPath($app);
+        $asset_path = $this->service->getAssetPath($app,$tmp);
         if(!is_dir($asset_path.'/')) {
             mkdir($asset_path.'/',0775,true);
         }
 
 
-        $upload_setting = $this->upload_setting();
+        $upload_setting = $this->upload_setting($filetype);
 
         $allow_extensions=explode(',', $upload_setting[$filetype]['extensions']);
 
@@ -136,8 +155,25 @@ class Asset extends PermissionBase
                     $file->moveTo($asset_path."/".$uploadFileName);
                     $filesize = $file->getSize();
                     $filetype = $file->getClientMediaType();
+                    //如果是图片，获得图片的尺寸
+                    $smeta = [];
+                    $filetype_names = explode('/',$filetype);
+                    if (strtolower($filetype_names[0])=='image') {
+                        if(function_exists('getimagesize')) {
+                            $img_info = getimagesize($asset_path."/".$uploadFileName);
+                            $smeta = [
+                                'width'=>$img_info[0],
+                                'height'=>$img_info[1],
+                            ];
+                        }
+                    }
+
                     $preview_url = '/wxapp'.ltrim($asset_path."/".$uploadFileName,'.');
-                    $filepath = ltrim($asset_path."/".$uploadFileName,'./data');
+                    if(preg_match("/^\.\/data/is",$asset_path)) {
+                        $filepath = preg_replace("/^\.\/data/is",'',$asset_path)."/".$uploadFileName;
+                    } else {
+                        $filepath = $asset_path."/".$uploadFileName;
+                    }
                     $success_upload_data[] = [
                         'name'=>$oldname,
                         'preview_url'=>$preview_url,
@@ -145,6 +181,7 @@ class Asset extends PermissionBase
                         'filepath'=>$filepath,
                         'size'=>$filesize,
                         'type'=>$filetype,
+                        'smeta'=>$smeta,
                     ];
                 } else {
                     $success_upload_data = [
@@ -161,11 +198,12 @@ class Asset extends PermissionBase
         if (count($success_upload_data)) {
             $status = true;
             $mess = '成功';
-            if ($multi) {
-                $data = $success_upload_data;
-            } else {
-                $data = $success_upload_data[0];
-            }
+//            if ($multi) {
+//                $data = $success_upload_data;
+//            } else {
+//                $data = $success_upload_data[0];
+//            }
+            $data = $success_upload_data[0];
 
         } else {
             $status = false;

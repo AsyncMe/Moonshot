@@ -174,7 +174,7 @@ class AdminBase extends Plugins
      * 上传设置
      * @return array
      */
-    protected function upload_setting()
+    protected function upload_setting($c='')
     {
         $upload_setting = array(
             'image' => array(
@@ -194,6 +194,18 @@ class AdminBase extends Plugins
                 'extensions' => 'txt,pdf,doc,docx,xls,xlsx,ppt,pptx,zip,rar'
             )
         );
+        if ($c=='*') {
+            $c_all = [];
+            $max_fileSize = 0;
+            foreach ($upload_setting as $setting){
+                $max_fileSize = $max_fileSize>$setting['upload_max_filesize'] ? $max_fileSize:$setting['upload_max_filesize'];
+                $c_all[] = $setting['extensions'];
+            }
+            $upload_setting['*'] = [
+                'upload_max_filesize'=>$max_fileSize,
+                'extensions'=>implode(',',$c_all),
+            ];
+        }
         foreach ($upload_setting as $setting){
             $extensions=explode(',', trim($setting['extensions']));
             if(!empty($extensions)){

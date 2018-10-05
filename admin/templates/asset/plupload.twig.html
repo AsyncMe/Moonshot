@@ -94,7 +94,10 @@
                 var filepath = $this.data('filepath');
                 var name = $this.data('name');
                 var id = $this.data('id');
-                files.push({url:url,preview_url:preview_url,filepath:filepath,name:name,id:id});
+                var size = $this.data('size');
+                var type = $this.data('type');
+                var smeta = $this.data('smeta');
+                files.push({url:url,preview_url:preview_url,filepath:filepath,name:name,id:id,size:size,type:type,smeta:smeta});
             });
         }
         if(tab=='network-file'){
@@ -130,7 +133,7 @@
                 </div>
 					<span class="num">
 						<empty name="multi">
-                            最多上传<em>1</em>个附件,
+                            最多上传<em>{%if multi %}多个{%else%} 1 {%endif%}</em>个附件,
                         </empty>
 						单文件最大<em>{{ upload_max_filesize_mb }}MB</em>,
 						<em style="cursor: help;" title="可上传格式：{{ extensions}}" data-toggle="tooltip">支持格式？</em>
@@ -212,14 +215,25 @@
                             $('#container').css('visibility','hidden');
                         }
                         var respone_file = data.data;
-                        console.log(respone_file);
                         var $file=$('#'+file.id);
                         $file.addClass('uploaded')
                                 .data('id',file.id)
                                 .data('url',respone_file.url)
                                 .data('preview_url',respone_file.preview_url)
                                 .data('filepath',respone_file.filepath)
+                                .data('size','')
+                                .data('type','')
+                                .data('smata','')
                                 .data('name',respone_file.name);
+                        if(typeof respone_file.size !='undefined') {
+                            $file.data('size',respone_file.size);
+                        }
+                        if(typeof respone_file.type !='undefined') {
+                            $file.data('type',respone_file.type);
+                        }
+                        if(typeof respone_file.smeta != 'undefined') {
+                            $file.data('smeta',JSON.stringify(respone_file.smeta));
+                        }
 
                         if(respone_file.url.match(/\.(jpeg|gif|jpg|png|bmp|pic)$/gi)){
                             var $img=$('<img/>');
