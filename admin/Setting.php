@@ -278,7 +278,7 @@ class Setting extends PermissionBase
 
                     if ($post_c) {
                         foreach ($post_c as $c_item) {
-                            if ($c_item['key'] && $c_item['val']) {
+                            if ($c_item['key'] && isset($c_item['val'])) {
                                 $c_key_data = trim($c_item['key']);
                                 $c_val_data = trim($c_item['val']);
                                 $config_map[$c_key_data] = $c_val_data;
@@ -422,7 +422,7 @@ class Setting extends PermissionBase
 
                         if ($post_c) {
                             foreach ($post_c as $c_item) {
-                                if ($c_item['key'] && $c_item['val']) {
+                                if ($c_item['key'] && isset($c_item['val'])) {
                                     $c_key_data = trim($c_item['key']);
                                     $c_val_data = trim($c_item['val']);
                                     $config_map[$c_key_data] = $c_val_data;
