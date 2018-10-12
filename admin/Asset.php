@@ -81,7 +81,7 @@ class Asset extends PermissionBase
                 'multi'=>$multi,
                 'filetype'=>$filetype,
                 'app'=>$app,
-                'tmp'=>'tmp',
+                'tmp'=>$tmp,
             ];
             $asset_upload_url = urlGen($req,$path,$query,true);
 
