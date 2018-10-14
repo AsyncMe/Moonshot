@@ -33,6 +33,7 @@
             "admin\\": "admin/",
             "manager\\": "manager/",
             "plugins\\":"plugins/",
+            "api\\":"api/",
             "libs\\":"libs/"
         }
     }
