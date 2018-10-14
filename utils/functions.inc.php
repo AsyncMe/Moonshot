@@ -283,6 +283,23 @@ function ng_mysql_json_safe_decode($data)
 }
 
 /**
+ * @name 复制之后产生随机名称后缀
+ * @param int $len
+ * @return string
+ */
+function ng_copy_name_gen($len=4)
+{
+    $str = "";
+    $str_pol = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyz";
+    $max = strlen($str_pol) - 1;
+    if ($len) while($len>0) {
+        $str .= $str_pol[mt_rand(0, $max)];
+        $len--;
+    }
+    return $str;
+}
+
+/**
  * 调试输出
  * @param $data
  */
