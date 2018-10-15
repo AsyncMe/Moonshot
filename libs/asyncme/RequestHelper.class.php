@@ -127,5 +127,15 @@ class RequestHelper
         }
     }
 
+    public function getHeader()
+    {
+        if($this->originalRequest) {
+            return $this->originalRequest->getHeaders();
+        } else {
+            return [];
+        }
+
+    }
+
 
 }
