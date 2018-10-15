@@ -6,9 +6,10 @@
  * Time: 上午12:20
  */
 
-namespace manager\model;
+namespace api\model;
 
 
+use api\model\ApiModel;
 use libs\asyncme\Service;
 
 /**
@@ -16,7 +17,7 @@ use libs\asyncme\Service;
  * @package manager\model
  * @name 业务模型类
  */
-class WorkModel extends ManagerModel
+class WorkModel extends ApiModel
 {
 
     protected $works_table = 'works';

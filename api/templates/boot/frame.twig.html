@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{frame_name}}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link href="/wxapp/asset/simpleboot/themes/{{ site_style }}/theme.min.css" rel="stylesheet">
+    <link href="/wxapp/asset/simpleboot/css/simplebootadmin.css" rel="stylesheet">
+    <link href="/wxapp/asset/simpleboot/font-awesome/4.4.0/css/font-awesome.min.css?page=index"  rel="stylesheet" type="text/css">
+    <!--[if IE 7]>
+    <link rel="stylesheet" href="/wxapp/asset/simpleboot/font-awesome/4.4.0/css/font-awesome-ie7.min.css">
+    <![endif]-->
+    <link rel="stylesheet" href="/wxapp/asset/simpleboot/themes/{{ site_style }}/simplebootadminindex.min.css?">
+    <link href="/wxapp/asset/js/artDialog/skins/default.css" rel="stylesheet" />
+    <!--[if lte IE 8]>
+    <link rel="stylesheet" href="/wxapp/asset/simpleboot/css/simplebootadminindex-ie.css?" />
+    <![endif]-->
+
+    {% block frame_global_style %}
+    <style type="text/css">
+        #container li {list-style-type:none;float: left;width: 30%; height: 128px;padding: 10px;margin: 10px 0px; border-bottom: 1px dashed #ccc;}
+        #container  .icon {width: 128px;height: 128px;float: left;display: block;}
+        #container  .info {float: left;display: block;padding: 5px; overflow: hidden;}
+        #container  .info div{height: 24px;display: block;width: 100%;}
+    </style>
+    {% endblock %}
+
+    <script>
+        //全局变量
+        var GV = {
+            HOST:"/wxapp/",
+            ROOT: "/",
+            WEB_ROOT: "/",
+            JS_ROOT: "./wxapp/asset/js/"
+        };
+    </script>
+    {% block frame_head_script %}
+    {% endblock %}
+</head>
+<body>
+{% block frame_header %}
+{% endblock %}
+<div id="container">
+    {% block frame_content %}
+    {% endblock %}
+</div>
+<script src="/wxapp/asset/js/jquery.js"></script>
+<script src="/wxapp/asset/js/wind.js"></script>
+<script src="/wxapp/asset/simpleboot/bootstrap/js/bootstrap.min.js"></script>
+<script src="/wxapp/asset/js/common.js"></script>
+{% block frame_footer %}
+{% endblock %}
+</body>
+</html>

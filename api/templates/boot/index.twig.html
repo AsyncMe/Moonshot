@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <!-- Set render engine for 360 browser -->
+    <meta name="renderer" content="webkit">
+    <meta charset="UTF-8">
+    <title>{{ sessions.manager_site_title_prefix }}{{ site_title }}</title>
+    <meta name="description" content="{{ site_desc }}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link href="/wxapp/asset/simpleboot/themes/{{ site_style }}/theme.min.css" rel="stylesheet">
+    <link href="/wxapp/asset/simpleboot/css/simplebootadmin.css" rel="stylesheet">
+    <link href="/wxapp/asset/simpleboot/font-awesome/4.4.0/css/font-awesome.min.css?page=index"  rel="stylesheet" type="text/css">
+    <!--[if IE 7]>
+    <link rel="stylesheet" href="/wxapp/asset/simpleboot/font-awesome/4.4.0/css/font-awesome-ie7.min.css">
+    <![endif]-->
+    <link rel="stylesheet" href="/wxapp/asset/simpleboot/themes/{{ site_style }}/simplebootadminindex.min.css?">
+    <link href="/wxapp/asset/js/artDialog/skins/default.css" rel="stylesheet" />
+    <!--[if lte IE 8]>
+    <link rel="stylesheet" href="/wxapp/asset/simpleboot/css/simplebootadminindex-ie.css?" />
+    <![endif]-->
+    <style>
+        .navbar .nav_shortcuts .btn{margin-top: 5px;}
+        .navbar .nav_lists .btn{margin: 10px 5px;}
+        .navbar .nav_lists .btn-mid{padding: 2px 12px;}
+        .macro-component-tabitem{width:101px;}
+        .item-main-toggle-off{margin-left: 0px !important;}
+        .nav_active {color: white;background: olivedrab}
+
+        /*-----------------导航hack--------------------*/
+        .nav-list>li.open{position: relative;}
+        .nav-list>li.open .back {display: none;}
+        .nav-list>li.open .normal {display: inline-block !important;}
+        .nav-list>li.open a {padding-left: 7px;}
+        .nav-list>li .submenu>li>a {background: #fff;}
+        .nav-list>li .submenu>li a>[class*="fa-"]:first-child{left:20px;}
+        .nav-list>li ul.submenu ul.submenu>li a>[class*="fa-"]:first-child{left:30px;}
+        /*----------------导航hack--------------------*/
+    </style>
+    <script>
+        //全局变量
+        var GV = {
+            HOST:"/wxapp/",
+            ROOT: "/",
+            WEB_ROOT: "/",
+            JS_ROOT: "./wxapp/asset/js/"
+        };
+    </script>
+</head>
+<body style="min-width:900px;" screen_capture_injected="true">
+    <div id="right_tools_wrapper">
+
+        <span id="toogle_left_side" title="显示边栏" ><i class="fa fa-toggle-on right_tool_icon"></i></span> &nbsp;&nbsp;
+        <span id="refresh_wrapper" title="刷新当前页面" ><i class="fa fa-refresh right_tool_icon"></i></span>
+    </div>
+    <div class="navbar">
+        <div class="navbar-inner">
+            <div class="container-fluid">
+                <a href="#" class="brand"> <small>
+                    {{ sessions.manager_site_title_prefix }}{{ site_title }}
+                </small>
+                </a>
+                <div class="pull-left nav_lists">
+                    <!-- 获取一级栏目菜单 -->
+
+                    {% for key, value in navs %}
+                        <a class="btn btn-mid {{ value.active }}" href="{{ value.url }}" title="{{ value.name }}" target="_self">
+                            <i class="fa fa-{{ value.icon }}"> {{ value.name }}</i>
+                        </a>
+                    {% endfor %}
+
+                </div>
+
+                <ul class="nav simplewind-nav pull-right">
+                    <li class="light-blue">
+                        <a data-toggle="dropdown" href="#" class="dropdown-toggle">
+                            {% if sessions.admin_avatar %}
+                                <img class="nav-user-photo" width="30" height="30" src="{{ sessions.manager_avatar }}" alt="11" >
+                            {% else %}
+                                <img class="nav-user-photo" width="30" height="30" src="/Public/assets/images/logo-18.png" alt="">
+                            {% endif %}
+							<span class="user-info">
+                                欢迎您!{{ sessions.manager_name }}
+							</span>
+                            <i class="fa fa-caret-down"></i>
+                        </a>
+                        <ul class="user-menu pull-right dropdown-menu dropdown-yellow dropdown-caret dropdown-closer">
+
+                            <li><a href="javascript:openapp('{{ URL("manager",bid~"/"~pl_name,{"mod":"user","act":"company_userinfo"},"manager") }}','index_userinfo','用户信息');"><i class="fa fa-user"></i> 用户信息 </a></li>
+
+                            <li><a href="{{ URL('manager',bid~'/'~pl_name,{'mod':'pub','act':'logout'},'manager') }}"><i class="fa fa-sign-out"></i> 退出 </a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- 菜单 -->
+    <div class="main-container container-fluid">
+        <div id="loading" style="display: block;"><i class="loadingicon"></i><span>加载中</span></div>
+
+        <div class="sidebar" id="sidebar">
+            <!-- <div class="sidebar-shortcuts" id="sidebar-shortcuts">
+            </div> -->
+            {% block left_menu %}
+            <div id="nav_wraper">
+                {% block custom_lefttop_menu %}
+                {% endblock %}
+                <ul class="nav nav-list">
+                    {# 第1层菜单 #}
+                    {% if submenu %}
+                    {% for key,val in submenu %}
+                    <li>
+                        {% if not val.items %}
+                        <a href="javascript:openapp('{{ val.url }}','{{ val.id }}','{{ val.name }}',true);">
+                            <i class="fa fa-{{ val.icon|default('desktop') }}"></i>
+                                        <span class="menu-text">
+                                            {{ val.name }}
+                                        </span>
+                        </a>
+                        {% else %}
+                        <a href="#" class="dropdown-toggle">
+                            <i class="fa fa-{{ val.icon|default('desktop') }} normal"></i>
+								<span class="menu-text normal">
+									{{ val.name }}
+								</span>
+                            <b class="arrow fa fa-angle-right normal"></b>
+                        </a>
+
+                        <ul  class="submenu" {% if val.open !="no" %}style="display: block"{% endif %}>
+                            {# 第2层菜单 #}
+                            {% if val.type == 1 %}
+                            <li>
+                                <a href="javascript:openapp('{{ val.url }}','{{ val.id }}','{{ val.name }}',true);">
+                                    <i class="fa fa-caret-right"></i>
+                                        <span class="menu-text">
+                                            {{ val.name }}
+                                        </span>
+                                </a>
+                            </li>
+                            {% endif %}
+                            {% for sub_val in val.items %}
+                            <li>
+                                {% if not sub_val.items %}
+                                <a href="javascript:openapp('{{ sub_val.url }}','{{ sub_val.id }}','{{ sub_val.name }}',true);">
+                                    <i class="fa fa-caret-right"></i>
+                                        <span class="menu-text">
+                                            {{ sub_val.name }}
+                                        </span>
+                                </a>
+                                {% else %}
+                                <a href="#" class="dropdown-toggle">
+                                    <i class="fa fa-caret-right"></i>
+                                        <span class="menu-text">
+                                            {{ sub_val.name }}
+                                        </span>
+                                    <b class="arrow fa fa-angle-right"></b>
+                                </a>
+                                <ul  class="submenu">
+                                    {# 第3层菜单 #}
+                                    {% if sub_val.type == 1 %}
+                                    <li>
+                                        <a href="javascript:openapp('{{ sub_val.url }}','{{ sub_val.id }}','{{ sub_val.name }}',true);">
+                                            <i class="fa fa-caret-right"></i>
+                                        <span class="menu-text">
+                                            {{ sub_val.name }}
+                                        </span>
+                                        </a>
+                                    </li>
+                                    {% endif %}
+                                    {% for thrid_val in sub_val.items %}
+                                    <li>
+                                        <a href="javascript:openapp('{{ thrid_val.url }}','{{ thrid_val.id }}','{{ thrid_val.name }}',true);">
+                                            <i class="fa fa-caret-right"></i>
+                                        <span class="menu-text">
+                                            {{ thrid_val.name }}
+                                        </span>
+                                        </a>
+                                    </li>
+                                    {% endfor %}
+                                </ul>
+                                {% endif %}
+                            </li>
+                            {% endfor %}
+                        </ul>
+                        {% endif %}
+                    </li>
+                    {% endfor %}
+                    {% endif %}
+                </ul>
+                {% block custom_leftbottom_menu %}
+                {% endblock %}
+            </div>
+            {% endblock %}
+
+        </div>
+
+        <div id="main_content_id" class="main-content">
+            <div class="breadcrumbs" id="breadcrumbs">
+                <a id="task-pre" class="task-changebt">←</a>
+                <div id="task-content">
+                    <ul class="macro-component-tab" id="task-content-inner">
+                        <li class="macro-component-tabitem noclose" app-id="0" app-url="{{ default_frame_url }}" app-name="首页">
+                            <span class="macro-tabs-item-text">{{ default_frame_name }}</span>
+                        </li>
+                    </ul>
+                    <div style="clear:both;"></div>
+                </div>
+                <a id="task-next" class="task-changebt">→</a>
+            </div>
+
+            <div class="page-content" id="content">
+                <iframe src="{{ default_frame_url }}" style="width:100%;height: 100%;" frameborder="0" id="appiframe-0" class="appiframe"></iframe>
+            </div>
+        </div>
+    </div>
+
+
+    <script src="/wxapp/asset/js/jquery.js"></script>
+    <script src="/wxapp/asset/js/wind.js"></script>
+    <script src="/wxapp/asset/simpleboot/bootstrap/js/bootstrap.min.js"></script>
+    <script>
+    </script>
+
+    <script>
+        var ismenumin = $("#sidebar").hasClass("menu-min");
+        $(".nav-list").on( "click",function(event) {
+            var closest_a = $(event.target).closest("a");
+            if (!closest_a || closest_a.length == 0) {
+                return
+            }
+            if (!closest_a.hasClass("dropdown-toggle")) {
+                if (ismenumin && "click" == "tap" && closest_a.get(0).parentNode.parentNode == this) {
+                    var closest_a_menu_text = closest_a.find(".menu-text").get(0);
+                    if (event.target != closest_a_menu_text && !$.contains(closest_a_menu_text, event.target)) {
+                        return false
+                    }
+                }
+                return
+            }
+
+            var closest_a_next = closest_a.next().get(0);
+            if (!$(closest_a_next).is(":visible")) {
+                var closest_ul = $(closest_a_next.parentNode).closest("ul");
+                if (ismenumin && closest_ul.hasClass("nav-list")) {
+                    return
+                }
+                closest_ul.find("> .open > .submenu").each(function() {
+                    if (this != closest_a_next && !$(this.parentNode).hasClass("active")) {
+                        $(this).slideUp(150).parent().removeClass("open")
+                    }
+                });
+            }
+            if (ismenumin && $(closest_a_next.parentNode.parentNode).hasClass("nav-list")) {
+                return false;
+            }
+            $(closest_a_next).slideToggle(150).parent().toggleClass("open");
+            return false;
+        });
+        $(function(){
+            $('#toogle_left_side').click(function(){
+                var self = $(this);
+                if(self.find('i').hasClass('fa-toggle-on')){
+                    self.find('i').removeClass('fa-toggle-on').addClass('fa-toggle-off');
+                    $('#sidebar').toggle('normal',function(){
+                        $('#main_content_id').addClass('item-main-toggle-off');
+                    });
+
+                }else{
+                    self.find('i').removeClass('fa-toggle-off').addClass('fa-toggle-on');
+                    $('#sidebar').toggle('normal',function(){
+                        $('#main_content_id').removeClass('item-main-toggle-off');
+                    });
+
+                }
+
+            });
+        });
+    </script>
+    <script src="/wxapp/asset/js/common.js"></script>
+    <script src="/assets/manager/public/js/index.js"></script>
+</body>
+</html>

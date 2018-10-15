@@ -47,18 +47,19 @@ class PermissionBase extends ApiBase
         $sessions['manager_login_time'] = $session->get('manager_login_time');
         $sessions['manager_site_title_prefix'] = $session->get('manager_site_title_prefix');
         $sessions['manager_site_version'] = $session->get('manager_site_version');
+        $sessions['token'] = $session->get('token');
 
         $this->sessions = $sessions;
 
         $status = $session->get('manager_user') ? true : false;
 
-//        $model = new model\ManageMenuModel($this->service);
-//        $func_right = $model->assetPrivRight($req);
-//        if (!$func_right) {
-//            $status = false;
-//            $mess = '没有权限';
-//            $error_code = "-2";
-//        }
+        $headers = $req->getHeader();
+
+        if (!$headers['HTTP_NGTOKEN'][0] || $headers['HTTP_NGTOKEN'][0]!=$session->get('token'))  {
+            $status = false;
+            $mess = '没有权限';
+            $error_code = "-2";
+        }
 
         return [
             'status'=>$status,

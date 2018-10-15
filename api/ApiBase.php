@@ -28,18 +28,6 @@ class ApiBase extends Plugins
     public function initialize($level=0)
     {
         if($level==2){
-            $cache_key = 'manager_global_view_val';
-            $this->global_view_var = $this->service->getCache()->get($cache_key);
-
-            if (!$this->global_view_var) {
-                $model = new model\ConfigModel($this->service);
-                $config_vals = $model->getConfigInfo(['name'=>'manager_global']);
-                if ($config_vals && isset($config_vals['config'])) {
-                    $res = ng_mysql_json_safe_decode($config_vals['config']);
-                    $this->global_view_var = $res;
-                    $this->service->getCache()->set($cache_key,$this->global_view_var,3600);
-                }
-            }
             if(method_exists($this,'auth')) {
                 $auth_reponse = $this->auth();
                 if ($auth_reponse['status'] == false) {
@@ -58,7 +46,6 @@ class ApiBase extends Plugins
                     }
 
                 }
-
             }
         }
     }

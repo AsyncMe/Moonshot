@@ -6,7 +6,7 @@
  * Time: 上午12:20
  */
 
-namespace manager\model;
+namespace api\model;
 
 
 use libs\asyncme\Service;
@@ -16,10 +16,11 @@ use libs\asyncme\Service;
  * @package manager\model
  * @name 业务应用模型类
  */
-class WorksAppModel extends ManagerModel
+class WorksAppModel extends ApiModel
 {
 
     protected $app_table = 'works_app';
+    protected $app_datas_table = 'works_app_datas';
 
     /**
      * @name 应用列表
@@ -81,6 +82,18 @@ class WorksAppModel extends ManagerModel
         if (!$map['ctime']) $map['ctime'] = time();
 
         $flag = $this->db->table($this->app_table)->insertGetId($map);
+        if ($flag) {
+            $data_map = [
+                'app_sid'=>$map['app_sid'],
+                'work_id'=>$map['work_id'],
+                'company_id'=>$map['company_id'],
+                'account_id'=>$map['account_id'],
+            ];
+            $data_map['mtime'] = time();
+            $data_map['ctime'] = time();
+            $this->db->table($this->app_datas_table)->insertGetId($data_map);
+        }
+
         return $flag;
     }
 
@@ -131,18 +144,57 @@ class WorksAppModel extends ManagerModel
     {
 
         $obj = $this->db->table($this->app_table);
+        $data_obj = $this->db->table($this->app_datas_table);
         if (!$raw) {
             if (!$where['app_sid']) {
                 throw new \Exception('保存用户必须有app_sid');
             }
             $obj=$obj->where($where);
+            $data_obj=$data_obj->where($where);
         } else {
             if (!preg_match('/app_sid/is',$where[0])) {
                 throw new \Exception('保存用户必须有app_sid');
             }
             $obj=$obj->whereRaw($where[0],$where[1]);
+            $data_obj=$data_obj->whereRaw($where[0],$where[1]);
         }
+        $data_obj->delete();
         return $obj->delete();
+    }
+
+    /**
+     * @name 应用详细信息
+     * @param array $where
+     * @return array
+     */
+    public function worksDatasAppInfo($where=[])
+    {
+        $res = $this->db->table($this->app_datas_table)->where($where)->first();
+        if ($res) {
+            $res = (array) $res;
+            if($res['datas']) {
+                $res['datas'] = ng_mysql_json_safe_decode($res['datas']);
+            }
+        }
+        return $res;
+    }
+
+    /**
+     * @name 保存应用详细
+     * @param array $where
+     * @param $map
+     * @return mixed
+     * @throws \Exception
+     */
+    public function saveWorksDatasApp($where=[],$map)
+    {
+        if (!$where['app_sid']) {
+            throw new \Exception('保存用户必须有app_sid');
+        }
+        if (!$map['mtime']) $map['mtime'] = time();
+        $flag = $this->db->table($this->app_datas_table)->where($where)->update($map);
+
+        return $flag;
     }
 
 }

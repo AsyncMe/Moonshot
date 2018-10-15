@@ -6,7 +6,7 @@
  * Time: 上午12:20
  */
 
-namespace manager\model;
+namespace api\model;
 
 
 use libs\asyncme\Service;
@@ -16,7 +16,7 @@ use libs\asyncme\Service;
  * @package manager\model
  * @name 业务应用模型类
  */
-class WorksAppTemplateModel extends ManagerModel
+class WorksAppTemplateModel extends ApiModel
 {
 
 

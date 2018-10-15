@@ -64,6 +64,7 @@ $app->any('/api/{bid:[\w]+}/{pl_name:[\w]+}', function (Request $request, Respon
 
         $pl = new $pl_class(NG_ROOT.'/api/');
         $pl->setService($pl_service);
+        $pl->setView($this->api_view);
         $pl_respone = $pl->run($asyRequest);
         if ($pl_respone) {
             $response_output = $pl_respone->getType();
