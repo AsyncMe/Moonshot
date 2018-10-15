@@ -155,12 +155,76 @@ class Workapp extends PermissionBase
 
                 if ($page_index>=0) {
                     $laytout = $info['config']['lists'][$page_index];
+                    $style = $info['config']['style'][$page_index];
                 }
 
             }
             $info = [];
             $info['window'] = $window;
             $info['page'] = $laytout;
+            $style = preg_replace_callback("/(\d+?)rpx/is",function($matches){
+                $px = ceil($matches[1]/2);
+                return $px.'px';
+            },$style);
+
+            $info['style'] = $style;
+
+            $status = true;
+            $mess = '成功';
+
+            $data = [
+                'status'=>$status,
+                'info'=>$info,
+            ];
+        } catch(\Exception $e) {
+            $error = $e->getMessage();
+            $status = false;
+            $mess = '失败';
+
+            $data = [
+                'status'=>$status,
+                'error'=>$error,
+            ];
+        }
+
+        return $this->render($status,$mess,$data);
+    }
+
+    /**
+     * @name 页面样式
+     * @param RequestHelper $req
+     * @param array $preData
+     * @return \libs\asyncme\ResponeHelper
+     * @priv ask
+     */
+    public function pageStyleAction(RequestHelper $req,array $preData)
+    {
+        try{
+            $request_page_id = $req->post_datas['page_id'];
+            $work_info = $this->workInfo( $req, $preData);
+            $info = [];
+            $info['config'] = $work_info['config'];
+            $info['detail'] = $work_info['datas'];
+
+
+            if ($info['config'] && $info['config']['pages']) {
+                $page_index = -1;
+                foreach ($info['config']['pages'] as $key=>$page) {
+                    $page_id = substr(md5($page),8,16);
+                    if ($request_page_id == $page_id) {
+                        $page_index = $key;
+                        break;
+                    }
+                }
+
+
+                if ($page_index>=0) {
+                    $laytout = $info['config']['style'][$page_index];
+                }
+
+            }
+            $info = [];
+            $info['style'] = $laytout;
 
             $status = true;
             $mess = '成功';
