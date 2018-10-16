@@ -24,7 +24,7 @@ class PluginModel extends AdminModel
 
     public function create_table($create_sql)
     {
-        return $this->db->getConnection()->statement($create_sql);
+        return $this->execute($create_sql);
     }
 
     public function drop_table($table_name)
@@ -32,6 +32,10 @@ class PluginModel extends AdminModel
         return $this->db->schema()->dropIfExists($table_name);
     }
 
+    public function execute($sql)
+    {
+        return $this->db->getConnection()->statement($sql);
+    }
     public function backup_plugin_tables($plugin_name,$tables,$backup_root='')
     {
         if (!$backup_root || !is_dir($backup_root)) {

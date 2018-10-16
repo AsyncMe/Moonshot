@@ -517,15 +517,26 @@ class Plugins extends PermissionBase
                         $update_map = [];
                         //1.执行数据表
                         if ($plugin_lists['install']['table']) {
-                            if (!isset($plugin_lists['install']['table'][0])) {
+                            if (is_string($plugin_lists['install']['table']) || !isset($plugin_lists['install']['table'][0])) {
                                 $plugin_lists['install']['table'] = array($plugin_lists['install']['table']);
                             }
+
                             $parse_table_result = [];
+
                             $this->parse_xml_install_table($plugin_dao,$plugin_lists['install']['table'],$parse_table_result);
 
                             if($parse_table_result) {
                                 $update_map['install_table'] = $parse_table_result;
+                                //1.5初始化数据
+
+                                if($plugin_lists['install']['datas']) {
+                                    if (is_string($plugin_lists['install']['datas']) || !isset($plugin_lists['install']['datas'][0])) {
+                                        $plugin_lists['install']['datas'] = array($plugin_lists['install']['datas']);
+                                    }
+                                    $this->parse_xml_install_datas($plugin_dao,$plugin_lists['install']['datas']);
+                                }
                             }
+
 
                         }
 
@@ -818,7 +829,7 @@ class Plugins extends PermissionBase
     }
 
     /**
-     * 处理插件的数据表
+     * @name 处理插件的数据表
      * @param model\PluginModel $plugin_dao
      * @param array $xml
      * @param $parse_result
@@ -885,6 +896,43 @@ class Plugins extends PermissionBase
         unset($sql_parser);
 
 
+    }
+
+    /**
+     * @name 初始化数据
+     * @param model\PluginModel $plugin_dao
+     * @param array $xml
+     */
+    protected function parse_xml_install_datas(model\PluginModel $plugin_dao,array $xml)
+    {
+        $sql_parser = new PHPSQLParser();
+        $table_prefix = $plugin_dao->get_table_prefix();
+        foreach($xml as $item) {
+            $sql = trim($item);
+            $sql_parser->parse($sql);
+            $parsed = $sql_parser->parsed;
+
+            $parse_result = [];
+            if ($parsed && $parsed['INSERT']) {
+                $install_table_name = $parsed['INSERT'][1]['no_quotes']['parts'][0];
+                if(!preg_match("/^$table_prefix/is",$install_table_name)) {
+                    $real_table_name = $table_prefix.$install_table_name;
+                    $parse_result[] = $install_table_name;
+                }else {
+                    $real_table_name = $install_table_name;
+                    $table_prefix_strlen = strlen($table_prefix);
+                    $install_table_name = substr($real_table_name,$table_prefix_strlen);
+                    $parse_result[] = $install_table_name;
+                }
+            }
+
+            $table_exist = $plugin_dao->has_table($install_table_name);
+            if ($table_exist) {
+                $sql = preg_replace("/`$install_table_name`/is","`$real_table_name`",$sql);
+                $plugin_dao->execute($sql);
+            }
+        }
+        unset($sql_parser);
     }
 
 
