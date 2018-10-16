@@ -11,6 +11,7 @@ namespace libs\asyncme;
 
 class NgFileCache
 {
+    public static $instance;
     /**
      * 缓存文件存放路径
      */
@@ -34,6 +35,12 @@ class NgFileCache
 
     private $basepath;
 
+    public static function version()
+    {
+        return 1.0;
+    }
+
+
     public function __construct($path = "cache", $max_path = 100, $max_file = 50000, $gc_probality = 100)
     {
         $this->path = $path;
@@ -47,6 +54,10 @@ class NgFileCache
         $this->basepath = realpath($this->path) . DIRECTORY_SEPARATOR;
     }
 
+    public function setAsGlobal()
+    {
+        static::$instance = $this;
+    }
     /**
      * 设置缓存
      *

@@ -103,6 +103,7 @@ $container['redis'] = function ($c) {
 //文件缓存
 $container['filecache'] = function($c) {
     $file_cache = new \libs\asyncme\NgFileCache($c['settings']['filecache']['path']);
+    $file_cache->setAsGlobal();
     return $file_cache;
 };
 
