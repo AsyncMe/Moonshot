@@ -55,11 +55,23 @@ class PermissionBase extends ApiBase
 
         $headers = $req->getHeader();
 
-        if (!$headers['HTTP_NGTOKEN'][0] || $headers['HTTP_NGTOKEN'][0]!=$session->get('token'))  {
-            $status = false;
-            $mess = '没有权限';
-            $error_code = "-2";
+
+        if($req->request_method == 'GET' ) {
+            $token = $req->query_datas['token'];
+
+            if (!$token || $token !=$session->get('token'))  {
+                $status = false;
+                $mess = '没有权限';
+                $error_code = "-3";
+            }
+        } else {
+            if (!$headers['HTTP_NGTOKEN'][0] || $headers['HTTP_NGTOKEN'][0]!=$session->get('token'))  {
+                $status = false;
+                $mess = '没有权限';
+                $error_code = "-2";
+            }
         }
+
 
         return [
             'status'=>$status,

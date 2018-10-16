@@ -10,6 +10,7 @@ namespace api;
 
 use api\model;
 use libs\asyncme\RequestHelper;
+use libs\asyncme\NgFileCache;
 
 class Workapp extends PermissionBase
 {
@@ -37,6 +38,28 @@ class Workapp extends PermissionBase
     }
 
     /**
+     * @name 对元素生成唯一id
+     * @param RequestHelper $req
+     * @param array $preData
+     * @param array $lists
+     * @return array
+     * @priv allow
+     */
+    public function genItemId(RequestHelper $req,array $preData,array $lists)
+    {
+        if ($lists) {
+            foreach($lists as $key=>$val) {
+                if(!isset($val['id'])) {
+                    $lists[$key]['id'] = ng_copy_name_gen(8);
+                    if ($val['subs'] && !empty($val['subs'])) {
+                        $lists[$key]['subs'] = $this->genItemId($req,$preData,$val['subs']);
+                    }
+                }
+            }
+        }
+        return $lists;
+    }
+    /**
      * @name 获取页面配置
      * @param RequestHelper $req
      * @param array $preData
@@ -58,16 +81,33 @@ class Workapp extends PermissionBase
             'account_id'=>$request_user_id,
         ];
 
-        $work_app_model = new model\WorksAppModel($this->service);
-        $work_info = $work_app_model->worksAppInfo($where);
-        if ($work_info) {
+        $cache_key = 'work_'.$req->company_id.'_'.$request_work_id.'_'.$request_app_sid.'_'.$request_user_id;
+        $cache_key = md5($cache_key);
+        $file_cache = NgFileCache::$instance;
+        $work_cache = $file_cache->get($cache_key);
 
-            $work_detail = $work_app_model->worksDatasAppInfo($where);
-            if ($work_detail) {
-                $work_info['detail'] = $work_detail['datas'];
+        if (!$work_cache) {
+            $work_app_model = new model\WorksAppModel($this->service);
+            $work_info = $work_app_model->worksAppInfo($where);
+            if ($work_info) {
+
+                $work_detail = $work_app_model->worksDatasAppInfo($where);
+                if ($work_detail) {
+                    $work_info['detail'] = $work_detail['datas'];
+                }
+                if ($work_info['config']['lists'] && !empty($work_info['config']['lists'])) {
+                    foreach($work_info['config']['lists'] as $key=>$val) {
+
+                        $work_info['config']['lists'][$key]['layout'] = $this->genItemId($req,$preData,$val['layout']);
+                    }
+                }
+
             }
+            $file_cache->set($cache_key,$work_info);
+            $work_cache = $work_info;
         }
-        return $work_info;
+
+        return $work_cache;
     }
 
     /**
@@ -246,4 +286,45 @@ class Workapp extends PermissionBase
 
         return $this->render($status,$mess,$data);
     }
+
+    /**
+     * @name 保存页面
+     * @param RequestHelper $req
+     * @param array $preData
+     * @return \libs\asyncme\ResponeHelper
+     * @priv ask
+     */
+    public function savepageAction(RequestHelper $req,array $preData)
+    {
+        $request_work_id = $req->post_datas['work_id'];
+        $request_app_sid = $req->post_datas['app_sid'];
+        $request_user_id = $req->post_datas['user_id'];
+        if (!$request_work_id || !$request_app_sid) {
+            throw new \Exception('参数不正确');
+        }
+
+        $info = [];
+        $status = true;
+        $mess = '成功';
+
+        $data = [
+            'status'=>$status,
+            'info'=>$info,
+        ];
+        return $this->render($status,$mess,$data);
+    }
+
+    public function testAction(RequestHelper $req,array $preData)
+    {
+//        $request_work_id = $req->post_datas['work_id'];
+//        $request_app_sid = $req->post_datas['app_sid'];
+//        $request_user_id = $req->post_datas['user_id'];
+//
+//        $key = 'work_'.$req->company_id.'_'.$request_work_id.'_'.$request_app_sid.'_'.$request_user_id;
+//        $key = md5($key);
+//        $file_cache = NgFileCache::$instance;
+//        $work_cache = $file_cache->get($key);
+//        dump($work_cache);
+    }
+
 }

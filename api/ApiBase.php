@@ -34,7 +34,7 @@ class ApiBase extends Plugins
                     //欠缺时间部分
                     if ($auth_reponse['error_code']==-1) {
                         $this->redirect($auth_reponse['url']);
-                    } else if ($auth_reponse['error_code']==-2) {
+                    } else if (in_array($auth_reponse['error_code'],[-2,-3])) {
                         unset($auth_reponse['url']);
 
                         if(isset($_SERVER["HTTP_X_REQUESTED_WITH"]) && strtolower($_SERVER["HTTP_X_REQUESTED_WITH"])=="xmlhttprequest"){
